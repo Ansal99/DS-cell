@@ -142,16 +142,6 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 .gauge-lbl{font-size:.65rem;color:var(--gray);text-align:center;text-transform:uppercase;letter-spacing:.1em;}
 
 /* ── Report Type Grid ── */
-.rt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
-.rt-card{background:var(--bg-card2);border:1.5px solid rgba(46,109,164,.22);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all var(--tr);}
-.rt-card:hover{border-color:rgba(255,215,0,.35);transform:translateY(-4px);}
-.rt-card.active{border-color:var(--gold);background:rgba(255,215,0,.05);box-shadow:0 0 22px rgba(255,215,0,.1);}
-.rt-icon{font-size:2rem;margin-bottom:.5rem;}
-.rt-title{font-family:var(--font-ui);font-weight:700;font-size:1rem;color:var(--white);margin-bottom:4px;}
-.rt-sub{font-size:.72rem;color:var(--gray);margin-bottom:.5rem;}
-.rt-badge{display:inline-block;font-family:var(--font-hud);font-size:.5rem;padding:3px 10px;border-radius:10px;letter-spacing:.1em;}
-.rt-badge.ready{background:rgba(26,122,74,.15);color:var(--green-lt);border:1px solid rgba(26,122,74,.3);}
-
 /* Report params */
 .rp-wrap{background:var(--bg-card2);border:1px solid rgba(46,109,164,.22);border-radius:12px;padding:1.5rem;display:flex;flex-wrap:wrap;gap:1.5rem;margin-bottom:1.5rem;}
 .rp-row{display:flex;flex-direction:column;gap:6px;}
@@ -333,34 +323,6 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
         <div><div class="sc-title">Step 3 — Generate Report</div><div class="sc-sub">Select type &amp; parameters — exports with DS Cell logo &amp; official headers</div></div>
         <div class="sc-step">03</div>
       </div>
-
-      <div class="rt-grid">
-        <div class="rt-card active" data-type="monthly">
-          <div class="rt-icon">📅</div>
-          <div class="rt-title">Monthly</div>
-          <div class="rt-sub">Single month summary</div>
-          <div class="rt-badge ready">ACTIVE</div>
-        </div>
-        <div class="rt-card" data-type="quarterly">
-          <div class="rt-icon">📊</div>
-          <div class="rt-title">Quarterly</div>
-          <div class="rt-sub">Q1 / Q2 / Q3 / Q4</div>
-          <div class="rt-badge ready">READY</div>
-        </div>
-        <div class="rt-card" data-type="halfyearly">
-          <div class="rt-icon">🗓️</div>
-          <div class="rt-title">Half-Yearly</div>
-          <div class="rt-sub">H1 / H2 report</div>
-          <div class="rt-badge ready">READY</div>
-        </div>
-        <div class="rt-card" data-type="annual">
-          <div class="rt-icon">📆</div>
-          <div class="rt-title">Annual</div>
-          <div class="rt-sub">Full year summary</div>
-          <div class="rt-badge ready">READY</div>
-        </div>
-      </div>
-
       <div class="rp-wrap">
         <div class="rp-row">
           <label class="rp-lbl">Year</label>
@@ -375,19 +337,6 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
             <option value="4">April</option><option value="5">May</option><option value="6">June</option>
             <option value="7">July</option><option value="8">August</option><option value="9">September</option>
             <option value="10">October</option><option value="11">November</option><option value="12">December</option>
-          </select>
-        </div>
-        <div class="rp-row" id="paramQuarterRow" style="display:none;">
-          <label class="rp-lbl">Quarter</label>
-          <select class="rp-sel" id="paramQuarter">
-            <option value="1">Q1 (Jan–Mar)</option><option value="2">Q2 (Apr–Jun)</option>
-            <option value="3">Q3 (Jul–Sep)</option><option value="4">Q4 (Oct–Dec)</option>
-          </select>
-        </div>
-        <div class="rp-row" id="paramHalfRow" style="display:none;">
-          <label class="rp-lbl">Half</label>
-          <select class="rp-sel" id="paramHalf">
-            <option value="1">H1 (Jan–Jun)</option><option value="2">H2 (Jul–Dec)</option>
           </select>
         </div>
       </div>
@@ -424,178 +373,208 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 </main>
 
 <script>
-let currentFile=null,currentStats=null,reportHistory=[],selectedType='monthly';
+let currentFile=null,currentStats=null,reportHistory=[];
 
-// ── Clock ──────────────────────────────────────────────────────
-function tick(){const el=document.getElementById('dbClock');if(!el)return;el.textContent=new Date().toLocaleTimeString('en-IN',{hour12:false});}
-setInterval(tick,1000);tick();
+const fileInput = document.getElementById('fileInput');
+const uploadZone = document.getElementById('uploadZone');
+const previewBox = document.getElementById('previewBox');
+const previewTbl = document.getElementById('previewTbl');
+const previewInfo = document.getElementById('previewInfo');
+const uzProgress = document.getElementById('uzProgress');
+const pbarFill = document.getElementById('pbarFill');
+const pbarLbl = document.getElementById('pbarLbl');
+const useTrainingBtn = document.getElementById('useTrainingBtn');
+const goAnalyze = document.getElementById('goAnalyze');
+const goReport = document.getElementById('goReport');
+const navLinks = document.querySelectorAll('.sb-link');
+const sections = document.querySelectorAll('.db-section');
 
-// ── Sidebar nav ────────────────────────────────────────────────
-document.querySelectorAll('.sb-link').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const sec=btn.dataset.section;if(!sec)return;
-    document.querySelectorAll('.db-section').forEach(s=>s.classList.remove('active'));
-    document.getElementById(sec+'-section').classList.add('active');
-    document.querySelectorAll('.sb-link').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
+function showSection(sectionId) {
+  navLinks.forEach(link => {
+    link.classList.toggle('active', link.dataset.section === sectionId);
+  });
+  sections.forEach(section => {
+    section.classList.toggle('active', section.id === `${sectionId}-section`);
+  });
+}
+
+navLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    showSection(link.dataset.section);
   });
 });
 
-// ── KPI animation ──────────────────────────────────────────────
-function animKPI(id,target,suffix='',dur=1000){
-  const el=document.getElementById(id);if(!el)return;
-  let start=null;
-  function step(ts){
-    if(!start)start=ts;
-    const p=Math.min((ts-start)/dur,1),e=1-Math.pow(1-p,3);
-    el.textContent=Math.floor(e*target)+suffix;
-    if(p<1)requestAnimationFrame(step);
+function updateKpis(stats){
+  document.getElementById('kpi-total').textContent = stats.total ?? '—';
+  document.getElementById('kpi-nsn').textContent = stats.nsn_allotted ?? '—';
+  document.getElementById('kpi-fwd').textContent = stats.forwarded ?? '—';
+  document.getElementById('kpi-ret').textContent = stats.returned ?? '—';
+  document.getElementById('kpi-acc').textContent = stats.accuracy !== undefined ? `${stats.accuracy}%` : '—';
+  document.getElementById('kpi-pend').textContent = stats.pending ?? '—';
+}
+
+function renderBreakdown(containerId, statsObj, emptyText){
+  const container = document.getElementById(containerId);
+  if(!statsObj || !Object.keys(statsObj).length){
+    container.innerHTML = `<div style="color:var(--gray);padding:1rem;">${emptyText}</div>`;
+    return;
   }
-  requestAnimationFrame(step);
-}
-function updateKPIs(s){
-  animKPI('kpi-total',s.total,'',1000);
-  animKPI('kpi-nsn',s.nsn_allotted,'',1000);
-  animKPI('kpi-fwd',s.forwarded,'',1000);
-  animKPI('kpi-ret',s.returned,'',1000);
-  animKPI('kpi-acc',s.accuracy,'%',1200);
-  animKPI('kpi-pend',s.pending,'',1000);
+  const rows = Object.entries(statsObj)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,5)
+    .map(([key,val])=>`<div style="display:flex;justify-content:space-between;gap:1rem;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.08);"><span style="color:var(--white);font-size:.88rem;">${key}</span><strong style="color:var(--gold);">${val}</strong></div>`)
+    .join('');
+  container.innerHTML = rows;
 }
 
-// ── Load training stats ────────────────────────────────────────
-window.addEventListener('DOMContentLoaded',async()=>{
-  try{const r=await fetch('/training_stats');const d=await r.json();currentStats=d;updateKPIs(d);}catch(e){}
+function renderStatus(stats){
+  const container = document.getElementById('statusChart');
+  if(!stats){
+    container.innerHTML = '<div style="color:var(--gray);padding:1rem;">No status data available.</div>';
+    return;
+  }
+  container.innerHTML = `
+    <div style="display:grid;gap:.7rem;">
+      <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Forwarded</span><strong>${stats.forwarded}</strong></div>
+      <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Returned</span><strong>${stats.returned}</strong></div>
+      <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Pending</span><strong>${stats.pending}</strong></div>
+      <div style="display:flex;justify-content:space-between;color:var(--white);"><span>NSN Allotted</span><strong>${stats.nsn_allotted}</strong></div>
+    </div>
+  `;
+}
+
+function renderAccuracyGauge(stats){
+  const container = document.getElementById('accuracyGauge');
+  if(!stats){
+    container.innerHTML = '<div style="color:var(--gray);padding:1rem;">No accuracy data available.</div>';
+    return;
+  }
+  container.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:.5rem;">
+      <div style="font-size:1.8rem;font-weight:700;color:${stats.accuracy >= 80 ? '#27AE60' : stats.accuracy >=50 ? '#FFD700' : '#C0392B'};">${stats.accuracy}%</div>
+      <div style="color:var(--gray);font-size:.85rem;">Average MRC: ${stats.avg_mrc}</div>
+      <div style="color:var(--gray);font-size:.85rem;">Avg Processing Days: ${stats.avg_processing_days}</div>
+    </div>
+  `;
+}
+
+async function loadAnalysis(){
+  const payload = { filename: currentFile };
+  try{
+    const res = await fetch('/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if(data.error){
+      alert('Analysis failed: ' + data.error);
+      return false;
+    }
+    updateKpis(data);
+    renderBreakdown('dpsuBars', data.by_dpsu, 'No DPSU distribution data available.');
+    renderBreakdown('ncbBars', data.by_ncb, 'No service breakdown data available.');
+    renderBreakdown('equipBars', data.by_equipment, 'No equipment data available.');
+    renderStatus(data);
+    renderAccuracyGauge(data);
+    return true;
+  }catch(err){
+    alert('Analysis failed. Please try again.');
+    return false;
+  }
+}
+
+function renderPreview(filename, rows){
+  currentFile = filename;
+  previewBox.style.display = 'block';
+  previewInfo.textContent = `Filename: ${filename} · ${rows.length} rows`;
+  previewTbl.innerHTML = '';
+  if(!rows.length){
+    previewTbl.innerHTML = '<tr><td>No preview available</td></tr>';
+    return;
+  }
+  const cols = Object.keys(rows[0]).slice(0, 8);
+  const thead = document.createElement('thead');
+  const hrow = document.createElement('tr');
+  cols.forEach(col => { const th = document.createElement('th'); th.textContent = col; hrow.appendChild(th); });
+  thead.appendChild(hrow);
+  previewTbl.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  rows.slice(0, 5).forEach(row => {
+    const tr = document.createElement('tr');
+    cols.forEach(col => {
+      const td = document.createElement('td');
+      td.textContent = row[col] ?? '';
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  previewTbl.appendChild(tbody);
+}
+
+async function uploadFile(file){
+  uzProgress.style.display = 'block';
+  pbarFill.style.width = '0%';
+  pbarLbl.textContent = 'Uploading...';
+  const form = new FormData();
+  form.append('file', file);
+  try{
+    const res = await fetch('/upload',{method:'POST',body:form});
+    const data = await res.json();
+    if(data.error){
+      alert('Upload failed: ' + data.error);
+      return;
+    }
+    renderPreview(data.filename, data.preview);
+    document.getElementById('uploadZone').classList.remove('drag-over');
+  }catch(err){
+    alert('Upload failed. Please try again.');
+  }finally{
+    uzProgress.style.display = 'none';
+  }
+}
+
+fileInput.addEventListener('change', () => {
+  if(fileInput.files.length){
+    uploadFile(fileInput.files[0]);
+  }
 });
 
-// ── Upload ─────────────────────────────────────────────────────
-const uploadZone=document.getElementById('uploadZone');
-const fileInput=document.getElementById('fileInput');
-uploadZone.addEventListener('dragover',e=>{e.preventDefault();uploadZone.classList.add('drag-over');});
-uploadZone.addEventListener('dragleave',()=>uploadZone.classList.remove('drag-over'));
-uploadZone.addEventListener('drop',e=>{e.preventDefault();uploadZone.classList.remove('drag-over');if(e.dataTransfer.files[0])handleUpload(e.dataTransfer.files[0]);});
-fileInput.addEventListener('change',()=>{if(fileInput.files[0])handleUpload(fileInput.files[0]);});
-
-async function handleUpload(file){
-  if(!file.name.match(/\.(xlsx|xls)$/i)){alert('Please upload an Excel (.xlsx or .xls) file.');return;}
-  const prog=document.getElementById('uzProgress'),fill=document.getElementById('pbarFill'),lbl=document.getElementById('pbarLbl');
-  prog.style.display='block';
-  let pct=0;const iv=setInterval(()=>{pct=Math.min(pct+Math.random()*14,82);fill.style.width=pct+'%';},140);
-  const fd=new FormData();fd.append('file',file);
-  try{
-    const res=await fetch('/upload',{method:'POST',body:fd});
-    const data=await res.json();
-    clearInterval(iv);
-    if(data.error){lbl.textContent='Error: '+data.error;return;}
-    fill.style.width='100%';lbl.textContent='✅ Upload complete!';
-    currentFile=data.filename;
-    setTimeout(()=>{prog.style.display='none';},1000);
-    showPreview(data);
-    analyzeData(data.filename);
-  }catch(err){clearInterval(iv);lbl.textContent='Upload failed. Please try again.';}
-}
-
-document.getElementById('useTrainingBtn').addEventListener('click',()=>{
-  currentFile='final_dataset_.xlsx';
-  document.getElementById('previewInfo').textContent='Pre-loaded training dataset · 500 records';
-  document.getElementById('previewTbl').innerHTML='<tr><td style="padding:1rem;text-align:center;color:var(--gray)">Pre-loaded Defence Standardisation dataset — 500 codification records</td></tr>';
-  document.getElementById('previewBox').style.display='block';
-  analyzeData(null);
+uploadZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  uploadZone.classList.add('drag-over');
+});
+uploadZone.addEventListener('dragleave', () => {
+  uploadZone.classList.remove('drag-over');
+});
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('drag-over');
+  if(e.dataTransfer.files.length){
+    uploadFile(e.dataTransfer.files[0]);
+  }
 });
 
-function showPreview(data){
-  document.getElementById('previewInfo').textContent=`${data.rows} records · ${data.columns.length} columns`;
-  let html='<tr>'+data.columns.slice(0,10).map(c=>`<th>${c}</th>`).join('')+'</tr>';
-  data.preview.forEach(row=>{html+='<tr>'+data.columns.slice(0,10).map(c=>`<td>${row[c]??''}</td>`).join('')+'</tr>';});
-  document.getElementById('previewTbl').innerHTML=html;
-  document.getElementById('previewBox').style.display='block';
-}
+useTrainingBtn.addEventListener('click', () => {
+  currentFile = null;
+  previewBox.style.display = 'block';
+  previewInfo.textContent = 'Using built-in training dataset.';
+  previewTbl.innerHTML = '<tr><td style="padding:12px;color:#ccc;">Training dataset preview is not available in this mode.</td></tr>';
+});
 
-async function analyzeData(filename){
-  try{
-    const res=await fetch('/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename})});
-    const stats=await res.json();
-    currentStats=stats;
-    updateKPIs(stats);
-    renderCharts(stats);
-  }catch(e){console.error('Analysis failed',e);}
-}
+goAnalyze.addEventListener('click', async () => {
+  const ok = await loadAnalysis();
+  if(ok){
+    showSection('analyze');
+  }
+});
 
-// ── Go to sections ─────────────────────────────────────────────
-document.getElementById('goAnalyze').addEventListener('click',()=>clickSection('analyze'));
-document.getElementById('goReport').addEventListener('click',()=>clickSection('report'));
-function clickSection(name){
-  document.querySelectorAll('.db-section').forEach(s=>s.classList.remove('active'));
-  document.getElementById(name+'-section').classList.add('active');
-  document.querySelectorAll('.sb-link').forEach(b=>{b.classList.toggle('active',b.dataset.section===name);});
-}
-
-// ── Charts ─────────────────────────────────────────────────────
-function renderCharts(stats){
-  renderBars('dpsuBars',stats.by_dpsu,'',stats.total);
-  renderBars('ncbBars',stats.by_ncb,'ncb',stats.total);
-  renderBars('equipBars',stats.by_equipment,'eq',stats.total);
-  renderDonut(stats);
-  renderGauge(stats.accuracy);
-}
-function renderBars(cid,obj,cls,total){
-  const el=document.getElementById(cid);if(!el)return;
-  const max=Math.max(...Object.values(obj),1);
-  el.innerHTML='<div class="chart-bars">'+Object.entries(obj).map(([lbl,val])=>{
-    const pct=(val/max*100).toFixed(1);
-    return `<div class="cb-row"><div class="cb-lbl" title="${lbl}">${lbl}</div><div class="cb-track"><div class="cb-fill ${cls}" data-w="${pct}" style="width:0%"></div></div><div class="cb-val">${val}</div></div>`;
-  }).join('')+'</div>';
-  setTimeout(()=>el.querySelectorAll('.cb-fill').forEach(f=>{f.style.width=f.dataset.w+'%';}),80);
-}
-function renderDonut(stats){
-  const el=document.getElementById('statusChart');if(!el)return;
-  const total=stats.total||1;
-  const segs=[
-    {val:stats.returned,color:'#27AE60',label:'Returned'},
-    {val:stats.nsn_allotted-stats.returned,color:'#2E6DA4',label:'NSN Allotted'},
-    {val:stats.forwarded-stats.nsn_allotted,color:'#FFD700',label:'Forwarded'},
-    {val:stats.pending,color:'#C0392B',label:'Pending'},
-  ].filter(s=>s.val>0);
-  const cx=70,cy=70,r=55,ri=33;let angle=-Math.PI/2,paths='';
-  segs.forEach(s=>{
-    const ratio=s.val/total,sw=ratio*Math.PI*2;
-    const x1=cx+r*Math.cos(angle),y1=cy+r*Math.sin(angle);
-    const x2=cx+r*Math.cos(angle+sw),y2=cy+r*Math.sin(angle+sw);
-    const ix1=cx+ri*Math.cos(angle),iy1=cy+ri*Math.sin(angle);
-    const ix2=cx+ri*Math.cos(angle+sw),iy2=cy+ri*Math.sin(angle+sw);
-    const lg=sw>Math.PI?1:0;
-    paths+=`<path d="M${x1},${y1} A${r},${r} 0 ${lg},1 ${x2},${y2} L${ix2},${iy2} A${ri},${ri} 0 ${lg},0 ${ix1},${iy1} Z" fill="${s.color}" opacity=".85"/>`;
-    angle+=sw;
-  });
-  const leg=segs.map(s=>`<div class="dl-item"><div class="dl-dot" style="background:${s.color}"></div>${s.label}: <strong>${s.val}</strong></div>`).join('');
-  el.innerHTML=`<div class="donut-wrap"><svg viewBox="0 0 140 140" class="donut-svg" xmlns="http://www.w3.org/2000/svg">${paths}<circle cx="${cx}" cy="${cy}" r="${ri}" fill="var(--bg-card2)"/><text x="${cx}" y="${cy+5}" text-anchor="middle" font-family="Orbitron" font-size="12" fill="#FFD700" font-weight="700">${total}</text><text x="${cx}" y="${cy+18}" text-anchor="middle" font-family="Rajdhani" font-size="7" fill="#8899B0">TOTAL</text></svg><div class="donut-legend">${leg}</div></div>`;
-}
-function renderGauge(accuracy){
-  const el=document.getElementById('accuracyGauge');if(!el)return;
-  const pct=Math.min(accuracy,100)/100,cx=95,cy=95,r=75;
-  const startA=Math.PI,endA=Math.PI+pct*Math.PI;
-  const x1=cx+r*Math.cos(startA),y1=cy+r*Math.sin(startA);
-  const x2=cx+r*Math.cos(endA),y2=cy+r*Math.sin(endA);
-  const lg=pct>.5?1:0;
-  const color=accuracy>=80?'#27AE60':accuracy>=50?'#FFD700':'#C0392B';
-  el.innerHTML=`<div class="gauge-wrap"><svg viewBox="0 0 190 105" class="gauge-svg"><path d="M${cx-r},${cy} A${r},${r} 0 0,1 ${cx+r},${cy}" fill="none" stroke="rgba(46,109,164,.18)" stroke-width="15" stroke-linecap="round"/><path d="M${x1},${y1} A${r},${r} 0 ${lg},1 ${x2},${y2}" fill="none" stroke="${color}" stroke-width="15" stroke-linecap="round"/><text x="${cx}" y="${cy-6}" text-anchor="middle" font-family="Orbitron" font-size="20" fill="${color}" font-weight="700">${accuracy}%</text><text x="${cx}" y="${cy+12}" text-anchor="middle" font-family="Rajdhani" font-size="8" fill="#8899B0">ACCURACY</text></svg></div>`;
-}
-
-// ── Report Type Selection ──────────────────────────────────────
-document.querySelectorAll('.rt-card').forEach(card=>{
-  card.addEventListener('click',()=>{
-    document.querySelectorAll('.rt-card').forEach(c=>c.classList.remove('active'));
-    card.classList.add('active');selectedType=card.dataset.type;
-    document.getElementById('paramMonthRow').style.display=selectedType==='monthly'?'flex':'none';
-    document.getElementById('paramQuarterRow').style.display=selectedType==='quarterly'?'flex':'none';
-    document.getElementById('paramHalfRow').style.display=selectedType==='halfyearly'?'flex':'none';
-  });
+goReport.addEventListener('click', () => {
+  showSection('report');
 });
 
 // ── Generate ───────────────────────────────────────────────────
 document.getElementById('generateBtn').addEventListener('click',async()=>{
   const btn=document.getElementById('generateBtn'),txt=document.getElementById('genBtnTxt'),sp=document.getElementById('genSpinner'),rc=document.getElementById('resultCard');
   txt.style.display='none';sp.style.display='block';btn.disabled=true;rc.style.display='none';
-  const payload={report_type:selectedType,year:document.getElementById('paramYear').value,month:document.getElementById('paramMonth').value,quarter:document.getElementById('paramQuarter').value,half:document.getElementById('paramHalf').value,filename:currentFile};
+  const payload={report_type:'monthly',year:document.getElementById('paramYear').value,month:document.getElementById('paramMonth').value,filename:currentFile};
   try{
     const res=await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const data=await res.json();
@@ -618,7 +597,7 @@ function showResult(data,payload){
 
 function addHistory(data,payload){
   const months=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const lbl={monthly:`Monthly — ${months[payload.month]} ${payload.year}`,quarterly:`Quarterly — Q${payload.quarter} ${payload.year}`,halfyearly:`Half-Yearly — H${payload.half} ${payload.year}`,annual:`Annual — ${payload.year}`}[payload.report_type];
+  const lbl=`Monthly - ${months[payload.month]} ${payload.year}`;
   reportHistory.unshift({label:lbl,filename:data.filename,accuracy:data.stats.accuracy,total:data.stats.total,ts:new Date().toLocaleTimeString('en-IN',{hour12:false})});
   const hl=document.getElementById('historyList');
   hl.innerHTML=reportHistory.map(h=>`<div class="history-item"><div><div class="hi-type">${h.label}</div><div class="hi-meta">${h.total} items · Generated at ${h.ts}</div></div><div class="hi-acc">Accuracy: ${h.accuracy}%</div><div class="hi-dl"><a href="/download/${h.filename}" target="_blank">⬇ Download</a></div></div>`).join('');
@@ -646,3 +625,6 @@ document.getElementById('newReportBtn').addEventListener('click',()=>{document.g
 </script>
 </body>
 </html>
+
+
+

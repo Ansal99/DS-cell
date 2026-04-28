@@ -45,23 +45,6 @@ class DataEngine:
         last  = datetime(year, month, calendar.monthrange(year, month)[1])
         return first, last
 
-    @staticmethod
-    def quarterly_ranges(year, quarter):
-        starts = {1:(1,1), 2:(4,1), 3:(7,1), 4:(10,1)}
-        ends   = {1:(3,31),2:(6,30),3:(9,30),4:(12,31)}
-        s = starts[quarter]; e = ends[quarter]
-        return datetime(year, s[0], s[1]), datetime(year, e[0], e[1])
-
-    @staticmethod
-    def half_yearly_ranges(year, half):
-        if half == 1:
-            return datetime(year, 1, 1), datetime(year, 6, 30)
-        return datetime(year, 7, 1), datetime(year, 12, 31)
-
-    @staticmethod
-    def annual_ranges(year):
-        return datetime(year, 1, 1), datetime(year, 12, 31)
-
     def summary(self, filtered_df):
         total    = len(filtered_df)
         fwd      = filtered_df['Forward_Date'].notna().sum()     if 'Forward_Date'       in filtered_df.columns else 0
@@ -688,47 +671,7 @@ def build_monthly_report(engine, year, month):
         report_type='MONTHLY',
         period_label=mn)
 
-def build_quarterly_report(engine, year, quarter):
-    start, end = DataEngine.quarterly_ranges(year, quarter)
-    filt = engine.filter(start, end)
-    stats = engine.summary(filt)
-    rows  = engine.group_for_report(filt)
-    label = f'Q{quarter} — {year}'
-    return _build_report(stats, rows,
-        title=f'CODIFICATION SUMMARY — Q{quarter} {year}',
-        subtitle=f'Quarterly Progress Report | {label}',
-        filename_base=f'quarterly_{year}_Q{quarter}',
-        report_type='QUARTERLY',
-        period_label=label)
-
-def build_half_yearly_report(engine, year, half):
-    start, end = DataEngine.half_yearly_ranges(year, half)
-    filt = engine.filter(start, end)
-    stats = engine.summary(filt)
-    rows  = engine.group_for_report(filt)
-    label = f'H{half} — {year}'
-    return _build_report(stats, rows,
-        title=f'CODIFICATION SUMMARY — H{half} {year}',
-        subtitle=f'Half-Yearly Progress Report | {label}',
-        filename_base=f'halfyearly_{year}_H{half}',
-        report_type='HALF-YEARLY',
-        period_label=label)
-
-def build_annual_report(engine, year):
-    start, end = DataEngine.annual_ranges(year)
-    filt = engine.filter(start, end)
-    stats = engine.summary(filt)
-    rows  = engine.group_for_report(filt)
-    label = f'Annual — {year}'
-    return _build_report(stats, rows,
-        title=f'CODIFICATION SUMMARY — ANNUAL {year}',
-        subtitle=f'Annual Progress Report | {year}',
-        filename_base=f'annual_{year}',
-        report_type='ANNUAL',
-        period_label=str(year))
-
-
-# ─── Routes ──────────────────────────────────────────────────────────────────
+# Routes ──────────────────────────────────────────────────────────────────
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -778,8 +721,12 @@ def analyze():
 @app.route('/generate', methods=['POST'])
 def generate():
     data = request.json
-    report_type = data.get('report_type')
+    report_type = data.get('report_type', 'monthly')
+    if report_type != 'monthly':
+        return jsonify({'error': 'Only monthly report is supported'}), 400
+
     year = int(data.get('year', datetime.now().year))
+    month = int(data.get('month', 1))
     filename = data.get('filename')
     path = os.path.join(app.config['UPLOAD_FOLDER'], filename) if filename else TRAINING_DATA_PATH
     if not os.path.exists(path):
@@ -789,24 +736,8 @@ def generate():
     df = pd.read_excel(path)
     engine = DataEngine(df)
     try:
-        if report_type == 'monthly':
-            month = int(data.get('month', 1))
-            out = build_monthly_report(engine, year, month)
-            s, e = DataEngine.monthly_ranges(year, month)
-        elif report_type == 'quarterly':
-            quarter = int(data.get('quarter', 1))
-            out = build_quarterly_report(engine, year, quarter)
-            s, e = DataEngine.quarterly_ranges(year, quarter)
-        elif report_type == 'halfyearly':
-            half = int(data.get('half', 1))
-            out = build_half_yearly_report(engine, year, half)
-            s, e = DataEngine.half_yearly_ranges(year, half)
-        elif report_type == 'annual':
-            out = build_annual_report(engine, year)
-            s, e = DataEngine.annual_ranges(year)
-        else:
-            return jsonify({'error': 'Unknown report type'}), 400
-
+        out = build_monthly_report(engine, year, month)
+        s, e = DataEngine.monthly_ranges(year, month)
         filt  = engine.filter(s, e)
         stats = engine.summary(filt)
         return jsonify({'success': True, 'file': out, 'stats': stats,
@@ -842,3 +773,5 @@ def training_stats():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
+
