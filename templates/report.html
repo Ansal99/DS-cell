@@ -3,28 +3,59 @@
 <head>
     <title>Final Report</title>
     <style>
-        body { font-family: Arial; margin: 20px; background: #f7f9fb; color: #111; }
-        h2 { text-align: center; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { border: 1px solid #bbb; padding: 8px; text-align: center; }
+        body { font-family: Arial; margin: 20px; }
+        h2 { text-align: center; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 6px;
+            text-align: center;
+        }
+
         th { background-color: #f2f2f2; }
+
         .left { text-align: left; }
-        .signature { margin-top: 40px; display: flex; justify-content: space-between; }
-        .signature div { width: 30%; text-align: center; }
-        .signature p { margin: 0; padding-top: 60px; border-top: 1px solid #ccc; }
-        .report-meta { margin-bottom: 24px; display: flex; justify-content: space-between; gap: 16px; }
-        .report-meta div { background: #ffffff; padding: 12px 16px; border-radius: 8px; border: 1px solid #ddd; }
-        .back-link { display: inline-block; margin-bottom: 16px; padding: 10px 16px; background: #1a3f70; color: white; text-decoration: none; border-radius: 8px; }
+
+        .signature {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        table {
+            min-width: 960px;
+        }
+        .total-row td {
+            font-weight: 400;
+            background: #f2f2f2;
+            color: #111;
+        }
+        @media (max-width: 900px) {
+            body { margin: 12px; }
+            h2 { font-size: 1.4rem; }
+            table { min-width: 720px; }
+            th, td { padding: 8px 8px; font-size: .82rem; }
+            .signature { flex-direction: column; align-items: stretch; gap: 1.25rem; }
+            .signature div { width: 100%; }
+            .left { text-align: left; }
+        }
     </style>
 </head>
+
 <body>
-<a href="/dashboard" class="back-link" target="_self">← Back to Dashboard</a>
+
 <h2>CODIFICATION REPORT</h2>
-<div class="report-meta">
-    <div><strong>Report Type</strong><br/>Monthly</div>
-    <div><strong>Generated</strong><br/>{{ now.strftime('%d %B %Y %H:%M') if now else '' }}</div>
-</div>
-<table>
+
+<div class="table-wrapper">
+        <table>
     <tr>
         <th rowspan="2">S.No</th>
         <th rowspan="2">AHSP / DPSU</th>
@@ -37,6 +68,7 @@
         <th rowspan="2">% Updated</th>
         <th rowspan="2">Remarks</th>
     </tr>
+
     <tr>
         <th>Total Items Codified</th>
         <th>Fwd to DCA</th>
@@ -44,36 +76,63 @@
         <th>Returned</th>
     </tr>
 
-    {% set serial = 1 %}
+    {% set serial = namespace(value=1) %}
+    {% set totals = namespace(codified=0, fwd=0, nsn=0, returned=0) %}
+
     {% for dpsu, items in data.items() %}
         {% set rowspan = items|length %}
+        
         {% for item in items %}
+        {% set totals.codified = totals.codified + item.Total_Codified %}
+        {% set totals.fwd = totals.fwd + item.Fwd_DCA %}
+        {% set totals.nsn = totals.nsn + item.NSN %}
+        {% set totals.returned = totals.returned + item.Returned %}
         <tr>
-            <td>{{ serial }}</td>
+            <td>{{ serial.value }}</td>
+
             {% if loop.first %}
             <td rowspan="{{ rowspan }}">{{ dpsu }}</td>
             {% endif %}
+
             <td class="left">{{ item.Equipment }}</td>
+
             <td></td>
             <td></td>
+
             <td>{{ item.Total_Codified }}</td>
             <td>{{ item.Fwd_DCA }}</td>
             <td>{{ item.NSN }}</td>
             <td>{{ item.Returned }}</td>
+
             <td></td>
             <td></td>
             <td></td>
             <td></td>
         </tr>
-        {% set serial = serial + 1 %}
+
+        {% set serial.value = serial.value + 1 %}
         {% endfor %}
     {% endfor %}
+    <tr class="total-row">
+        <td>{{ serial.value }}</td>
+        <td colspan="4" class="left">TOTAL</td>
+        <td>{{ totals.codified }}</td>
+        <td>{{ totals.fwd }}</td>
+        <td>{{ totals.nsn }}</td>
+        <td>{{ totals.returned }}</td>
+        <td></td>
+        <td></td>
+        <td>{% if totals.codified > 0 %}{{ ((totals.nsn / totals.codified * 100)|round(2)) }}%{% endif %}</td>
+        <td></td>
+    </tr>
 </table>
+        </div>
 
 <div class="signature">
     <div><p>Prepared By</p></div>
     <div><p>Checked By</p></div>
     <div><p>Approved By</p></div>
 </div>
+
 </body>
 </html>

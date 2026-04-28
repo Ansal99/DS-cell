@@ -151,6 +151,46 @@ footer{position:relative;z-index:2;background:var(--navy);border-top:1px solid r
 @keyframes logo-float{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-8px) rotate(.5deg)}66%{transform:translateY(-4px) rotate(-.5deg)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes glow-pulse{0%,100%{opacity:.6}50%{opacity:1}}
+
+/* ── RESPONSIVE LAYOUTS ── */
+@media (max-width: 1100px){
+  .hero{gap:2.5rem;}
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .feat-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .hero-title .line2{font-size:2.4rem;}
+}
+
+@media (max-width: 860px){
+  nav{padding:0 1rem;height:auto;flex-wrap:wrap;justify-content:center;gap:1rem;}
+  .nav-links{flex-wrap:wrap;justify-content:center;gap:1rem;}
+  .hero{flex-direction:column;align-items:flex-start;padding:110px 4% 40px;}
+  .hero-left{width:100%;max-width:none;}
+  .hero-right{width:100%;max-width:100%;}
+  .hud{margin-top:1.5rem;}
+  .stats-grid{grid-template-columns:1fr;}
+  .hero-actions{flex-direction:column;width:100%;}
+  .btn-primary,.btn-secondary{width:100%;justify-content:center;}
+  .feat-grid{grid-template-columns:1fr;}
+  .section-hdr{flex-direction:column;align-items:flex-start;gap:1rem;}
+  .sec-line{display:none;}
+  footer{padding:2.5rem 4%;}
+  .foot-top{flex-direction:column;align-items:flex-start;gap:1.5rem;}
+  .foot-bottom{flex-direction:column;align-items:flex-start;gap:.8rem;}
+}
+
+@media (max-width: 640px){
+  .nav-logo{justify-content:center;width:100%;}
+  .nav-brand-txt{text-align:center;}
+  .nav-status{margin-left:0;justify-content:center;width:100%;}
+  .hero-title .line2{font-size:2rem;}
+  .hero-title .line3{font-size:1.5rem;}
+  .hero-desc{font-size:.95rem;}
+  .hero-right{padding:0;}
+  .hud{padding:1.4rem;}
+  .hero-actions{gap:.8rem;}
+  .feat-card{padding:1.6rem;}
+  .foot-bottom{font-size:.75rem;}
+}
 </style>
 </head>
 <body>
@@ -161,7 +201,7 @@ footer{position:relative;z-index:2;background:var(--navy);border-top:1px solid r
   <a href="#" class="nav-logo">
     <img src="{{ url_for('static', filename='img/logo.png') }}" alt="DS Cell Logo"/>
     <div class="nav-brand-txt">
-      <span>DefStd BLR</span>
+      <span>DefStd Cell BLR</span>
       <span>MEMBER AC/135 · रक्षा मंत्रालय</span>
     </div>
   </a>
@@ -198,7 +238,7 @@ footer{position:relative;z-index:2;background:var(--navy);border-top:1px solid r
     <h1 class="hero-title">
       <span class="line1">Welcome to</span>
       <span class="line2">DEFENCE</span>
-      <span class="line3">STANDARDISATION · BLR</span>
+      <span class="line3">STANDARDISATION Cell· BLR</span>
     </h1>
 
     <p class="hero-desc">
