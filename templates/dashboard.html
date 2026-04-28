@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Dashboard — DS Codification Intelligence System</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:ital,wght@0,300;0,400;0,600;0,800;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#0A1929;--navy-mid:#1B3A6B;--navy-lt:#2E6DA4;
+  --gold:#FFD700;--gold-lt:#FFC200;--gold-dk:#B8860B;
+  --red:#C0392B;--green:#1A7A4A;--green-lt:#27AE60;
+  --cyan:#00D4FF;--white:#FFFFFF;--off-white:#E8EEF6;--gray:#8899B0;
+  --bg:#050D1A;--bg-card:#0A1929;--bg-card2:#0F2035;
+  --font-hud:'Orbitron',monospace;--font-ui:'Rajdhani',sans-serif;--font-body:'Exo 2',sans-serif;
+  --tr:.3s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--off-white);display:flex;min-height:100vh;overflow-x:hidden;}
+canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35;}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,212,255,.012) 2px,rgba(0,212,255,.012) 4px);}
+
+/* ══ SIDEBAR ══════════════════════════════════════════════════════ */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:250px;z-index:50;background:rgba(5,13,26,.98);border-right:1px solid rgba(46,109,164,.25);display:flex;flex-direction:column;padding:1.2rem 0;backdrop-filter:blur(20px);}
+
+.sb-logo-row{display:flex;align-items:center;gap:12px;padding:.8rem 1.4rem 1.2rem;border-bottom:1px solid rgba(46,109,164,.2);margin-bottom:.8rem;}
+.sb-logo-img{height:48px;width:auto;filter:drop-shadow(0 0 8px rgba(255,215,0,.35));}
+.sb-logo-text{}
+.sb-logo-text .t1{font-family:var(--font-hud);font-size:.72rem;color:var(--gold);font-weight:700;}
+.sb-logo-text .t2{font-size:.6rem;color:var(--gray);font-family:var(--font-ui);}
+.sb-logo-text .t3{font-size:.55rem;color:var(--cyan);font-family:var(--font-hud);letter-spacing:.06em;}
+
+.sb-nav{display:flex;flex-direction:column;gap:3px;padding:0 .8rem;flex:1;}
+.sb-link{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:9px;color:var(--gray);text-decoration:none;font-family:var(--font-ui);font-weight:600;font-size:.9rem;transition:all var(--tr);cursor:pointer;border:none;background:none;width:100%;text-align:left;}
+.sb-link:hover{background:rgba(46,109,164,.15);color:var(--white);}
+.sb-link.active{background:linear-gradient(90deg,rgba(255,215,0,.1),rgba(255,215,0,.04));color:var(--gold);border-left:3px solid var(--gold);padding-left:11px;}
+.sb-icon{font-size:1rem;width:22px;text-align:center;flex-shrink:0;}
+.sb-step{margin-left:auto;font-family:var(--font-hud);font-size:.5rem;color:rgba(136,153,176,.5);}
+.sb-link.active .sb-step{color:rgba(255,215,0,.5);}
+
+.sb-footer{padding:1rem 1.4rem;border-top:1px solid rgba(46,109,164,.2);}
+.sb-home{display:block;margin-bottom:1rem;color:var(--gray);text-decoration:none;font-size:.82rem;font-family:var(--font-ui);transition:color var(--tr);}
+.sb-home:hover{color:var(--gold);}
+.sb-credits{font-size:.62rem;color:rgba(136,153,176,.45);font-family:var(--font-hud);line-height:1.5;}
+
+/* ══ MAIN ═════════════════════════════════════════════════════════ */
+.db-main{margin-left:250px;flex:1;min-height:100vh;padding:1.5rem 2rem 4rem;position:relative;z-index:2;}
+
+/* ── Top Bar ── */
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;padding-bottom:1.2rem;border-bottom:1px solid rgba(46,109,164,.2);}
+.topbar-left{}
+.topbar-title{font-family:var(--font-hud);font-size:1rem;font-weight:700;color:var(--white);letter-spacing:.03em;}
+.topbar-sub{font-size:.75rem;color:var(--gray);margin-top:3px;font-family:var(--font-ui);}
+.topbar-right{display:flex;align-items:center;gap:1.5rem;}
+.live-badge{display:flex;align-items:center;gap:7px;font-family:var(--font-hud);font-size:.6rem;color:var(--green-lt);letter-spacing:.1em;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green-lt);animation:pulse-g 1.8s ease-in-out infinite;}
+.db-clock{font-family:var(--font-hud);font-size:.82rem;color:var(--cyan);letter-spacing:.08em;}
+
+/* ── KPI Strip ── */
+.kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:.9rem;margin-bottom:1.8rem;}
+.kpi-box{background:var(--bg-card);border:1px solid rgba(46,109,164,.22);border-radius:11px;padding:1rem;text-align:center;transition:all var(--tr);cursor:default;}
+.kpi-box:hover{transform:translateY(-4px);border-color:rgba(46,109,164,.5);}
+.kpi-box.danger{border-color:rgba(192,57,43,.3);}
+.kpi-box.danger:hover{border-color:var(--red);}
+.kpi-val{font-family:var(--font-hud);font-size:1.6rem;font-weight:700;color:var(--white);line-height:1;}
+.kpi-val.gold{color:var(--gold);}
+.kpi-lbl{font-size:.62rem;color:var(--gray);margin-top:5px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-ui);}
+
+/* ── Sections ── */
+.db-section{display:none;}
+.db-section.active{display:block;animation:fadeIn .4s ease;}
+.section-card{background:var(--bg-card);border:1px solid rgba(46,109,164,.22);border-radius:16px;padding:2rem;}
+.sc-hdr{display:flex;align-items:center;gap:1.2rem;margin-bottom:2rem;padding-bottom:1.2rem;border-bottom:1px solid rgba(46,109,164,.18);}
+.sc-icon{font-size:2rem;}
+.sc-title{font-family:var(--font-ui);font-size:1.25rem;font-weight:700;color:var(--white);}
+.sc-sub{font-size:.8rem;color:var(--gray);margin-top:3px;}
+.sc-step{margin-left:auto;font-family:var(--font-hud);font-size:2rem;font-weight:800;color:rgba(46,109,164,.2);}
+
+/* ── Upload Zone ── */
+.upload-zone{border:2px dashed rgba(46,109,164,.35);border-radius:12px;padding:3rem 2rem;text-align:center;transition:all var(--tr);cursor:pointer;}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--gold);background:rgba(255,215,0,.025);}
+.uz-icon{font-size:3.2rem;margin-bottom:1rem;}
+.uz-title{font-family:var(--font-ui);font-size:1.1rem;font-weight:600;color:var(--white);margin-bottom:6px;}
+.uz-sub{color:var(--gray);font-size:.85rem;margin-bottom:8px;}
+.uz-formats{font-size:.68rem;color:rgba(136,153,176,.45);margin-bottom:1.5rem;font-family:var(--font-hud);}
+.btn-browse{background:transparent;border:1.5px solid rgba(46,109,164,.5);color:var(--off-white);padding:10px 28px;border-radius:8px;font-family:var(--font-ui);font-weight:600;font-size:.9rem;cursor:pointer;transition:all var(--tr);}
+.btn-browse:hover{border-color:var(--gold);color:var(--gold);}
+.uz-progress{padding-top:2rem;}
+.pbar{height:7px;background:rgba(46,109,164,.18);border-radius:4px;overflow:hidden;margin-bottom:8px;}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--navy-lt),var(--gold));border-radius:4px;width:0%;transition:width .4s;}
+.pbar-lbl{font-size:.78rem;color:var(--gray);font-family:var(--font-ui);}
+
+/* Training option */
+.use-training{text-align:center;margin-top:2rem;}
+.ut-divider{margin:.8rem 0;color:var(--gray);font-size:.75rem;}
+.btn-training{background:rgba(27,58,107,.4);border:1px solid rgba(46,109,164,.4);color:var(--off-white);padding:12px 26px;border-radius:8px;font-family:var(--font-ui);font-weight:600;font-size:.9rem;cursor:pointer;transition:all var(--tr);}
+.btn-training:hover{border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,.05);}
+.ut-note{font-size:.7rem;color:var(--gray);margin-top:6px;}
+
+/* Preview */
+.preview-box{margin-top:2rem;}
+.preview-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+.ph-title{font-family:var(--font-ui);font-weight:700;color:var(--white);}
+.ph-info{font-size:.75rem;color:var(--gold);font-family:var(--font-hud);}
+.tbl-wrap{overflow-x:auto;}
+.preview-tbl{width:100%;border-collapse:collapse;}
+.preview-tbl th{background:var(--navy);color:var(--gold);font-family:var(--font-ui);font-weight:700;font-size:.72rem;padding:8px 12px;text-align:left;white-space:nowrap;border:1px solid rgba(46,109,164,.3);text-transform:uppercase;letter-spacing:.05em;}
+.preview-tbl td{font-size:.76rem;color:var(--off-white);padding:7px 12px;border:1px solid rgba(46,109,164,.12);white-space:nowrap;}
+.preview-tbl tr:nth-child(even) td{background:rgba(27,58,107,.15);}
+.preview-tbl tr:hover td{background:rgba(46,109,164,.15);}
+
+.btn-next{display:block;width:fit-content;margin:1.5rem 0 0 auto;background:linear-gradient(135deg,var(--gold),var(--gold-lt));color:var(--navy);font-family:var(--font-ui);font-weight:800;font-size:.95rem;padding:12px 28px;border-radius:8px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(255,215,0,.35);}
+
+/* ── Analysis Grid ── */
+.analyze-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-bottom:1.4rem;}
+.ag-card{background:var(--bg-card2);border:1px solid rgba(46,109,164,.22);border-radius:12px;padding:1.5rem;}
+.ag-card.wide{grid-column:1/-1;}
+.ag-title{font-family:var(--font-ui);font-weight:700;font-size:.9rem;color:var(--white);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid rgba(46,109,164,.18);}
+
+/* Chart bars */
+.chart-bars{display:flex;flex-direction:column;gap:8px;}
+.cb-row{display:flex;align-items:center;gap:10px;}
+.cb-lbl{font-size:.72rem;color:var(--gray);width:90px;flex-shrink:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cb-track{flex:1;height:19px;background:rgba(46,109,164,.13);border-radius:4px;overflow:hidden;}
+.cb-fill{height:100%;background:linear-gradient(90deg,var(--navy-lt),var(--gold));border-radius:4px;width:0%;transition:width 1.1s cubic-bezier(.4,0,.2,1);}
+.cb-fill.ncb{background:linear-gradient(90deg,var(--green),var(--green-lt));}
+.cb-fill.eq{background:linear-gradient(90deg,var(--navy-mid),var(--cyan));}
+.cb-val{font-family:var(--font-hud);font-size:.66rem;color:var(--gold);width:36px;flex-shrink:0;}
+
+/* Donut */
+.donut-wrap{display:flex;align-items:center;gap:1.5rem;}
+.donut-svg{width:145px;height:145px;flex-shrink:0;}
+.donut-legend{display:flex;flex-direction:column;gap:7px;}
+.dl-item{display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--gray);}
+.dl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+/* Gauge */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;gap:.5rem;}
+.gauge-svg{width:190px;height:105px;}
+.gauge-num{font-family:var(--font-hud);font-size:2.2rem;font-weight:800;color:var(--gold);text-align:center;}
+.gauge-lbl{font-size:.65rem;color:var(--gray);text-align:center;text-transform:uppercase;letter-spacing:.1em;}
+
+/* ── Report Type Grid ── */
+.rt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+.rt-card{background:var(--bg-card2);border:1.5px solid rgba(46,109,164,.22);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all var(--tr);}
+.rt-card:hover{border-color:rgba(255,215,0,.35);transform:translateY(-4px);}
+.rt-card.active{border-color:var(--gold);background:rgba(255,215,0,.05);box-shadow:0 0 22px rgba(255,215,0,.1);}
+.rt-icon{font-size:2rem;margin-bottom:.5rem;}
+.rt-title{font-family:var(--font-ui);font-weight:700;font-size:1rem;color:var(--white);margin-bottom:4px;}
+.rt-sub{font-size:.72rem;color:var(--gray);margin-bottom:.5rem;}
+.rt-badge{display:inline-block;font-family:var(--font-hud);font-size:.5rem;padding:3px 10px;border-radius:10px;letter-spacing:.1em;}
+.rt-badge.ready{background:rgba(26,122,74,.15);color:var(--green-lt);border:1px solid rgba(26,122,74,.3);}
+
+/* Report params */
+.rp-wrap{background:var(--bg-card2);border:1px solid rgba(46,109,164,.22);border-radius:12px;padding:1.5rem;display:flex;flex-wrap:wrap;gap:1.5rem;margin-bottom:1.5rem;}
+.rp-row{display:flex;flex-direction:column;gap:6px;}
+.rp-lbl{font-size:.72rem;color:var(--gray);font-family:var(--font-ui);font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.rp-sel{background:var(--navy);border:1px solid rgba(46,109,164,.4);color:var(--white);font-family:var(--font-ui);font-size:.9rem;padding:9px 14px;border-radius:8px;outline:none;cursor:pointer;min-width:180px;transition:border-color var(--tr);}
+.rp-sel:focus{border-color:var(--gold);}
+
+/* Generate button */
+.btn-generate{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:linear-gradient(135deg,var(--navy-mid),var(--navy-lt));color:var(--white);font-family:var(--font-ui);font-weight:700;font-size:1.05rem;padding:16px;border-radius:10px;border:1.5px solid rgba(46,109,164,.5);cursor:pointer;transition:all var(--tr);}
+.btn-generate:hover{background:linear-gradient(135deg,var(--gold),var(--gold-lt));color:var(--navy);border-color:var(--gold);box-shadow:0 8px 26px rgba(255,215,0,.3);transform:translateY(-2px);}
+.gen-spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;}
+
+/* Result card */
+.result-card{margin-top:1.5rem;background:rgba(26,122,74,.07);border:1px solid rgba(26,122,74,.28);border-radius:12px;padding:2rem;text-align:center;animation:fadeIn .5s ease;}
+.rc-hdr{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:1.5rem;}
+.rc-icon{font-size:1.5rem;}
+.rc-title{font-family:var(--font-ui);font-weight:700;font-size:1.2rem;color:var(--green-lt);}
+.rc-stats{display:flex;flex-wrap:wrap;justify-content:center;gap:.9rem;margin-bottom:1rem;}
+.rc-stat{background:var(--bg-card);border:1px solid rgba(46,109,164,.2);border-radius:8px;padding:.8rem 1.1rem;}
+.rc-stat-val{font-family:var(--font-hud);font-size:1.3rem;font-weight:700;color:var(--white);}
+.rc-stat-lbl{font-size:.64rem;color:var(--gray);margin-top:2px;font-family:var(--font-ui);}
+.rc-acc{font-family:var(--font-hud);font-size:1rem;color:var(--gold);margin-bottom:1.5rem;letter-spacing:.07em;}
+.btn-download{display:inline-block;background:linear-gradient(135deg,var(--green),var(--green-lt));color:white;font-family:var(--font-ui);font-weight:700;font-size:1rem;padding:13px 30px;border-radius:10px;text-decoration:none;margin-right:1rem;transition:transform .2s,box-shadow .2s;}
+.btn-download:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,122,74,.4);}
+.btn-new{background:transparent;border:1.5px solid rgba(46,109,164,.4);color:var(--gray);font-family:var(--font-ui);font-size:.9rem;padding:13px 22px;border-radius:10px;cursor:pointer;transition:all var(--tr);}
+.btn-new:hover{border-color:var(--gold);color:var(--gold);}
+
+/* History */
+.history-list{display:flex;flex-direction:column;gap:.9rem;}
+.history-empty{text-align:center;color:var(--gray);padding:3rem;font-size:.9rem;}
+.history-item{display:flex;align-items:center;justify-content:space-between;background:var(--bg-card2);border:1px solid rgba(46,109,164,.18);border-radius:10px;padding:1rem 1.5rem;animation:slideLeft .3s ease;}
+.hi-type{font-family:var(--font-ui);font-weight:700;color:var(--white);font-size:.95rem;}
+.hi-meta{font-size:.7rem;color:var(--gray);margin-top:3px;}
+.hi-acc{font-family:var(--font-hud);font-size:.78rem;color:var(--gold);}
+.hi-dl a{display:inline-block;background:rgba(26,122,74,.15);border:1px solid rgba(26,122,74,.3);color:var(--green-lt);padding:6px 16px;border-radius:6px;font-size:.78rem;text-decoration:none;font-family:var(--font-ui);font-weight:600;transition:all var(--tr);}
+.hi-dl a:hover{background:rgba(26,122,74,.3);}
+
+/* ── Animations ── */
+@keyframes pulse-g{0%,100%{box-shadow:0 0 0 0 rgba(39,174,96,.6)}50%{box-shadow:0 0 0 7px rgba(39,174,96,0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideLeft{from{opacity:0;transform:translateX(-25px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="scan"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo-row">
+    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="DS Logo" class="sb-logo-img"/>
+    <div class="sb-logo-text">
+      <div class="t1">DS BLR</div>
+      <div class="t2">Report System</div>
+      <div class="t3">AC/135</div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <button class="sb-link active" data-section="upload">
+      <span class="sb-icon">⬆</span> Upload Dataset
+      <span class="sb-step">01</span>
+    </button>
+    <button class="sb-link" data-section="analyze">
+      <span class="sb-icon">🔬</span> Analyze Data
+      <span class="sb-step">02</span>
+    </button>
+    <button class="sb-link" data-section="report">
+      <span class="sb-icon">📋</span> Generate Report
+      <span class="sb-step">03</span>
+    </button>
+    <button class="sb-link" data-section="history">
+      <span class="sb-icon">📁</span> Report History
+      <span class="sb-step">04</span>
+    </button>
+  </nav>
+  <div class="sb-footer">
+    <a href="/" class="sb-home">← Back to Home</a>
+    <div class="sb-credits">Cobra Tech<br/>ABVGIET Shimla</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="db-main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 class="topbar-title">Codification Intelligence Dashboard</h1>
+      <div class="topbar-sub">Directorate of Standardisation, Bengaluru — Member AC/135</div>
+    </div>
+    <div class="topbar-right">
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+      <div class="db-clock" id="dbClock">00:00:00</div>
+    </div>
+  </div>
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi-box"><div class="kpi-val" id="kpi-total">—</div><div class="kpi-lbl">Total Items</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="kpi-nsn">—</div><div class="kpi-lbl">NSN Allotted</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="kpi-fwd">—</div><div class="kpi-lbl">Forwarded</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="kpi-ret">—</div><div class="kpi-lbl">Returned</div></div>
+    <div class="kpi-box"><div class="kpi-val gold" id="kpi-acc">—</div><div class="kpi-lbl">Accuracy %</div></div>
+    <div class="kpi-box danger"><div class="kpi-val" id="kpi-pend">—</div><div class="kpi-lbl">Pending</div></div>
+  </div>
+
+  <!-- ══ STEP 1: UPLOAD ══════════════════════════════════════════ -->
+  <section class="db-section active" id="upload-section">
+    <div class="section-card">
+      <div class="sc-hdr">
+        <div class="sc-icon">⬆</div>
+        <div><div class="sc-title">Step 1 — Upload Dataset</div><div class="sc-sub">Upload your Excel file (.xlsx) containing NSN codification data</div></div>
+        <div class="sc-step">01</div>
+      </div>
+
+      <div class="upload-zone" id="uploadZone">
+        <div class="uz-icon">📂</div>
+        <div class="uz-title">Drag & Drop Excel File Here</div>
+        <div class="uz-sub">or click to browse files</div>
+        <div class="uz-formats">Supported: .xlsx · .xls</div>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" hidden/>
+        <button class="btn-browse" onclick="document.getElementById('fileInput').click()">Choose File</button>
+        <div id="uzProgress" style="display:none;">
+          <div class="uz-progress">
+            <div class="pbar"><div class="pbar-fill" id="pbarFill"></div></div>
+            <div class="pbar-lbl" id="pbarLbl">Uploading...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="use-training">
+        <div class="ut-divider">— OR —</div>
+        <button class="btn-training" id="useTrainingBtn">🗃️ Use Pre-loaded Training Dataset (500 records)</button>
+        <p class="ut-note">Uses the Defence Standardisation dataset included with this system</p>
+      </div>
+
+      <div id="previewBox" style="display:none;">
+        <div class="preview-box">
+          <div class="preview-hdr">
+            <span class="ph-title">📋 Data Preview</span>
+            <span class="ph-info" id="previewInfo"></span>
+          </div>
+          <div class="tbl-wrap">
+            <table class="preview-tbl" id="previewTbl"></table>
+          </div>
+          <button class="btn-next" id="goAnalyze">Next: Analyze Data →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ STEP 2: ANALYZE ════════════════════════════════════════ -->
+  <section class="db-section" id="analyze-section">
+    <div class="section-card">
+      <div class="sc-hdr">
+        <div class="sc-icon">🔬</div>
+        <div><div class="sc-title">Step 2 — Data Analysis</div><div class="sc-sub">Deep-dive visual analytics on your codification dataset</div></div>
+        <div class="sc-step">02</div>
+      </div>
+
+      <div class="analyze-grid">
+        <div class="ag-card"><div class="ag-title">DPSU Distribution</div><div id="dpsuBars"></div></div>
+        <div class="ag-card"><div class="ag-title">Service-wise Breakdown (NCB)</div><div id="ncbBars"></div></div>
+        <div class="ag-card wide"><div class="ag-title">Top 10 Equipment Types</div><div id="equipBars"></div></div>
+        <div class="ag-card"><div class="ag-title">Processing Status Overview</div><div id="statusChart"></div></div>
+        <div class="ag-card"><div class="ag-title">NSN Accuracy Gauge</div><div id="accuracyGauge"></div></div>
+      </div>
+
+      <button class="btn-next" id="goReport">Next: Generate Report →</button>
+    </div>
+  </section>
+
+  <!-- ══ STEP 3: GENERATE ═══════════════════════════════════════ -->
+  <section class="db-section" id="report-section">
+    <div class="section-card">
+      <div class="sc-hdr">
+        <div class="sc-icon">📋</div>
+        <div><div class="sc-title">Step 3 — Generate Report</div><div class="sc-sub">Select type &amp; parameters — exports with DS Cell logo &amp; official headers</div></div>
+        <div class="sc-step">03</div>
+      </div>
+
+      <div class="rt-grid">
+        <div class="rt-card active" data-type="monthly">
+          <div class="rt-icon">📅</div>
+          <div class="rt-title">Monthly</div>
+          <div class="rt-sub">Single month summary</div>
+          <div class="rt-badge ready">ACTIVE</div>
+        </div>
+        <div class="rt-card" data-type="quarterly">
+          <div class="rt-icon">📊</div>
+          <div class="rt-title">Quarterly</div>
+          <div class="rt-sub">Q1 / Q2 / Q3 / Q4</div>
+          <div class="rt-badge ready">READY</div>
+        </div>
+        <div class="rt-card" data-type="halfyearly">
+          <div class="rt-icon">🗓️</div>
+          <div class="rt-title">Half-Yearly</div>
+          <div class="rt-sub">H1 / H2 report</div>
+          <div class="rt-badge ready">READY</div>
+        </div>
+        <div class="rt-card" data-type="annual">
+          <div class="rt-icon">📆</div>
+          <div class="rt-title">Annual</div>
+          <div class="rt-sub">Full year summary</div>
+          <div class="rt-badge ready">READY</div>
+        </div>
+      </div>
+
+      <div class="rp-wrap">
+        <div class="rp-row">
+          <label class="rp-lbl">Year</label>
+          <select class="rp-sel" id="paramYear">
+            <option>2026</option><option>2025</option><option>2024</option><option>2023</option>
+          </select>
+        </div>
+        <div class="rp-row" id="paramMonthRow">
+          <label class="rp-lbl">Month</label>
+          <select class="rp-sel" id="paramMonth">
+            <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+            <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+            <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+        <div class="rp-row" id="paramQuarterRow" style="display:none;">
+          <label class="rp-lbl">Quarter</label>
+          <select class="rp-sel" id="paramQuarter">
+            <option value="1">Q1 (Jan–Mar)</option><option value="2">Q2 (Apr–Jun)</option>
+            <option value="3">Q3 (Jul–Sep)</option><option value="4">Q4 (Oct–Dec)</option>
+          </select>
+        </div>
+        <div class="rp-row" id="paramHalfRow" style="display:none;">
+          <label class="rp-lbl">Half</label>
+          <select class="rp-sel" id="paramHalf">
+            <option value="1">H1 (Jan–Jun)</option><option value="2">H2 (Jul–Dec)</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-generate" id="generateBtn">
+        <span id="genBtnTxt">⚡ Generate Excel Report with DS Cell Logo</span>
+        <div class="gen-spinner" id="genSpinner" style="display:none;"></div>
+      </button>
+
+      <div class="result-card" id="resultCard" style="display:none;">
+        <div class="rc-hdr"><span class="rc-icon">✅</span><h3 class="rc-title">Report Generated Successfully!</h3></div>
+        <div class="rc-stats" id="rcStats"></div>
+        <div class="rc-acc" id="rcAcc"></div>
+        <a class="btn-download" id="downloadBtn" href="#">⬇ Download Excel Report</a>
+        <button class="btn-new" id="newReportBtn">Generate Another</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ STEP 4: HISTORY ════════════════════════════════════════ -->
+  <section class="db-section" id="history-section">
+    <div class="section-card">
+      <div class="sc-hdr">
+        <div class="sc-icon">📁</div>
+        <div><div class="sc-title">Report History</div><div class="sc-sub">Previously generated reports this session</div></div>
+        <div class="sc-step">04</div>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty">No reports generated yet. Go to Step 3 to generate your first report.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+let currentFile=null,currentStats=null,reportHistory=[],selectedType='monthly';
+
+// ── Clock ──────────────────────────────────────────────────────
+function tick(){const el=document.getElementById('dbClock');if(!el)return;el.textContent=new Date().toLocaleTimeString('en-IN',{hour12:false});}
+setInterval(tick,1000);tick();
+
+// ── Sidebar nav ────────────────────────────────────────────────
+document.querySelectorAll('.sb-link').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const sec=btn.dataset.section;if(!sec)return;
+    document.querySelectorAll('.db-section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(sec+'-section').classList.add('active');
+    document.querySelectorAll('.sb-link').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// ── KPI animation ──────────────────────────────────────────────
+function animKPI(id,target,suffix='',dur=1000){
+  const el=document.getElementById(id);if(!el)return;
+  let start=null;
+  function step(ts){
+    if(!start)start=ts;
+    const p=Math.min((ts-start)/dur,1),e=1-Math.pow(1-p,3);
+    el.textContent=Math.floor(e*target)+suffix;
+    if(p<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function updateKPIs(s){
+  animKPI('kpi-total',s.total,'',1000);
+  animKPI('kpi-nsn',s.nsn_allotted,'',1000);
+  animKPI('kpi-fwd',s.forwarded,'',1000);
+  animKPI('kpi-ret',s.returned,'',1000);
+  animKPI('kpi-acc',s.accuracy,'%',1200);
+  animKPI('kpi-pend',s.pending,'',1000);
+}
+
+// ── Load training stats ────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',async()=>{
+  try{const r=await fetch('/training_stats');const d=await r.json();currentStats=d;updateKPIs(d);}catch(e){}
+});
+
+// ── Upload ─────────────────────────────────────────────────────
+const uploadZone=document.getElementById('uploadZone');
+const fileInput=document.getElementById('fileInput');
+uploadZone.addEventListener('dragover',e=>{e.preventDefault();uploadZone.classList.add('drag-over');});
+uploadZone.addEventListener('dragleave',()=>uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop',e=>{e.preventDefault();uploadZone.classList.remove('drag-over');if(e.dataTransfer.files[0])handleUpload(e.dataTransfer.files[0]);});
+fileInput.addEventListener('change',()=>{if(fileInput.files[0])handleUpload(fileInput.files[0]);});
+
+async function handleUpload(file){
+  if(!file.name.match(/\.(xlsx|xls)$/i)){alert('Please upload an Excel (.xlsx or .xls) file.');return;}
+  const prog=document.getElementById('uzProgress'),fill=document.getElementById('pbarFill'),lbl=document.getElementById('pbarLbl');
+  prog.style.display='block';
+  let pct=0;const iv=setInterval(()=>{pct=Math.min(pct+Math.random()*14,82);fill.style.width=pct+'%';},140);
+  const fd=new FormData();fd.append('file',file);
+  try{
+    const res=await fetch('/upload',{method:'POST',body:fd});
+    const data=await res.json();
+    clearInterval(iv);
+    if(data.error){lbl.textContent='Error: '+data.error;return;}
+    fill.style.width='100%';lbl.textContent='✅ Upload complete!';
+    currentFile=data.filename;
+    setTimeout(()=>{prog.style.display='none';},1000);
+    showPreview(data);
+    analyzeData(data.filename);
+  }catch(err){clearInterval(iv);lbl.textContent='Upload failed. Please try again.';}
+}
+
+document.getElementById('useTrainingBtn').addEventListener('click',()=>{
+  currentFile='final_dataset_.xlsx';
+  document.getElementById('previewInfo').textContent='Pre-loaded training dataset · 500 records';
+  document.getElementById('previewTbl').innerHTML='<tr><td style="padding:1rem;text-align:center;color:var(--gray)">Pre-loaded Defence Standardisation dataset — 500 codification records</td></tr>';
+  document.getElementById('previewBox').style.display='block';
+  analyzeData(null);
+});
+
+function showPreview(data){
+  document.getElementById('previewInfo').textContent=`${data.rows} records · ${data.columns.length} columns`;
+  let html='<tr>'+data.columns.slice(0,10).map(c=>`<th>${c}</th>`).join('')+'</tr>';
+  data.preview.forEach(row=>{html+='<tr>'+data.columns.slice(0,10).map(c=>`<td>${row[c]??''}</td>`).join('')+'</tr>';});
+  document.getElementById('previewTbl').innerHTML=html;
+  document.getElementById('previewBox').style.display='block';
+}
+
+async function analyzeData(filename){
+  try{
+    const res=await fetch('/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({filename})});
+    const stats=await res.json();
+    currentStats=stats;
+    updateKPIs(stats);
+    renderCharts(stats);
+  }catch(e){console.error('Analysis failed',e);}
+}
+
+// ── Go to sections ─────────────────────────────────────────────
+document.getElementById('goAnalyze').addEventListener('click',()=>clickSection('analyze'));
+document.getElementById('goReport').addEventListener('click',()=>clickSection('report'));
+function clickSection(name){
+  document.querySelectorAll('.db-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(name+'-section').classList.add('active');
+  document.querySelectorAll('.sb-link').forEach(b=>{b.classList.toggle('active',b.dataset.section===name);});
+}
+
+// ── Charts ─────────────────────────────────────────────────────
+function renderCharts(stats){
+  renderBars('dpsuBars',stats.by_dpsu,'',stats.total);
+  renderBars('ncbBars',stats.by_ncb,'ncb',stats.total);
+  renderBars('equipBars',stats.by_equipment,'eq',stats.total);
+  renderDonut(stats);
+  renderGauge(stats.accuracy);
+}
+function renderBars(cid,obj,cls,total){
+  const el=document.getElementById(cid);if(!el)return;
+  const max=Math.max(...Object.values(obj),1);
+  el.innerHTML='<div class="chart-bars">'+Object.entries(obj).map(([lbl,val])=>{
+    const pct=(val/max*100).toFixed(1);
+    return `<div class="cb-row"><div class="cb-lbl" title="${lbl}">${lbl}</div><div class="cb-track"><div class="cb-fill ${cls}" data-w="${pct}" style="width:0%"></div></div><div class="cb-val">${val}</div></div>`;
+  }).join('')+'</div>';
+  setTimeout(()=>el.querySelectorAll('.cb-fill').forEach(f=>{f.style.width=f.dataset.w+'%';}),80);
+}
+function renderDonut(stats){
+  const el=document.getElementById('statusChart');if(!el)return;
+  const total=stats.total||1;
+  const segs=[
+    {val:stats.returned,color:'#27AE60',label:'Returned'},
+    {val:stats.nsn_allotted-stats.returned,color:'#2E6DA4',label:'NSN Allotted'},
+    {val:stats.forwarded-stats.nsn_allotted,color:'#FFD700',label:'Forwarded'},
+    {val:stats.pending,color:'#C0392B',label:'Pending'},
+  ].filter(s=>s.val>0);
+  const cx=70,cy=70,r=55,ri=33;let angle=-Math.PI/2,paths='';
+  segs.forEach(s=>{
+    const ratio=s.val/total,sw=ratio*Math.PI*2;
+    const x1=cx+r*Math.cos(angle),y1=cy+r*Math.sin(angle);
+    const x2=cx+r*Math.cos(angle+sw),y2=cy+r*Math.sin(angle+sw);
+    const ix1=cx+ri*Math.cos(angle),iy1=cy+ri*Math.sin(angle);
+    const ix2=cx+ri*Math.cos(angle+sw),iy2=cy+ri*Math.sin(angle+sw);
+    const lg=sw>Math.PI?1:0;
+    paths+=`<path d="M${x1},${y1} A${r},${r} 0 ${lg},1 ${x2},${y2} L${ix2},${iy2} A${ri},${ri} 0 ${lg},0 ${ix1},${iy1} Z" fill="${s.color}" opacity=".85"/>`;
+    angle+=sw;
+  });
+  const leg=segs.map(s=>`<div class="dl-item"><div class="dl-dot" style="background:${s.color}"></div>${s.label}: <strong>${s.val}</strong></div>`).join('');
+  el.innerHTML=`<div class="donut-wrap"><svg viewBox="0 0 140 140" class="donut-svg" xmlns="http://www.w3.org/2000/svg">${paths}<circle cx="${cx}" cy="${cy}" r="${ri}" fill="var(--bg-card2)"/><text x="${cx}" y="${cy+5}" text-anchor="middle" font-family="Orbitron" font-size="12" fill="#FFD700" font-weight="700">${total}</text><text x="${cx}" y="${cy+18}" text-anchor="middle" font-family="Rajdhani" font-size="7" fill="#8899B0">TOTAL</text></svg><div class="donut-legend">${leg}</div></div>`;
+}
+function renderGauge(accuracy){
+  const el=document.getElementById('accuracyGauge');if(!el)return;
+  const pct=Math.min(accuracy,100)/100,cx=95,cy=95,r=75;
+  const startA=Math.PI,endA=Math.PI+pct*Math.PI;
+  const x1=cx+r*Math.cos(startA),y1=cy+r*Math.sin(startA);
+  const x2=cx+r*Math.cos(endA),y2=cy+r*Math.sin(endA);
+  const lg=pct>.5?1:0;
+  const color=accuracy>=80?'#27AE60':accuracy>=50?'#FFD700':'#C0392B';
+  el.innerHTML=`<div class="gauge-wrap"><svg viewBox="0 0 190 105" class="gauge-svg"><path d="M${cx-r},${cy} A${r},${r} 0 0,1 ${cx+r},${cy}" fill="none" stroke="rgba(46,109,164,.18)" stroke-width="15" stroke-linecap="round"/><path d="M${x1},${y1} A${r},${r} 0 ${lg},1 ${x2},${y2}" fill="none" stroke="${color}" stroke-width="15" stroke-linecap="round"/><text x="${cx}" y="${cy-6}" text-anchor="middle" font-family="Orbitron" font-size="20" fill="${color}" font-weight="700">${accuracy}%</text><text x="${cx}" y="${cy+12}" text-anchor="middle" font-family="Rajdhani" font-size="8" fill="#8899B0">ACCURACY</text></svg></div>`;
+}
+
+// ── Report Type Selection ──────────────────────────────────────
+document.querySelectorAll('.rt-card').forEach(card=>{
+  card.addEventListener('click',()=>{
+    document.querySelectorAll('.rt-card').forEach(c=>c.classList.remove('active'));
+    card.classList.add('active');selectedType=card.dataset.type;
+    document.getElementById('paramMonthRow').style.display=selectedType==='monthly'?'flex':'none';
+    document.getElementById('paramQuarterRow').style.display=selectedType==='quarterly'?'flex':'none';
+    document.getElementById('paramHalfRow').style.display=selectedType==='halfyearly'?'flex':'none';
+  });
+});
+
+// ── Generate ───────────────────────────────────────────────────
+document.getElementById('generateBtn').addEventListener('click',async()=>{
+  const btn=document.getElementById('generateBtn'),txt=document.getElementById('genBtnTxt'),sp=document.getElementById('genSpinner'),rc=document.getElementById('resultCard');
+  txt.style.display='none';sp.style.display='block';btn.disabled=true;rc.style.display='none';
+  const payload={report_type:selectedType,year:document.getElementById('paramYear').value,month:document.getElementById('paramMonth').value,quarter:document.getElementById('paramQuarter').value,half:document.getElementById('paramHalf').value,filename:currentFile};
+  try{
+    const res=await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await res.json();
+    sp.style.display='none';txt.style.display='block';btn.disabled=false;
+    if(data.error){alert('Error: '+data.error);return;}
+    showResult(data,payload);addHistory(data,payload);
+  }catch(err){sp.style.display='none';txt.style.display='block';btn.disabled=false;alert('Failed. Please try again.');}
+});
+
+function showResult(data,payload){
+  const s=data.stats;
+  const items=[{val:s.total,lbl:'Total Items'},{val:s.forwarded,lbl:'Forwarded'},{val:s.nsn_allotted,lbl:'NSN Allotted'},{val:s.returned,lbl:'Returned'},{val:s.pending,lbl:'Pending'}];
+  document.getElementById('rcStats').innerHTML=items.map(i=>`<div class="rc-stat"><div class="rc-stat-val">${i.val}</div><div class="rc-stat-lbl">${i.lbl}</div></div>`).join('');
+  const ac=s.accuracy>=80?'#27AE60':s.accuracy>=50?'#FFD700':'#C0392B';
+  document.getElementById('rcAcc').innerHTML=`Report Accuracy: <span style="color:${ac}">${s.accuracy}%</span>`;
+  document.getElementById('downloadBtn').href='/download/'+data.filename;
+  document.getElementById('downloadBtn').textContent='⬇ Download — '+data.filename;
+  const rc=document.getElementById('resultCard');rc.style.display='block';rc.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function addHistory(data,payload){
+  const months=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const lbl={monthly:`Monthly — ${months[payload.month]} ${payload.year}`,quarterly:`Quarterly — Q${payload.quarter} ${payload.year}`,halfyearly:`Half-Yearly — H${payload.half} ${payload.year}`,annual:`Annual — ${payload.year}`}[payload.report_type];
+  reportHistory.unshift({label:lbl,filename:data.filename,accuracy:data.stats.accuracy,total:data.stats.total,ts:new Date().toLocaleTimeString('en-IN',{hour12:false})});
+  const hl=document.getElementById('historyList');
+  hl.innerHTML=reportHistory.map(h=>`<div class="history-item"><div><div class="hi-type">${h.label}</div><div class="hi-meta">${h.total} items · Generated at ${h.ts}</div></div><div class="hi-acc">Accuracy: ${h.accuracy}%</div><div class="hi-dl"><a href="/download/${h.filename}" target="_blank">⬇ Download</a></div></div>`).join('');
+}
+
+document.getElementById('newReportBtn').addEventListener('click',()=>{document.getElementById('resultCard').style.display='none';});
+
+// ── Particle canvas ────────────────────────────────────────────
+(function(){
+  const c=document.getElementById('bg-canvas'),ctx=c.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  for(let i=0;i<90;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.2+.4,a:Math.random()*.4+.08,gold:Math.random()>.75});
+  (function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.hypot(dx,dy);
+      if(d<110){ctx.beginPath();ctx.strokeStyle=`rgba(46,109,164,${.1*(1-d/110)})`;ctx.lineWidth=.5;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}
+    }
+    pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.gold?`rgba(255,215,0,${p.a})`:`rgba(0,212,255,${p.a*.6})`;ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;});
+    requestAnimationFrame(draw);
+  })();
+})();
+</script>
+</body>
+</html>

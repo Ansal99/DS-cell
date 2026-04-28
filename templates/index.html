@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Defence Standardisation — Codification Intelligence System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:ital,wght@0,100;0,300;0,400;0,600;0,800;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#0A1929;--navy-mid:#1B3A6B;--navy-lt:#2E6DA4;
+  --gold:#FFD700;--gold-lt:#FFC200;--gold-dk:#B8860B;
+  --crimson:#8B0000;--red:#C0392B;
+  --green:#1A7A4A;--green-lt:#27AE60;
+  --cyan:#00D4FF;--cyan-dk:#0099BB;
+  --white:#FFFFFF;--off-white:#E8EEF6;--gray:#8899B0;
+  --bg:#050D1A;--bg-card:#0A1929;--bg-card2:#0F2035;
+  --font-hud:'Orbitron',monospace;
+  --font-ui:'Rajdhani',sans-serif;
+  --font-body:'Exo 2',sans-serif;
+  --tr:0.3s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--off-white);overflow-x:hidden;min-height:100vh;}
+
+/* ── Canvas BG ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,212,255,.015) 2px,rgba(0,212,255,.015) 4px);}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:68px;display:flex;align-items:center;padding:0 3rem;background:rgba(5,13,26,.95);border-bottom:1px solid rgba(46,109,164,.3);backdrop-filter:blur(20px);}
+.nav-logo{display:flex;align-items:center;gap:14px;margin-right:auto;text-decoration:none;}
+.nav-logo img{height:44px;width:auto;filter:drop-shadow(0 0 8px rgba(255,215,0,.4));}
+.nav-brand-txt{display:flex;flex-direction:column;}
+.nav-brand-txt span:first-child{font-family:var(--font-hud);font-size:.85rem;font-weight:700;color:var(--gold);letter-spacing:.05em;}
+.nav-brand-txt span:last-child{font-size:.65rem;color:var(--gray);font-family:var(--font-ui);letter-spacing:.08em;}
+.nav-links{display:flex;align-items:center;gap:2.5rem;list-style:none;}
+.nav-links a{font-family:var(--font-ui);font-size:.95rem;font-weight:600;color:var(--gray);text-decoration:none;letter-spacing:.04em;position:relative;transition:color var(--tr);}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--gold);transition:width var(--tr);}
+.nav-links a:hover{color:var(--white);}
+.nav-links a:hover::after{width:100%;}
+.btn-launch{background:linear-gradient(135deg,var(--gold),var(--gold-lt));color:var(--navy)!important;font-weight:800!important;padding:8px 22px;border-radius:6px;transition:transform .2s,box-shadow .2s!important;}
+.btn-launch::after{display:none!important;}
+.btn-launch:hover{transform:translateY(-2px)!important;box-shadow:0 6px 20px rgba(255,215,0,.4)!important;}
+.nav-status{display:flex;align-items:center;gap:8px;margin-left:2rem;font-family:var(--font-hud);font-size:.6rem;color:var(--green-lt);letter-spacing:.12em;}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green-lt);animation:pulse-g 1.8s ease-in-out infinite;}
+
+/* ── HERO ── */
+.hero{position:relative;z-index:2;min-height:100vh;padding:90px 5% 60px;display:flex;align-items:center;gap:5rem;overflow:hidden;}
+.grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(46,109,164,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(46,109,164,.07) 1px,transparent 1px);background-size:55px 55px;animation:grid-move 25s linear infinite;}
+.hero-left{flex:1;max-width:700px;position:relative;z-index:2;}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-hud);font-size:.58rem;color:var(--gold);letter-spacing:.15em;background:rgba(255,215,0,.07);border:1px solid rgba(255,215,0,.25);padding:7px 18px;border-radius:20px;margin-bottom:2rem;animation:fade-down .8s ease both;}
+.badge-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse-g 2s ease-in-out infinite;}
+
+/* Logo section */
+.logo-block{display:flex;align-items:center;gap:2rem;margin-bottom:2rem;animation:fade-down .9s .1s ease both;}
+.hero-logo{height:120px;width:auto;filter:drop-shadow(0 0 20px rgba(255,215,0,.35)) drop-shadow(0 0 40px rgba(46,109,164,.3));animation:logo-float 4s ease-in-out infinite;}
+.logo-text-block{}
+.org-hindi{font-family:var(--font-ui);font-size:1.1rem;color:var(--gold);font-weight:600;margin-bottom:4px;}
+.org-eng{font-family:var(--font-ui);font-size:.85rem;color:var(--gray);letter-spacing:.04em;margin-bottom:2px;}
+.org-sub{font-family:var(--font-hud);font-size:.6rem;color:var(--cyan);letter-spacing:.1em;}
+
+/* Title */
+.hero-title{margin-bottom:1.2rem;animation:fade-up .9s .2s ease both;}
+.hero-title .line1{font-family:var(--font-ui);font-size:1rem;color:var(--gray);letter-spacing:.25em;text-transform:uppercase;display:block;margin-bottom:4px;}
+.hero-title .line2{font-family:var(--font-hud);font-size:3rem;font-weight:900;color:var(--white);line-height:1;text-transform:uppercase;text-shadow:0 0 40px rgba(46,109,164,.5);display:block;}
+.hero-title .line3{font-family:var(--font-hud);font-size:2rem;font-weight:700;color:var(--gold);text-transform:uppercase;display:block;margin-top:4px;}
+
+.hero-desc{color:var(--gray);font-size:1rem;line-height:1.8;margin-bottom:2.5rem;animation:fade-up 1s .3s ease both;}
+.hero-desc strong{color:var(--off-white);}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:2.5rem;animation:fade-up 1s .4s ease both;}
+.stat-card{background:rgba(27,58,107,.25);border:1px solid rgba(46,109,164,.3);border-radius:12px;padding:18px 12px;text-align:center;transition:all var(--tr);cursor:default;}
+.stat-card:hover{border-color:var(--gold);transform:translateY(-5px);box-shadow:0 12px 30px rgba(255,215,0,.1);}
+.stat-num{font-family:var(--font-hud);font-size:1.9rem;font-weight:800;color:var(--gold);line-height:1;}
+.stat-lbl{font-size:.65rem;color:var(--gray);margin-top:6px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-ui);}
+
+/* Buttons */
+.hero-actions{display:flex;gap:1rem;animation:fade-up 1s .5s ease both;}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--gold),var(--gold-lt));color:var(--navy);font-family:var(--font-ui);font-weight:800;font-size:1rem;letter-spacing:.05em;padding:15px 32px;border-radius:8px;text-decoration:none;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(255,215,0,.45);}
+.btn-primary .shine{position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transform:translateX(-200%);transition:transform .6s;}
+.btn-primary:hover .shine{transform:translateX(200%);}
+.btn-secondary{display:inline-flex;align-items:center;background:transparent;color:var(--off-white);font-family:var(--font-ui);font-weight:600;font-size:1rem;padding:15px 28px;border-radius:8px;text-decoration:none;border:1.5px solid rgba(255,255,255,.2);transition:border-color var(--tr),color var(--tr);}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ── HUD Panel right ── */
+.hero-right{flex-shrink:0;width:300px;position:relative;z-index:2;animation:fade-left 1s .4s ease both;}
+.hud{background:rgba(10,25,41,.9);border:1px solid rgba(46,109,164,.4);border-radius:14px;padding:1.6rem;backdrop-filter:blur(16px);box-shadow:0 0 50px rgba(0,212,255,.06),0 20px 60px rgba(0,0,0,.5);}
+.hud-top{text-align:center;margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid rgba(46,109,164,.2);}
+.hud-logo{height:55px;margin-bottom:.6rem;filter:drop-shadow(0 0 8px rgba(255,215,0,.3));}
+.hud-title{font-family:var(--font-hud);font-size:.62rem;color:var(--cyan);letter-spacing:.18em;}
+.hud-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(46,109,164,.1);}
+.hud-lbl{font-size:.75rem;color:var(--gray);font-family:var(--font-ui);}
+.hud-val{font-family:var(--font-hud);font-size:.62rem;letter-spacing:.08em;}
+.hud-val.ok{color:var(--green-lt);}
+.hud-val.warn{color:#F39C12;}
+.hud-val.gold{color:var(--gold);}
+.hud-val.cyan{color:var(--cyan);}
+.hud-divider{margin:10px 0;border-top:1px solid rgba(46,109,164,.25);}
+.hud-bar{margin-top:12px;}
+.hb-label{font-size:.68rem;color:var(--gray);margin-bottom:5px;font-family:var(--font-ui);}
+.hb-track{background:rgba(46,109,164,.15);border-radius:4px;height:7px;overflow:hidden;}
+.hb-fill{height:100%;background:linear-gradient(90deg,var(--navy-lt),var(--cyan));border-radius:4px;transition:width 1.5s cubic-bezier(.4,0,.2,1);}
+.hb-fill.green{background:linear-gradient(90deg,var(--green),var(--green-lt));}
+.hb-fill.gold-fill{background:linear-gradient(90deg,var(--gold-dk),var(--gold));}
+
+/* ── MEMBER AC badge ── */
+.member-badge{margin-top:1rem;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:8px;padding:.8rem;text-align:center;}
+.mb-title{font-family:var(--font-hud);font-size:.55rem;color:var(--gold);letter-spacing:.12em;margin-bottom:4px;}
+.mb-val{font-family:var(--font-hud);font-size:.95rem;font-weight:700;color:var(--white);}
+
+/* ── FEATURES ── */
+.features{position:relative;z-index:2;padding:5rem 5%;background:linear-gradient(180deg,transparent,rgba(10,25,41,.5));}
+.section-hdr{display:flex;align-items:center;gap:1.5rem;justify-content:center;margin-bottom:3.5rem;}
+.sec-line{flex:1;max-width:180px;height:1px;background:linear-gradient(90deg,transparent,rgba(46,109,164,.5));}
+.sec-line:last-child{background:linear-gradient(90deg,rgba(46,109,164,.5),transparent);}
+.sec-title{font-family:var(--font-hud);font-size:1.2rem;font-weight:700;color:var(--white);white-space:nowrap;letter-spacing:.05em;}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1100px;margin:0 auto;}
+.feat-card{background:var(--bg-card);border:1px solid rgba(46,109,164,.2);border-radius:14px;padding:2rem;transition:all var(--tr);position:relative;overflow:hidden;cursor:default;}
+.feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);transition:transform var(--tr);}
+.feat-card:hover{transform:translateY(-7px);border-color:rgba(255,215,0,.3);box-shadow:0 16px 50px rgba(0,0,0,.45);}
+.feat-card:hover::before{transform:scaleX(1);}
+.feat-icon{font-size:2.5rem;margin-bottom:1rem;}
+.feat-card h3{font-family:var(--font-ui);font-size:1.1rem;font-weight:700;color:var(--white);margin-bottom:.6rem;}
+.feat-card p{font-size:.85rem;color:var(--gray);line-height:1.7;margin-bottom:1rem;}
+.feat-tag{display:inline-block;font-family:var(--font-hud);font-size:.52rem;color:var(--gold);border:1px solid rgba(255,215,0,.3);padding:3px 10px;border-radius:12px;letter-spacing:.1em;}
+
+/* ── FOOTER ── */
+footer{position:relative;z-index:2;background:var(--navy);border-top:1px solid rgba(46,109,164,.3);padding:3rem 5%;}
+.foot-top{display:flex;justify-content:space-between;align-items:flex-start;gap:2rem;margin-bottom:2rem;}
+.foot-logo-row{display:flex;align-items:center;gap:14px;margin-bottom:.8rem;}
+.foot-logo-row img{height:48px;filter:drop-shadow(0 0 6px rgba(255,215,0,.3));}
+.foot-brand-name{font-family:var(--font-hud);font-size:1rem;color:var(--gold);font-weight:700;}
+.foot-brand-sub{font-size:.78rem;color:var(--gray);margin-top:2px;}
+.foot-info-label{font-family:var(--font-hud);font-size:.55rem;color:var(--gold);letter-spacing:.1em;margin-bottom:.5rem;}
+.foot-info p{font-size:.8rem;color:var(--gray);line-height:1.6;max-width:400px;}
+.foot-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:1.5rem;border-top:1px solid rgba(46,109,164,.2);font-size:.78rem;color:var(--gray);}
+.foot-bottom strong{color:var(--gold);}
+
+/* ── ANIMATIONS ── */
+@keyframes pulse-g{0%,100%{box-shadow:0 0 0 0 rgba(39,174,96,.6)}50%{box-shadow:0 0 0 7px rgba(39,174,96,0)}}
+@keyframes fade-down{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:none}}
+@keyframes fade-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes fade-left{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes grid-move{to{background-position:55px 55px}}
+@keyframes logo-float{0%,100%{transform:translateY(0) rotate(0deg)}33%{transform:translateY(-8px) rotate(.5deg)}66%{transform:translateY(-4px) rotate(-.5deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes glow-pulse{0%,100%{opacity:.6}50%{opacity:1}}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="scan"></div>
+
+<nav>
+  <a href="#" class="nav-logo">
+    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="DS Cell Logo"/>
+    <div class="nav-brand-txt">
+      <span>DefStd BLR</span>
+      <span>MEMBER AC/135 · रक्षा मंत्रालय</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="/dashboard" class="btn-launch">⚡ Launch System</a></li>
+  </ul>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    SYSTEM ONLINE
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="home" class="hero">
+  <div class="grid-bg"></div>
+
+  <div class="hero-left">
+    <div class="badge">
+      <div class="badge-dot"></div>
+      CLASSIFIED — AUTHORISED DEFENCE PERSONNEL ONLY
+    </div>
+
+    <div class="logo-block">
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Directorate of Standardisation" class="hero-logo"/>
+      <div class="logo-text-block">
+        <div class="org-hindi">मानकीकरण निदेशालय, सदस्य ए सी/135</div>
+        <div class="org-eng">Directorate of Standardisation</div>
+        <div class="org-sub">MEMBER AC/135 · MINISTRY OF DEFENCE</div>
+      </div>
+    </div>
+
+    <h1 class="hero-title">
+      <span class="line1">Welcome to</span>
+      <span class="line2">DEFENCE</span>
+      <span class="line3">STANDARDISATION · BLR</span>
+    </h1>
+
+    <p class="hero-desc">
+      <strong>Advanced Codification Intelligence System</strong> — NSN Management, Multi-Period Reporting & DPSU Analytics.<br/>
+      Engineered for Directorate of Standardisation, Bengaluru. <br/>
+      रक्षा मंत्रालय · भारत सरकार
+    </p>
+
+    <div class="stats-grid">
+      <div class="stat-card" data-val="500">
+        <div class="stat-num" data-target="500">0</div>
+        <div class="stat-lbl">Items Processed</div>
+      </div>
+      <div class="stat-card" data-val="17">
+        <div class="stat-num" data-target="17">0</div>
+        <div class="stat-lbl">Data Parameters</div>
+      </div>
+      <div class="stat-card" data-val="4">
+        <div class="stat-num" data-target="4">0</div>
+        <div class="stat-lbl">Report Types</div>
+      </div>
+      <div class="stat-card" data-val="99">
+        <div class="stat-num" data-target="99">0</div>
+        <div class="stat-lbl">Accuracy Engine %</div>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <a href="/dashboard" class="btn-primary">
+        <span>▶</span> Launch Dashboard
+        <div class="shine"></div>
+      </a>
+      <a href="#features" class="btn-secondary">Explore Features</a>
+    </div>
+  </div>
+
+  <!-- HUD right panel -->
+  <div class="hero-right">
+    <div class="hud">
+      <div class="hud-top">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="hud-logo"/>
+        <div class="hud-title">SYSTEM STATUS CONSOLE</div>
+      </div>
+      <div class="hud-row"><span class="hud-lbl">Analytics Engine</span><span class="hud-val ok">ONLINE</span></div>
+      <div class="hud-row"><span class="hud-lbl">Report Generator</span><span class="hud-val ok">READY</span></div>
+      <div class="hud-row"><span class="hud-lbl">NSN Database</span><span class="hud-val ok">SYNCED</span></div>
+      <div class="hud-row"><span class="hud-lbl">Export Module</span><span class="hud-val warn">STANDBY</span></div>
+      <div class="hud-row"><span class="hud-lbl">Classification</span><span class="hud-val gold">RESTRICTED</span></div>
+      <div class="hud-row"><span class="hud-lbl">Organisation</span><span class="hud-val cyan">DPSU/AHSP</span></div>
+      <div class="hud-divider"></div>
+      <div class="hud-bar">
+        <div class="hb-label">System Load</div>
+        <div class="hb-track"><div class="hb-fill" style="width:0%" data-w="32%"></div></div>
+      </div>
+      <div class="hud-bar" style="margin-top:8px;">
+        <div class="hb-label">Data Integrity</div>
+        <div class="hb-track"><div class="hb-fill green" style="width:0%" data-w="98%"></div></div>
+      </div>
+      <div class="hud-bar" style="margin-top:8px;">
+        <div class="hb-label">NSN Accuracy</div>
+        <div class="hb-track"><div class="hb-fill gold-fill" style="width:0%" data-w="85%"></div></div>
+      </div>
+      <div class="member-badge">
+        <div class="mb-title">MEMBER IDENTIFICATION</div>
+        <div class="mb-val">AC / 135</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="features">
+  <div class="section-hdr">
+    <div class="sec-line"></div>
+    <h2 class="sec-title">SYSTEM CAPABILITIES</h2>
+    <div class="sec-line"></div>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <h3>Intelligent Data Analysis</h3>
+      <p>Upload any Excel dataset with NSN codification data. Engine auto-parses, validates and generates deep analytics with DPSU-wise breakdown.</p>
+      <div class="feat-tag">AI POWERED</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📅</div>
+      <h3>Multi-Period Reports</h3>
+      <p>Generate Monthly, Quarterly, Half-Yearly and Annual codification summaries matching official Defence Standardisation format.</p>
+      <div class="feat-tag">4 REPORT TYPES</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🎯</div>
+      <h3>NSN Accuracy Metrics</h3>
+      <p>Every report includes accuracy %, NSN allotment tracking, pending analysis, forwarding status and complete processing timeline.</p>
+      <div class="feat-tag">REAL-TIME STATS</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📁</div>
+      <h3>Professional Excel Export</h3>
+      <p>Reports exported as fully formatted Excel files with DS Cell logo, official headers, colour-coded KPIs and signature blocks.</p>
+      <div class="feat-tag">OFFICIAL FORMAT</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🏛️</div>
+      <h3>DPSU / AsHSP Tracking</h3>
+      <p>Track items across BEL, HAL, BEML, BHEL, MIDHANI and all DPSUs. Service-wise breakdown for Army, Navy and Air Force.</p>
+      <div class="feat-tag">MULTI-DPSU</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔒</div>
+      <h3>Secure Offline Operation</h3>
+      <p>Fully operational without internet. All processing runs locally — sensitive defence codification data never leaves your premises.</p>
+      <div class="feat-tag">SECURE &amp; LOCAL</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-top">
+    <div>
+      <div class="foot-logo-row">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo"/>
+        <div>
+          <div class="foot-brand-name">DS BLR — Member AC/135</div>
+          <div class="foot-brand-sub">Directorate of Standardisation, Bengaluru</div>
+        </div>
+      </div>
+      <div style="font-size:.75rem;color:var(--gray);font-family:var(--font-ui);">मानकीकरण निदेशालय · रक्षा मंत्रालय · भारत सरकार</div>
+    </div>
+    <div class="foot-info">
+      <div class="foot-info-label">FOR OFFICIAL USE ONLY</div>
+      <p>This system is intended for authorised personnel of Defence Standardisation, Bengaluru only. Unauthorised access is strictly prohibited.</p>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 Directorate of Standardisation, Ministry of Defence, Govt. of India</span>
+    <span>Developed by <strong>Cobra Tech, ABVGIET Shimla</strong></span>
+  </div>
+</footer>
+
+<script>
+// ── Particle Canvas ──────────────────────────────────────────────
+(function(){
+  const c=document.getElementById('bg-canvas'),ctx=c.getContext('2d');
+  let W,H,pts=[],raf;
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  for(let i=0;i<130;i++)pts.push({
+    x:Math.random()*W,y:Math.random()*H,
+    vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,
+    r:Math.random()*1.4+.4,a:Math.random()*.45+.08,
+    gold:Math.random()>.75
+  });
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.hypot(dx,dy);
+        if(d<130){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(46,109,164,${.12*(1-d/130)})`;
+          ctx.lineWidth=.5;
+          ctx.moveTo(pts[i].x,pts[i].y);
+          ctx.lineTo(pts[j].x,pts[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    pts.forEach(p=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.gold?`rgba(255,215,0,${p.a})`:`rgba(0,212,255,${p.a*.5})`;
+      ctx.fill();
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1;
+      if(p.y<0||p.y>H)p.vy*=-1;
+    });
+    raf=requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── Animate HUD bars on load ────────────────────────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  setTimeout(()=>{
+    document.querySelectorAll('.hb-fill').forEach(el=>{el.style.width=el.dataset.w;});
+  },800);
+
+  // Counter animation
+  document.querySelectorAll('.stat-num').forEach(el=>{
+    const target=parseInt(el.dataset.target);
+    let start=null;
+    const dur=1800;
+    function step(ts){
+      if(!start)start=ts;
+      const p=Math.min((ts-start)/dur,1);
+      const e=1-Math.pow(1-p,3);
+      el.textContent=Math.floor(e*target)+(p>=1&&el.closest('.stat-card').dataset.val==='99'?'%':'');
+      if(p<1)requestAnimationFrame(step);
+    }
+    const obs=new IntersectionObserver(entries=>{
+      if(entries[0].isIntersecting){requestAnimationFrame(step);obs.disconnect();}
+    },{threshold:.5});
+    obs.observe(el);
+  });
+
+  // Feature cards stagger
+  document.querySelectorAll('.feat-card').forEach((card,i)=>{
+    card.style.opacity='0';card.style.transform='translateY(30px)';
+    const obs=new IntersectionObserver(entries=>{
+      if(entries[0].isIntersecting){
+        setTimeout(()=>{
+          card.style.transition='opacity .6s ease,transform .6s ease';
+          card.style.opacity='1';card.style.transform='none';
+        },i*90);
+        obs.disconnect();
+      }
+    },{threshold:.3});
+    obs.observe(card);
+  });
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click',e=>{
+      const t=document.querySelector(a.getAttribute('href'));
+      if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}
+    });
+  });
+});
+</script>
+</body>
+</html>
