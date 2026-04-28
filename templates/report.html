@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Final Report</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f7f9fb; color: #111; }
+        h2 { text-align: center; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { border: 1px solid #bbb; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        .left { text-align: left; }
+        .signature { margin-top: 40px; display: flex; justify-content: space-between; }
+        .signature div { width: 30%; text-align: center; }
+        .signature p { margin: 0; padding-top: 60px; border-top: 1px solid #ccc; }
+        .report-meta { margin-bottom: 24px; display: flex; justify-content: space-between; gap: 16px; }
+        .report-meta div { background: #ffffff; padding: 12px 16px; border-radius: 8px; border: 1px solid #ddd; }
+        .back-link { display: inline-block; margin-bottom: 16px; padding: 10px 16px; background: #1a3f70; color: white; text-decoration: none; border-radius: 8px; }
+    </style>
+</head>
+<body>
+<a href="/dashboard" class="back-link" target="_self">← Back to Dashboard</a>
+<h2>CODIFICATION REPORT</h2>
+<div class="report-meta">
+    <div><strong>Report Type</strong><br/>Monthly</div>
+    <div><strong>Generated</strong><br/>{{ now.strftime('%d %B %Y %H:%M') if now else '' }}</div>
+</div>
+<table>
+    <tr>
+        <th rowspan="2">S.No</th>
+        <th rowspan="2">AHSP / DPSU</th>
+        <th rowspan="2">Equipment Name</th>
+        <th rowspan="2">Codification Target (25-27)</th>
+        <th rowspan="2">As per DPSUs AHSP MRLs</th>
+        <th colspan="4">PROGRESS</th>
+        <th rowspan="2">Updation Target (25-27)</th>
+        <th rowspan="2">Updation Done</th>
+        <th rowspan="2">% Updated</th>
+        <th rowspan="2">Remarks</th>
+    </tr>
+    <tr>
+        <th>Total Items Codified</th>
+        <th>Fwd to DCA</th>
+        <th>NSN Allotted</th>
+        <th>Returned</th>
+    </tr>
+
+    {% set serial = 1 %}
+    {% for dpsu, items in data.items() %}
+        {% set rowspan = items|length %}
+        {% for item in items %}
+        <tr>
+            <td>{{ serial }}</td>
+            {% if loop.first %}
+            <td rowspan="{{ rowspan }}">{{ dpsu }}</td>
+            {% endif %}
+            <td class="left">{{ item.Equipment }}</td>
+            <td></td>
+            <td></td>
+            <td>{{ item.Total_Codified }}</td>
+            <td>{{ item.Fwd_DCA }}</td>
+            <td>{{ item.NSN }}</td>
+            <td>{{ item.Returned }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        {% set serial = serial + 1 %}
+        {% endfor %}
+    {% endfor %}
+</table>
+
+<div class="signature">
+    <div><p>Prepared By</p></div>
+    <div><p>Checked By</p></div>
+    <div><p>Approved By</p></div>
+</div>
+</body>
+</html>

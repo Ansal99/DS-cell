@@ -10,6 +10,7 @@ from openpyxl.chart.series import DataPoint
 import os, io, json, base64
 from datetime import datetime
 import calendar
+from report_generator import generate_report
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -720,31 +721,25 @@ def analyze():
 
 @app.route('/generate', methods=['POST'])
 def generate():
-    data = request.json
-    report_type = data.get('report_type', 'monthly')
-    if report_type != 'monthly':
-        return jsonify({'error': 'Only monthly report is supported'}), 400
+    if 'file' in request.files:
+        file = request.files['file']
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(filepath)
+    else:
+        filename = request.form.get('filename')
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) if filename else TRAINING_DATA_PATH
 
-    year = int(data.get('year', datetime.now().year))
-    month = int(data.get('month', 1))
-    filename = data.get('filename')
-    path = os.path.join(app.config['UPLOAD_FOLDER'], filename) if filename else TRAINING_DATA_PATH
-    if not os.path.exists(path):
-        path = TRAINING_DATA_PATH
-    if not os.path.exists(path):
-        return jsonify({'error': 'No dataset available. Please upload an Excel file first.'}), 404
-    df = pd.read_excel(path)
-    engine = DataEngine(df)
+    year = request.form.get('year')
+    month = request.form.get('month')
+
+    if not os.path.exists(filepath):
+        return render_template('index.html', error='No dataset available. Please upload an Excel file first.')
+
     try:
-        out = build_monthly_report(engine, year, month)
-        s, e = DataEngine.monthly_ranges(year, month)
-        filt  = engine.filter(s, e)
-        stats = engine.summary(filt)
-        return jsonify({'success': True, 'file': out, 'stats': stats,
-                        'filename': os.path.basename(out)})
+        report = generate_report(filepath, year=year, month=month)
+        return render_template('report.html', data=report, now=datetime.now())
     except Exception as ex:
-        import traceback
-        return jsonify({'error': str(ex), 'trace': traceback.format_exc()}), 500
+        return render_template('index.html', error=f'Report generation failed: {str(ex)}')
 
 @app.route('/download/<filename>')
 def download(filename):

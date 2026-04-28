@@ -341,18 +341,15 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
         </div>
       </div>
 
-      <button class="btn-generate" id="generateBtn">
-        <span id="genBtnTxt">⚡ Generate Excel Report with DS Cell Logo</span>
+      <form id="generateForm" action="/generate" method="post" target="_blank">
+        <input type="hidden" name="filename" id="filenameField" value="" />
+        <input type="hidden" name="year" id="yearField" value="" />
+        <input type="hidden" name="month" id="monthField" value="" />
+      </form>
+      <button type="button" class="btn-generate" id="generateBtn">
+        <span id="genBtnTxt">⚡ Generate HTML Report</span>
         <div class="gen-spinner" id="genSpinner" style="display:none;"></div>
       </button>
-
-      <div class="result-card" id="resultCard" style="display:none;">
-        <div class="rc-hdr"><span class="rc-icon">✅</span><h3 class="rc-title">Report Generated Successfully!</h3></div>
-        <div class="rc-stats" id="rcStats"></div>
-        <div class="rc-acc" id="rcAcc"></div>
-        <a class="btn-download" id="downloadBtn" href="#">⬇ Download Excel Report</a>
-        <button class="btn-new" id="newReportBtn">Generate Another</button>
-      </div>
     </div>
   </section>
 
@@ -571,39 +568,13 @@ goReport.addEventListener('click', () => {
 });
 
 // ── Generate ───────────────────────────────────────────────────
-document.getElementById('generateBtn').addEventListener('click',async()=>{
-  const btn=document.getElementById('generateBtn'),txt=document.getElementById('genBtnTxt'),sp=document.getElementById('genSpinner'),rc=document.getElementById('resultCard');
-  txt.style.display='none';sp.style.display='block';btn.disabled=true;rc.style.display='none';
-  const payload={report_type:'monthly',year:document.getElementById('paramYear').value,month:document.getElementById('paramMonth').value,filename:currentFile};
-  try{
-    const res=await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    const data=await res.json();
-    sp.style.display='none';txt.style.display='block';btn.disabled=false;
-    if(data.error){alert('Error: '+data.error);return;}
-    showResult(data,payload);addHistory(data,payload);
-  }catch(err){sp.style.display='none';txt.style.display='block';btn.disabled=false;alert('Failed. Please try again.');}
+document.getElementById('generateBtn').addEventListener('click',()=>{
+  document.getElementById('filenameField').value = currentFile || '';
+  document.getElementById('yearField').value = document.getElementById('paramYear').value;
+  document.getElementById('monthField').value = document.getElementById('paramMonth').value;
+  document.getElementById('generateForm').submit();
 });
 
-function showResult(data,payload){
-  const s=data.stats;
-  const items=[{val:s.total,lbl:'Total Items'},{val:s.forwarded,lbl:'Forwarded'},{val:s.nsn_allotted,lbl:'NSN Allotted'},{val:s.returned,lbl:'Returned'},{val:s.pending,lbl:'Pending'}];
-  document.getElementById('rcStats').innerHTML=items.map(i=>`<div class="rc-stat"><div class="rc-stat-val">${i.val}</div><div class="rc-stat-lbl">${i.lbl}</div></div>`).join('');
-  const ac=s.accuracy>=80?'#27AE60':s.accuracy>=50?'#FFD700':'#C0392B';
-  document.getElementById('rcAcc').innerHTML=`Report Accuracy: <span style="color:${ac}">${s.accuracy}%</span>`;
-  document.getElementById('downloadBtn').href='/download/'+data.filename;
-  document.getElementById('downloadBtn').textContent='⬇ Download — '+data.filename;
-  const rc=document.getElementById('resultCard');rc.style.display='block';rc.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-
-function addHistory(data,payload){
-  const months=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const lbl=`Monthly - ${months[payload.month]} ${payload.year}`;
-  reportHistory.unshift({label:lbl,filename:data.filename,accuracy:data.stats.accuracy,total:data.stats.total,ts:new Date().toLocaleTimeString('en-IN',{hour12:false})});
-  const hl=document.getElementById('historyList');
-  hl.innerHTML=reportHistory.map(h=>`<div class="history-item"><div><div class="hi-type">${h.label}</div><div class="hi-meta">${h.total} items · Generated at ${h.ts}</div></div><div class="hi-acc">Accuracy: ${h.accuracy}%</div><div class="hi-dl"><a href="/download/${h.filename}" target="_blank">⬇ Download</a></div></div>`).join('');
-}
-
-document.getElementById('newReportBtn').addEventListener('click',()=>{document.getElementById('resultCard').style.display='none';});
 
 // ── Particle canvas ────────────────────────────────────────────
 (function(){
