@@ -146,6 +146,230 @@ def style_cell(c, value=None, bold=False, fg='000000', bg=None, size=9,
     return c
 
 
+# ─── Excel Export from report_data (HTML report ke saath) ────────────────────
+def build_excel_from_report_data(report_data, heading, filename_base):
+    """
+    report_data: dict {dpsu: [{Equipment, Total_Codified, Fwd_DCA, NSN, Returned}, ...]}
+    heading: str - report heading
+    Returns: path to saved xlsx file
+    """
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'Codification Report'
+    ws.sheet_view.showGridLines = False
+    ws.sheet_view.zoomScale = 90
+
+    # Column widths matching report.html table
+    col_widths = [6, 22, 38, 18, 20, 18, 14, 14, 14, 18, 16, 14, 16]
+    for i, w in enumerate(col_widths, 1):
+        ws.column_dimensions[get_column_letter(i)].width = w
+
+    # Row 1: Heading only
+    ws.row_dimensions[1].height = 32
+    ws.merge_cells('A1:M1')
+    c = ws['A1']
+    c.value = heading
+    c.font  = Font(bold=True, color=C['white'], size=12, name='Calibri')
+    c.fill  = fill(C['navy_mid'])
+    c.alignment = Alignment(horizontal='center', vertical='center')
+
+    # Table Headers rows 2-3
+    ws.row_dimensions[2].height = 28
+    ws.row_dimensions[3].height = 28
+
+    group_hdrs = [
+        ('A2:A3',  'S.No'),
+        ('B2:B3',  'AHSP / DPSU'),
+        ('C2:C3',  'Equipment Name'),
+        ('D2:D3',  'Codification\nTarget (25-27)'),
+        ('E2:E3',  'As per DPSUs\nAHSP MRLs'),
+        ('F2:I2',  'PROGRESS'),
+        ('J2:J3',  'Updation\nTarget (25-27)'),
+        ('K2:K3',  'Updation\nDone'),
+        ('L2:L3',  '% Updated'),
+        ('M2:M3',  'Remarks'),
+    ]
+    for merge_r, label in group_hdrs:
+        ws.merge_cells(merge_r)
+        start = merge_r.split(':')[0]
+        c = ws[start]
+        c.value = label
+        c.font  = Font(bold=True, color=C['gold'], size=8, name='Calibri')
+        c.fill  = fill(C['total_bg'])
+        c.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        c.border = thick_border()
+
+    sub_hdrs = [
+        ('F3', 'Total Items\nCodified'),
+        ('G3', 'Fwd to\nDCA'),
+        ('H3', 'NSN\nAllotted'),
+        ('I3', 'Returned'),
+    ]
+    for cell_ref, label in sub_hdrs:
+        c = ws[cell_ref]
+        c.value = label
+        c.font  = Font(bold=True, color=C['white'], size=7, name='Calibri')
+        c.fill  = fill(C['navy'])
+        c.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        c.border = thick_border()
+
+    # Data Rows start at row 4
+    current_row = 4
+    sno = 1
+    total_codified = 0
+    total_fwd = 0
+    total_nsn = 0
+    total_returned = 0
+
+    for dpsu, items in report_data.items():
+        for item_idx, item in enumerate(items):
+            bg = C['alt1'] if current_row % 2 == 0 else C['alt2']
+            ws.row_dimensions[current_row].height = 18
+
+            # S.No
+            c = ws.cell(row=current_row, column=1)
+            style_cell(c, sno, bold=True, fg=C['navy_mid'], bg=bg, size=9)
+
+            # DPSU
+            c = ws.cell(row=current_row, column=2)
+            style_cell(c, dpsu if item_idx == 0 else '', bold=(item_idx == 0),
+                       fg=C['navy_mid'], bg=bg, align='left', wrap=True, size=8)
+
+            # Equipment
+            c = ws.cell(row=current_row, column=3)
+            style_cell(c, item['Equipment'], bg=bg, align='left', wrap=True, size=8, fg='1A1A2E')
+
+            # Codification Target (empty)
+            c = ws.cell(row=current_row, column=4)
+            style_cell(c, '', bg=bg, fg='888888', size=8)
+
+            # As per DPSU MRL (empty)
+            c = ws.cell(row=current_row, column=5)
+            style_cell(c, '', bg=bg, fg='888888', size=8)
+
+            # Total Items Codified
+            c = ws.cell(row=current_row, column=6)
+            val = item['Total_Codified']
+            style_cell(c, val, bg=bg, fg=C['green'] if val > 0 else '999999', bold=(val > 0), size=9)
+
+            # Fwd to DCA
+            c = ws.cell(row=current_row, column=7)
+            val = item['Fwd_DCA']
+            style_cell(c, val, bg=bg, fg=C['green'] if val > 0 else '999999', bold=(val > 0), size=9)
+
+            # NSN Allotted
+            c = ws.cell(row=current_row, column=8)
+            val = item['NSN']
+            style_cell(c, val, bg=bg, fg=C['green'] if val > 0 else '999999', bold=(val > 0), size=9)
+
+            # Returned
+            c = ws.cell(row=current_row, column=9)
+            val = item['Returned']
+            style_cell(c, val, bg=bg, fg=C['green'] if val > 0 else '999999', bold=(val > 0), size=9)
+
+            # Updation Target (empty)
+            c = ws.cell(row=current_row, column=10)
+            style_cell(c, '', bg=bg, fg='888888', size=8)
+
+            # Updation Done (empty)
+            c = ws.cell(row=current_row, column=11)
+            style_cell(c, '', bg=bg, fg='888888', size=8)
+
+            # % Updated (empty)
+            c = ws.cell(row=current_row, column=12)
+            style_cell(c, '', bg=bg, fg='888888', size=8)
+
+            # Remarks (empty)
+            c = ws.cell(row=current_row, column=13)
+            style_cell(c, '', bg=bg, fg='888888', size=8)
+
+            total_codified += item['Total_Codified']
+            total_fwd      += item['Fwd_DCA']
+            total_nsn      += item['NSN']
+            total_returned += item['Returned']
+            sno += 1
+            current_row += 1
+
+    # ── Total Row ──────────────────────────────────────────────────────────
+    ws.row_dimensions[current_row].height = 24
+
+    ws.merge_cells(f'A{current_row}:E{current_row}')
+    c = ws[f'A{current_row}']
+    c.value = f'{sno}    G R A N D   T O T A L'
+    c.font  = Font(bold=True, color=C['gold'], size=10, name='Calibri')
+    c.fill  = fill(C['total_bg'])
+    c.alignment = Alignment(horizontal='center', vertical='center')
+    c.border = gold_border()
+
+    total_vals = [total_codified, total_fwd, total_nsn, total_returned]
+    for col_off, val in enumerate(total_vals, 6):
+        c = ws.cell(row=current_row, column=col_off)
+        c.value = val
+        c.font  = Font(bold=True, color=C['gold'], size=10, name='Calibri')
+        c.fill  = fill(C['total_bg'])
+        c.alignment = Alignment(horizontal='center', vertical='center')
+        c.border = gold_border()
+
+    # Columns 10, 11 (Updation target, done) - empty in total
+    for col_off in [10, 11]:
+        c = ws.cell(row=current_row, column=col_off)
+        c.value = ''
+        c.font  = Font(bold=True, color=C['gray'], size=10, name='Calibri')
+        c.fill  = fill(C['total_bg'])
+        c.alignment = Alignment(horizontal='center', vertical='center')
+        c.border = gold_border()
+
+    # % Updated - BLANK in total row (as requested)
+    c = ws.cell(row=current_row, column=12)
+    c.value = ''
+    c.font  = Font(bold=True, color=C['gray'], size=10, name='Calibri')
+    c.fill  = fill(C['total_bg'])
+    c.alignment = Alignment(horizontal='center', vertical='center')
+    c.border = gold_border()
+
+    # Remarks - empty
+    c = ws.cell(row=current_row, column=13)
+    c.value = ''
+    c.font  = Font(bold=True, color=C['gray'], size=10, name='Calibri')
+    c.fill  = fill(C['total_bg'])
+    c.alignment = Alignment(horizontal='center', vertical='center')
+    c.border = gold_border()
+
+    # ── Signature Block ────────────────────────────────────────────────────
+    sig_row = current_row + 3
+    sig_data = [
+        ('A', 'D', 'Prepared By'),
+        ('E', 'I', 'Checked By / DS Member'),
+        ('J', 'M', 'Approved By / Dir Std'),
+    ]
+    for sc, ec, label in sig_data:
+        ws.merge_cells(f'{sc}{sig_row}:{ec}{sig_row}')
+        c = ws[f'{sc}{sig_row}']
+        style_cell(c, '', bg=C['gray_lt'], border=True, fg='666666', size=8)
+        ws.row_dimensions[sig_row].height = 14
+
+        ws.merge_cells(f'{sc}{sig_row+1}:{ec}{sig_row+1}')
+        ws.row_dimensions[sig_row+1].height = 35
+        c = ws[f'{sc}{sig_row+1}']
+        c.fill = fill(C['off_white'])
+        c.border = thin_border()
+
+        ws.merge_cells(f'{sc}{sig_row+2}:{ec}{sig_row+2}')
+        ws.row_dimensions[sig_row+2].height = 18
+        c = ws[f'{sc}{sig_row+2}']
+        style_cell(c, '_' * 30, fg='333333', bg=C['off_white'], border=True, size=9)
+
+        ws.merge_cells(f'{sc}{sig_row+3}:{ec}{sig_row+3}')
+        ws.row_dimensions[sig_row+3].height = 14
+        c = ws[f'{sc}{sig_row+3}']
+        style_cell(c, label, bold=True, fg=C['navy_mid'], bg=C['gray_lt'],
+                   border=True, size=9, align='center')
+
+    out_path = os.path.join('reports', f'{filename_base}.xlsx')
+    wb.save(out_path)
+    return out_path
+
+
 # ─── Main Report Builder ─────────────────────────────────────────────────────
 def _build_report(stats, rows, title, subtitle, filename_base, report_type, period_label):
     wb = Workbook()
@@ -164,7 +388,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         ws.column_dimensions[get_column_letter(i)].width = w
 
     # ── ROW 1-2: Logo + Header ────────────────────────────────────────
-    # Logo image (rows 1-4, col A-B)
     if os.path.exists(LOGO_PATH):
         try:
             img = XLImage(LOGO_PATH)
@@ -175,11 +398,9 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         except Exception:
             pass
 
-    # Row heights for header section
     for r, h in [(1,28),(2,28),(3,28),(4,28),(5,36),(6,28),(7,40),(8,46)]:
         ws.row_dimensions[r].height = h
 
-    # Org header — rows 1-4, cols C-M (logo occupies A-B)
     ws.merge_cells('C1:M1')
     c = ws['C1']
     c.value = 'भारत सरकार / GOVERNMENT OF INDIA'
@@ -208,12 +429,10 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     c.fill  = fill(C['navy_mid'])
     c.alignment = Alignment(horizontal='center', vertical='center')
 
-    # Fill logo area rows 1-4 with navy background
     for r in range(1, 5):
         for col in ['A', 'B']:
             ws[f'{col}{r}'].fill = fill(C['navy'])
 
-    # ── ROW 5: Decorative separator
     ws.merge_cells('A5:M5')
     c = ws['A5']
     c.value = '★  CODIFICATION INTELLIGENCE SYSTEM  ★'
@@ -225,7 +444,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         bottom=Side(style='double', color=C['gold_dk'])
     )
 
-    # ── ROW 6: Report Title
     ws.merge_cells('A6:M6')
     c = ws['A6']
     c.value = title
@@ -233,7 +451,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     c.fill  = fill(C['navy_mid'])
     c.alignment = Alignment(horizontal='center', vertical='center')
 
-    # ── ROW 7: Subtitle / period
     ws.merge_cells('A7:M7')
     c = ws['A7']
     c.value = subtitle
@@ -241,7 +458,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     c.fill  = fill(C['navy'])
     c.alignment = Alignment(horizontal='center', vertical='center')
 
-    # ── ROW 8: Meta strip
     ws.merge_cells('A8:D8')
     c = ws['A8']
     c.value = f'Report Type: {report_type}   |   Period: {period_label}'
@@ -267,19 +483,9 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     c.alignment = Alignment(horizontal='right', vertical='center')
     c.border = thin_border('CCCCCC')
 
-    # ── ROWS 9-10: KPI Dashboard Strip
     ws.row_dimensions[9].height = 14
     ws.row_dimensions[10].height = 38
 
-    kpi_configs = [
-        ('TOTAL ITEMS', stats['total'],        'A10:C10', C['navy_mid']),
-        ('FWD TO DCA',  stats['forwarded'],     'D10:F10', C['navy_lt']),
-        ('NSN ALLOTTED',stats['nsn_allotted'],  'G10:I10', C['green']),
-        ('RETURNED',    stats['returned'],       'J10:K10', C['green']),
-        ('PENDING',     stats['pending'],        'L10:M10', C['red']),
-    ]
-
-    # Row 9 - labels
     kpi_label_ranges = ['A9:C9','D9:F9','G9:I9','J9:K9','L9:M9']
     kpi_labels = ['TOTAL ITEMS','FWD TO DCA','NSN ALLOTTED','RETURNED','PENDING']
     kpi_bgs    = [C['navy_mid'], C['navy_lt'], C['green'], '1D6A40', C['red']]
@@ -305,12 +511,10 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         c.alignment = Alignment(horizontal='center', vertical='center')
         c.border = gold_border()
 
-    # ── ROWS 11-12: Table Headers
     ws.row_dimensions[11].height = 12
     ws.row_dimensions[12].height = 14
     ws.row_dimensions[13].height = 42
 
-    # Blank separator row
     ws.merge_cells('A11:M11')
     ws['A11'].fill = fill(C['gold'])
     ws['A11'].border = Border(
@@ -318,7 +522,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         bottom=Side(style='thin', color=C['gold_dk'])
     )
 
-    # Row 12: main column group header
     group_hdrs = [
         ('A12:A13', 'S.No'),
         ('B12:B13', 'AsHSP / DPSU'),
@@ -339,7 +542,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         c.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
         c.border = thick_border()
 
-    # Row 13: Sub-headers
     sub_hdrs = [
         ('D13', 'Codification\nTarget'),
         ('E13', 'As per DPSU\nMRL'),
@@ -358,7 +560,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         c.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
         c.border = thick_border()
 
-    # ── DATA ROWS ──────────────────────────────────────────────────────
     current_row = 14
     dpsu_groups = {}
     for r in rows:
@@ -374,42 +575,34 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
             acc = round(item['nsn_allotted'] / item['total_items'] * 100, 1) if item['total_items'] else 0
             ws.row_dimensions[current_row].height = 18
 
-            # S.No
             c = ws.cell(row=current_row, column=1)
             style_cell(c, sno if item_idx == 0 else '', bold=True, fg=C['navy_mid'], bg=bg, size=9)
 
-            # DPSU
             c = ws.cell(row=current_row, column=2)
             style_cell(c, dpsu if item_idx == 0 else '', bold=(item_idx==0),
                        fg=C['navy_mid'] if item_idx==0 else '555555', bg=bg, align='left', wrap=True, size=8)
 
-            # Equipment
             c = ws.cell(row=current_row, column=3)
             style_cell(c, item['equipment'], bg=bg, align='left', wrap=True, size=8, fg='1A1A2E')
 
-            # Targets (empty placeholder cols)
             for col in [4, 5]:
                 c = ws.cell(row=current_row, column=col)
                 style_cell(c, '', bg=bg, fg='888888', size=8)
 
-            # Progress cols
             prog_vals = [item['total_items'], item['forwarded'], item['nsn_allotted'], item['returned']]
             for col_off, val in enumerate(prog_vals, 6):
                 c = ws.cell(row=current_row, column=col_off)
                 vfg = C['green'] if val > 0 else '999999'
                 style_cell(c, val, bg=bg, fg=vfg, bold=(val > 0), size=9)
 
-            # Updation
             for col in [10, 11]:
                 c = ws.cell(row=current_row, column=col)
                 style_cell(c, '', bg=bg, fg='888888', size=8)
 
-            # Accuracy
             c = ws.cell(row=current_row, column=12)
             acc_fg = C['green'] if acc >= 80 else (C['gold_dk'] if acc >= 50 else C['red'])
             style_cell(c, f'{acc}%', bg=bg, fg=acc_fg, bold=True, size=9)
 
-            # Remarks
             c = ws.cell(row=current_row, column=13)
             style_cell(c, '', bg=bg, fg='888888', size=8)
 
@@ -417,7 +610,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
 
         sno += 1
 
-    # ── TOTAL ROW ──────────────────────────────────────────────────────
     ws.row_dimensions[current_row].height = 24
     ws.merge_cells(f'A{current_row}:C{current_row}')
     c = ws[f'A{current_row}']
@@ -438,7 +630,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         c.alignment = Alignment(horizontal='center', vertical='center')
         c.border = gold_border()
 
-    # ── SIGNATURE BLOCK ────────────────────────────────────────────────
     sig_row = current_row + 3
     ws.row_dimensions[sig_row].height = 14
     ws.row_dimensions[sig_row + 3].height = 14
@@ -469,7 +660,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         style_cell(c, label, bold=True, fg=C['navy_mid'], bg=C['gray_lt'],
                    border=True, size=9, align='center')
 
-    # ── FOOTER ─────────────────────────────────────────────────────────
     foot_row = sig_row + 5
     ws.merge_cells(f'A{foot_row}:M{foot_row}')
     c = ws[f'A{foot_row}']
@@ -491,7 +681,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     for i, w in enumerate(col_w2, 1):
         ws2.column_dimensions[get_column_letter(i)].width = w
 
-    # Logo in sheet 2
     if os.path.exists(LOGO_PATH):
         try:
             img2 = XLImage(LOGO_PATH)
@@ -528,12 +717,10 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     c.fill  = fill(C['navy'])
     c.alignment = Alignment(horizontal='center', vertical='center')
 
-    # Separator
     ws2.merge_cells('A4:G4')
     ws2['A4'].fill = fill(C['gold'])
     ws2.row_dimensions[4].height = 8
 
-    # Headers
     ws2.row_dimensions[5].height = 32
     h2_labels = ['S.No', 'DPSU / AsHSP', 'Total Items', 'NSN Allotted', 'Returned', 'Pending', 'Accuracy %']
     for col_idx, label in enumerate(h2_labels, 1):
@@ -567,7 +754,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
             c.border = thin_border()
         row2 += 1
 
-    # Total row for sheet 2
     ws2.row_dimensions[row2].height = 22
     ws2.merge_cells(f'A{row2}:B{row2}')
     c = ws2[f'A{row2}']
@@ -652,7 +838,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
                        align='left' if col_idx == 2 else 'center', size=9, bold=(col_idx==1),
                        wrap=(col_idx==2))
 
-    # ── Save ──────────────────────────────────────────────────────────
     out_path = os.path.join('reports', f'{filename_base}.xlsx')
     wb.save(out_path)
     return out_path
@@ -746,7 +931,15 @@ def generate():
 
     try:
         report = generate_report(filepath)
-        return render_template('report.html', data=report, now=datetime.now(), heading=heading, last_report_filename=None)
+
+        # ── Generate Excel from same report_data ──────────────────────────
+        ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+        excel_filename_base = f'report_{ts}'
+        excel_path = build_excel_from_report_data(report, heading, excel_filename_base)
+        excel_filename = os.path.basename(excel_path)
+
+        return render_template('report.html', data=report, now=datetime.now(),
+                               heading=heading, last_report_filename=excel_filename)
     except Exception as ex:
         return render_template('index.html', error=f'Report generation failed: {str(ex)}')
 
