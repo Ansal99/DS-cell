@@ -293,9 +293,18 @@ def build_excel_from_report_data(report_data, heading, filename_base):
     # ── Total Row ──────────────────────────────────────────────────────────
     ws.row_dimensions[current_row].height = 24
 
-    ws.merge_cells(f'A{current_row}:E{current_row}')
-    c = ws[f'A{current_row}']
-    c.value = f'{sno}    G R A N D   T O T A L'
+    # S.No in column A
+    c = ws.cell(row=current_row, column=1)
+    c.value = sno
+    c.font  = Font(bold=True, color=C['gold'], size=10, name='Calibri')
+    c.fill  = fill(C['total_bg'])
+    c.alignment = Alignment(horizontal='center', vertical='center')
+    c.border = gold_border()
+
+    # TOTAL label in B:E merged
+    ws.merge_cells(f'B{current_row}:E{current_row}')
+    c = ws[f'B{current_row}']
+    c.value = 'TOTAL'
     c.font  = Font(bold=True, color=C['gold'], size=10, name='Calibri')
     c.fill  = fill(C['total_bg'])
     c.alignment = Alignment(horizontal='center', vertical='center')
