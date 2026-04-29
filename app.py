@@ -666,7 +666,7 @@ def build_monthly_report(engine, year, month):
     rows  = engine.group_for_report(filt)
     mn    = start.strftime('%B %Y').upper()
     return _build_report(stats, rows,
-        title=f'CODIFICATION SUMMARY — {mn}',
+        title=f'CODIFICATION SUMMARY FOR THE MONTH OF {mn}',
         subtitle=f'Monthly Progress Report | {mn}',
         filename_base=f'monthly_{year}_{month:02d}',
         report_type='MONTHLY',
@@ -735,9 +735,33 @@ def generate():
     if not os.path.exists(filepath):
         return render_template('index.html', error='No dataset available. Please upload an Excel file first.')
 
+    # Determine month/year string for heading
+    month = request.form.get('month')
+    year = request.form.get('year')
+    month_name = ''
+    if month and year:
+        try:
+            month_name = datetime(1900, int(month), 1).strftime('%B').upper() + f' {year}'
+        except Exception:
+            month_name = ''
+    heading = f'CODIFICATION SUMMARY FOR THE MONTH OF {month_name}' if month_name else 'CODIFICATION SUMMARY'
+
     try:
+        # Generate HTML report data
         report = generate_report(filepath, year=year, month=month)
-        return render_template('report.html', data=report, now=datetime.now())
+        
+        # Generate Excel file for download using the existing build_monthly_report function
+        if year and month:
+            df = pd.read_excel(filepath, engine='openpyxl')
+            engine = DataEngine(df)
+            excel_filename = f"monthly_{year}_{int(month):02d}.xlsx"
+            build_monthly_report(engine, int(year), int(month))
+            excel_filename = f"monthly_{year}_{int(month):02d}.xlsx"
+        else:
+            # Default filename if no month/year selected
+            excel_filename = f"report_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
+        
+        return render_template('report.html', data=report, now=datetime.now(), heading=heading, last_report_filename=excel_filename)
     except Exception as ex:
         return render_template('index.html', error=f'Report generation failed: {str(ex)}')
 
@@ -768,5 +792,3 @@ def training_stats():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
-
-

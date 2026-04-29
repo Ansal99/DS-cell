@@ -52,7 +52,13 @@
 
 <body>
 
-<h2>CODIFICATION REPORT</h2>
+<h2>{{ heading }}</h2>
+
+<div style="text-align:right; margin-bottom:10px;">
+    {% if last_report_filename %}
+        <a href="/download/{{ last_report_filename }}" class="btn" style="padding:8px 18px; background:#1B3A6B; color:#fff; border-radius:4px; text-decoration:none; font-weight:bold;">Download Excel Report</a>
+    {% endif %}
+</div>
 
 <div class="table-wrapper">
         <table>
