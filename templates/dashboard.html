@@ -604,6 +604,16 @@ goReport.addEventListener('click', () => {
   showSection('report');
 });
 
+function updateDashboardClock(){
+  const clock = document.getElementById('dbClock');
+  if(!clock) return;
+  const pad = num => String(num).padStart(2, '0');
+  const now = new Date();
+  clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+}
+updateDashboardClock();
+setInterval(updateDashboardClock, 1000);
+
 // ── Generate ───────────────────────────────────────────────────
 document.getElementById('generateBtn').addEventListener('click',()=>{
   document.getElementById('filenameField').value = currentFile || '';

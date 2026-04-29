@@ -735,9 +735,7 @@ def generate():
     if not os.path.exists(filepath):
         return render_template('index.html', error='No dataset available. Please upload an Excel file first.')
 
-    # Determine month/year string for heading
-    month = request.form.get('month')
-    year = request.form.get('year')
+    # Determine month/year string for heading only
     month_name = ''
     if month and year:
         try:
@@ -747,21 +745,8 @@ def generate():
     heading = f'CODIFICATION SUMMARY FOR THE MONTH OF {month_name}' if month_name else 'CODIFICATION SUMMARY'
 
     try:
-        # Generate HTML report data
-        report = generate_report(filepath, year=year, month=month)
-        
-        # Generate Excel file for download using the existing build_monthly_report function
-        if year and month:
-            df = pd.read_excel(filepath, engine='openpyxl')
-            engine = DataEngine(df)
-            excel_filename = f"monthly_{year}_{int(month):02d}.xlsx"
-            build_monthly_report(engine, int(year), int(month))
-            excel_filename = f"monthly_{year}_{int(month):02d}.xlsx"
-        else:
-            # Default filename if no month/year selected
-            excel_filename = f"report_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
-        
-        return render_template('report.html', data=report, now=datetime.now(), heading=heading, last_report_filename=excel_filename)
+        report = generate_report(filepath)
+        return render_template('report.html', data=report, now=datetime.now(), heading=heading, last_report_filename=None)
     except Exception as ex:
         return render_template('index.html', error=f'Report generation failed: {str(ex)}')
 
