@@ -182,10 +182,10 @@ def build_excel_from_report_data(report_data, heading, filename_base):
         ('B2:B3',  'AHSP / DPSU'),
         ('C2:C3',  'Equipment Name'),
         ('D2:D3',  'Codification\nTarget (25-27)'),
-        ('E2:E3',  'As per DPSUs\nAHSP MRLs'),
+        ('E2:E3',  'As per DPSUs/\nAHSP MRLs'),          # CHANGED
         ('F2:I2',  'PROGRESS'),
         ('J2:J3',  'Updation\nTarget (25-27)'),
-        ('K2:K3',  'Updation\nDone'),
+        ('K2:K3',  'Updation Done\nby AHSPs / DPSUs'),   # CHANGED
         ('L2:L3',  '% Updated'),
         ('M2:M3',  'Remarks'),
     ]
@@ -200,10 +200,10 @@ def build_excel_from_report_data(report_data, heading, filename_base):
         c.border = thick_border()
 
     sub_hdrs = [
-        ('F3', 'Total Items\nCodified'),
+        ('F3', 'Total Items Codified\nby AHSPs / DPSUs'),   # CHANGED
         ('G3', 'Fwd to\nDCA'),
         ('H3', 'NSN\nAllotted'),
-        ('I3', 'Returned'),
+        ('I3', 'Returned to\nAHSPs / DPSUs'),    # CHANGED (was Returned)
     ]
     for cell_ref, label in sub_hdrs:
         c = ws[cell_ref]
@@ -247,7 +247,7 @@ def build_excel_from_report_data(report_data, heading, filename_base):
             c = ws.cell(row=current_row, column=5)
             style_cell(c, '', bg=bg, fg='888888', size=8)
 
-            # Total Items Codified
+            # Total Items Codified (by AHSPs / DPSUs)
             c = ws.cell(row=current_row, column=6)
             val = item['Total_Codified']
             style_cell(c, val, bg=bg, fg=C['green'] if val > 0 else '999999', bold=(val > 0), size=9)
@@ -262,7 +262,7 @@ def build_excel_from_report_data(report_data, heading, filename_base):
             val = item['NSN']
             style_cell(c, val, bg=bg, fg=C['green'] if val > 0 else '999999', bold=(val > 0), size=9)
 
-            # Returned
+            # Returned to AHSPs / DPSUs
             c = ws.cell(row=current_row, column=9)
             val = item['Returned']
             style_cell(c, val, bg=bg, fg=C['green'] if val > 0 else '999999', bold=(val > 0), size=9)
@@ -271,7 +271,7 @@ def build_excel_from_report_data(report_data, heading, filename_base):
             c = ws.cell(row=current_row, column=10)
             style_cell(c, '', bg=bg, fg='888888', size=8)
 
-            # Updation Done (empty)
+            # Updation Done by AHSPs / DPSUs (empty)
             c = ws.cell(row=current_row, column=11)
             style_cell(c, '', bg=bg, fg='888888', size=8)
 
@@ -553,13 +553,13 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
 
     sub_hdrs = [
         ('D13', 'Codification\nTarget'),
-        ('E13', 'As per DPSU\nMRL'),
-        ('F13', 'Total Items\nCodified'),
+        ('E13', 'As per DPSUs/\nAHSP MRLs'),              # CHANGED
+        ('F13', 'Total Items Codified\nby AHSPs / DPSUs'),   # CHANGED
         ('G13', 'Fwd to\nDCA'),
         ('H13', 'NSN\nAllotted'),
-        ('I13', 'Returned'),
+        ('I13', 'Returned to\nAHSPs / DPSUs'),            # CHANGED (was Returned)
         ('J13', 'Updation\nTarget'),
-        ('K13', 'Updation\nDone'),
+        ('K13', 'Updation Done\nby AHSPs / DPSUs'),       # CHANGED (was Updation Done)
     ]
     for cell_ref, label in sub_hdrs:
         c = ws[cell_ref]

@@ -38,10 +38,31 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 .sb-step{margin-left:auto;font-family:var(--font-hud);font-size:.5rem;color:rgba(136,153,176,.5);}
 .sb-link.active .sb-step{color:rgba(255,215,0,.5);}
 
-.sb-footer{padding:1rem 1.4rem;border-top:1px solid rgba(46,109,164,.2);}
-.sb-home{display:block;margin-bottom:1rem;color:var(--gray);text-decoration:none;font-size:.82rem;font-family:var(--font-ui);transition:color var(--tr);}
-.sb-home:hover{color:var(--gold);}
-.sb-credits{font-size:.62rem;color:rgba(136,153,176,.45);font-family:var(--font-hud);line-height:1.5;}
+/* ── Back to Home (improved) ── */
+.sb-footer{padding:1rem 1rem 1.2rem;border-top:1px solid rgba(46,109,164,.2);display:flex;flex-direction:column;gap:.8rem;}
+.btn-home{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:13px 16px;
+  background:linear-gradient(135deg,rgba(27,58,107,.7),rgba(46,109,164,.5));
+  color:var(--off-white);
+  border:1.5px solid rgba(46,109,164,.5);
+  border-radius:10px;
+  font-family:var(--font-ui);font-weight:700;font-size:.95rem;
+  text-decoration:none;
+  letter-spacing:.04em;
+  transition:all var(--tr);
+  cursor:pointer;
+}
+.btn-home:hover{
+  background:linear-gradient(135deg,var(--gold-dk),var(--gold));
+  color:var(--navy);
+  border-color:var(--gold);
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(255,215,0,.25);
+  text-decoration:none;
+}
+.btn-home-icon{font-size:1.1rem;}
+.sb-credits{font-size:.62rem;color:rgba(136,153,176,.45);font-family:var(--font-hud);line-height:1.5;text-align:center;}
 
 /* ══ MAIN ═════════════════════════════════════════════════════════ */
 .db-main{margin-left:250px;flex:1;min-height:100vh;padding:1.5rem 2rem 4rem;position:relative;z-index:2;}
@@ -141,7 +162,6 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 .gauge-num{font-family:var(--font-hud);font-size:2.2rem;font-weight:800;color:var(--gold);text-align:center;}
 .gauge-lbl{font-size:.65rem;color:var(--gray);text-align:center;text-transform:uppercase;letter-spacing:.1em;}
 
-/* ── Report Type Grid ── */
 /* Report params */
 .rp-wrap{background:var(--bg-card2);border:1px solid rgba(46,109,164,.22);border-radius:12px;padding:1.5rem;display:flex;flex-wrap:wrap;gap:1.5rem;margin-bottom:1.5rem;}
 .rp-row{display:flex;flex-direction:column;gap:6px;}
@@ -154,30 +174,23 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 .btn-generate:hover{background:linear-gradient(135deg,var(--gold),var(--gold-lt));color:var(--navy);border-color:var(--gold);box-shadow:0 8px 26px rgba(255,215,0,.3);transform:translateY(-2px);}
 .gen-spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;}
 
-/* Result card */
-.result-card{margin-top:1.5rem;background:rgba(26,122,74,.07);border:1px solid rgba(26,122,74,.28);border-radius:12px;padding:2rem;text-align:center;animation:fadeIn .5s ease;}
-.rc-hdr{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:1.5rem;}
-.rc-icon{font-size:1.5rem;}
-.rc-title{font-family:var(--font-ui);font-weight:700;font-size:1.2rem;color:var(--green-lt);}
-.rc-stats{display:flex;flex-wrap:wrap;justify-content:center;gap:.9rem;margin-bottom:1rem;}
-.rc-stat{background:var(--bg-card);border:1px solid rgba(46,109,164,.2);border-radius:8px;padding:.8rem 1.1rem;}
-.rc-stat-val{font-family:var(--font-hud);font-size:1.3rem;font-weight:700;color:var(--white);}
-.rc-stat-lbl{font-size:.64rem;color:var(--gray);margin-top:2px;font-family:var(--font-ui);}
-.rc-acc{font-family:var(--font-hud);font-size:1rem;color:var(--gold);margin-bottom:1.5rem;letter-spacing:.07em;}
-.btn-download{display:inline-block;background:linear-gradient(135deg,var(--green),var(--green-lt));color:white;font-family:var(--font-ui);font-weight:700;font-size:1rem;padding:13px 30px;border-radius:10px;text-decoration:none;margin-right:1rem;transition:transform .2s,box-shadow .2s;}
-.btn-download:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,122,74,.4);}
-.btn-new{background:transparent;border:1.5px solid rgba(46,109,164,.4);color:var(--gray);font-family:var(--font-ui);font-size:.9rem;padding:13px 22px;border-radius:10px;cursor:pointer;transition:all var(--tr);}
-.btn-new:hover{border-color:var(--gold);color:var(--gold);}
-
-/* History */
+/* ── History ── */
 .history-list{display:flex;flex-direction:column;gap:.9rem;}
 .history-empty{text-align:center;color:var(--gray);padding:3rem;font-size:.9rem;}
 .history-item{display:flex;align-items:center;justify-content:space-between;background:var(--bg-card2);border:1px solid rgba(46,109,164,.18);border-radius:10px;padding:1rem 1.5rem;animation:slideLeft .3s ease;}
-.hi-type{font-family:var(--font-ui);font-weight:700;color:var(--white);font-size:.95rem;}
-.hi-meta{font-size:.7rem;color:var(--gray);margin-top:3px;}
-.hi-acc{font-family:var(--font-hud);font-size:.78rem;color:var(--gold);}
-.hi-dl a{display:inline-block;background:rgba(26,122,74,.15);border:1px solid rgba(26,122,74,.3);color:var(--green-lt);padding:6px 16px;border-radius:6px;font-size:.78rem;text-decoration:none;font-family:var(--font-ui);font-weight:600;transition:all var(--tr);}
+.hi-left{display:flex;flex-direction:column;gap:4px;}
+.hi-name{font-family:var(--font-ui);font-weight:700;color:var(--white);font-size:.95rem;}
+.hi-meta{font-size:.72rem;color:var(--gray);display:flex;align-items:center;gap:8px;}
+.hi-meta-time{color:var(--cyan);font-family:var(--font-hud);font-size:.65rem;}
+.hi-meta-dot{color:rgba(136,153,176,.4);}
+.hi-dl a{display:inline-block;background:rgba(26,122,74,.15);border:1px solid rgba(26,122,74,.3);color:var(--green-lt);padding:7px 18px;border-radius:6px;font-size:.78rem;text-decoration:none;font-family:var(--font-ui);font-weight:600;transition:all var(--tr);}
 .hi-dl a:hover{background:rgba(26,122,74,.3);}
+.hi-badge{display:inline-block;font-family:var(--font-hud);font-size:.5rem;color:var(--gold);border:1px solid rgba(255,215,0,.25);padding:2px 8px;border-radius:10px;letter-spacing:.08em;margin-left:6px;}
+
+/* Clear history button */
+.history-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;}
+.btn-clear-history{background:transparent;border:1px solid rgba(192,57,43,.3);color:rgba(192,57,43,.7);font-family:var(--font-ui);font-size:.78rem;padding:6px 14px;border-radius:6px;cursor:pointer;transition:all var(--tr);}
+.btn-clear-history:hover{border-color:var(--red);color:var(--red);background:rgba(192,57,43,.08);}
 
 /* ── Animations ── */
 @keyframes pulse-g{0%,100%{box-shadow:0 0 0 0 rgba(39,174,96,.6)}50%{box-shadow:0 0 0 7px rgba(39,174,96,0)}}
@@ -185,13 +198,12 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideLeft{from{opacity:0;transform:translateX(-25px)}to{opacity:1;transform:none}}
 
-/* ── RESPONSIVE LAYOUTS ── */
+/* ── RESPONSIVE ── */
 @media (max-width: 1100px){
   .kpi-strip{grid-template-columns:repeat(3,1fr);}
   .analyze-grid{grid-template-columns:1fr;}
   .rp-wrap{display:grid;grid-template-columns:1fr 1fr;}
 }
-
 @media (max-width: 860px){
   .sidebar{position:relative;width:100%;height:auto;border-right:none;border-bottom:1px solid rgba(46,109,164,.25);padding-bottom:.8rem;}
   .sb-nav{flex-direction:row;flex-wrap:wrap;gap:.5rem;padding:.6rem 1rem 1rem;justify-content:center;}
@@ -207,19 +219,9 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
   .rp-wrap{grid-template-columns:1fr;}
   .btn-browse,.btn-training,.btn-generate{width:100%;}
 }
-
 @media (max-width: 640px){
-  body{min-height:auto;}
-  .sb-logo-row{flex-wrap:wrap;justify-content:center;text-align:center;}
   .sb-link{flex:1 1 100%;}
-  .topbar-left,.topbar-right{width:100%;}
   .kpi-strip{grid-template-columns:1fr;}
-  .analyze-grid{gap:1rem;}
-  .donut-wrap,.gauge-wrap{flex-direction:column;align-items:flex-start;}
-  .rp-sel{min-width:0;width:100%;}
-  .upload-zone{padding:1.8rem 1rem;}
-  .preview-tbl th,.preview-tbl td{font-size:.72rem;}
-  .history-item{padding:1rem;}
 }
 </style>
 </head>
@@ -255,8 +257,13 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
       <span class="sb-step">04</span>
     </button>
   </nav>
+
+  <!-- ── Back to Home (improved) ── -->
   <div class="sb-footer">
-    <a href="/" class="sb-home">← Back to Home</a>
+    <a href="/" class="btn-home">
+      <span class="btn-home-icon">🏠</span>
+      Back to Home
+    </a>
     <div class="sb-credits">Cobra Tech<br/>ABVGIET Shimla</div>
   </div>
 </aside>
@@ -378,7 +385,8 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
         </div>
       </div>
 
-      <form id="generateForm" action="/generate" method="post" target="_blank">
+      <!-- Form submits in SAME TAB (no target="_blank") -->
+      <form id="generateForm" action="/generate" method="post">
         <input type="hidden" name="filename" id="filenameField" value="" />
         <input type="hidden" name="year" id="yearField" value="" />
         <input type="hidden" name="month" id="monthField" value="" />
@@ -395,11 +403,17 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
     <div class="section-card">
       <div class="sc-hdr">
         <div class="sc-icon">📁</div>
-        <div><div class="sc-title">Report History</div><div class="sc-sub">Previously generated reports this session</div></div>
+        <div><div class="sc-title">Report History</div><div class="sc-sub">All reports generated this session — with date, time &amp; download link</div></div>
         <div class="sc-step">04</div>
       </div>
+
+      <div class="history-header-row">
+        <span style="font-size:.8rem;color:var(--gray);font-family:var(--font-ui);" id="historyCount"></span>
+        <button class="btn-clear-history" id="clearHistoryBtn">🗑 Clear History</button>
+      </div>
+
       <div class="history-list" id="historyList">
-        <div class="history-empty">No reports generated yet. Go to Step 3 to generate your first report.</div>
+        <div class="history-empty" id="historyEmpty">No reports generated yet. Go to Step 3 to generate your first report.</div>
       </div>
     </div>
   </section>
@@ -407,242 +421,234 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 </main>
 
 <script>
-let currentFile=null,currentStats=null,reportHistory=[];
+let currentFile = null, currentStats = null;
 
-const fileInput = document.getElementById('fileInput');
-const uploadZone = document.getElementById('uploadZone');
-const previewBox = document.getElementById('previewBox');
-const previewTbl = document.getElementById('previewTbl');
-const previewInfo = document.getElementById('previewInfo');
-const uzProgress = document.getElementById('uzProgress');
-const pbarFill = document.getElementById('pbarFill');
-const pbarLbl = document.getElementById('pbarLbl');
-const useTrainingBtn = document.getElementById('useTrainingBtn');
-const goAnalyze = document.getElementById('goAnalyze');
-const goReport = document.getElementById('goReport');
+// ── Section navigation ──────────────────────────────────────────
 const navLinks = document.querySelectorAll('.sb-link');
 const sections = document.querySelectorAll('.db-section');
 
 function showSection(sectionId) {
-  navLinks.forEach(link => {
-    link.classList.toggle('active', link.dataset.section === sectionId);
-  });
-  sections.forEach(section => {
-    section.classList.toggle('active', section.id === `${sectionId}-section`);
-  });
+  navLinks.forEach(link => link.classList.toggle('active', link.dataset.section === sectionId));
+  sections.forEach(section => section.classList.toggle('active', section.id === `${sectionId}-section`));
+  if (sectionId === 'history') renderHistoryList();
 }
 
-navLinks.forEach(link => {
-  link.addEventListener('click', () => {
-    showSection(link.dataset.section);
-  });
-});
+navLinks.forEach(link => link.addEventListener('click', () => showSection(link.dataset.section)));
 
-function updateKpis(stats){
-  document.getElementById('kpi-total').textContent = stats.total ?? '—';
-  document.getElementById('kpi-nsn').textContent = stats.nsn_allotted ?? '—';
-  document.getElementById('kpi-fwd').textContent = stats.forwarded ?? '—';
-  document.getElementById('kpi-ret').textContent = stats.returned ?? '—';
-  document.getElementById('kpi-acc').textContent = stats.accuracy !== undefined ? `${stats.accuracy}%` : '—';
-  document.getElementById('kpi-pend').textContent = stats.pending ?? '—';
+// ── KPI updater ─────────────────────────────────────────────────
+function updateKpis(stats) {
+  document.getElementById('kpi-total').textContent  = stats.total ?? '—';
+  document.getElementById('kpi-nsn').textContent    = stats.nsn_allotted ?? '—';
+  document.getElementById('kpi-fwd').textContent    = stats.forwarded ?? '—';
+  document.getElementById('kpi-ret').textContent    = stats.returned ?? '—';
+  document.getElementById('kpi-acc').textContent    = stats.accuracy !== undefined ? `${stats.accuracy}%` : '—';
+  document.getElementById('kpi-pend').textContent   = stats.pending ?? '—';
 }
 
-function renderBreakdown(containerId, statsObj, emptyText){
+// ── Breakdown renderer ──────────────────────────────────────────
+function renderBreakdown(containerId, statsObj, emptyText) {
   const container = document.getElementById(containerId);
-  if(!statsObj || !Object.keys(statsObj).length){
+  if (!statsObj || !Object.keys(statsObj).length) {
     container.innerHTML = `<div style="color:var(--gray);padding:1rem;">${emptyText}</div>`;
     return;
   }
   const rows = Object.entries(statsObj)
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,5)
-    .map(([key,val])=>`<div style="display:flex;justify-content:space-between;gap:1rem;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.08);"><span style="color:var(--white);font-size:.88rem;">${key}</span><strong style="color:var(--gold);">${val}</strong></div>`)
-    .join('');
+    .sort((a, b) => b[1] - a[1]).slice(0, 5)
+    .map(([key, val]) => `<div style="display:flex;justify-content:space-between;gap:1rem;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.08);">
+      <span style="color:var(--white);font-size:.88rem;">${key}</span>
+      <strong style="color:var(--gold);">${val}</strong></div>`).join('');
   container.innerHTML = rows;
 }
 
-function renderStatus(stats){
-  const container = document.getElementById('statusChart');
-  if(!stats){
-    container.innerHTML = '<div style="color:var(--gray);padding:1rem;">No status data available.</div>';
-    return;
-  }
-  container.innerHTML = `
-    <div style="display:grid;gap:.7rem;">
-      <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Forwarded</span><strong>${stats.forwarded}</strong></div>
-      <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Returned</span><strong>${stats.returned}</strong></div>
-      <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Pending</span><strong>${stats.pending}</strong></div>
-      <div style="display:flex;justify-content:space-between;color:var(--white);"><span>NSN Allotted</span><strong>${stats.nsn_allotted}</strong></div>
-    </div>
-  `;
+function renderStatus(stats) {
+  const c = document.getElementById('statusChart');
+  if (!stats) { c.innerHTML = '<div style="color:var(--gray);padding:1rem;">No data.</div>'; return; }
+  c.innerHTML = `<div style="display:grid;gap:.7rem;">
+    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Forwarded</span><strong>${stats.forwarded}</strong></div>
+    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Returned</span><strong>${stats.returned}</strong></div>
+    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Pending</span><strong>${stats.pending}</strong></div>
+    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>NSN Allotted</span><strong>${stats.nsn_allotted}</strong></div>
+  </div>`;
 }
 
-function renderAccuracyGauge(stats){
-  const container = document.getElementById('accuracyGauge');
-  if(!stats){
-    container.innerHTML = '<div style="color:var(--gray);padding:1rem;">No accuracy data available.</div>';
-    return;
-  }
-  container.innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:.5rem;">
-      <div style="font-size:1.8rem;font-weight:700;color:${stats.accuracy >= 80 ? '#27AE60' : stats.accuracy >=50 ? '#FFD700' : '#C0392B'};">${stats.accuracy}%</div>
-      <div style="color:var(--gray);font-size:.85rem;">Average MRC: ${stats.avg_mrc}</div>
-      <div style="color:var(--gray);font-size:.85rem;">Avg Processing Days: ${stats.avg_processing_days}</div>
-    </div>
-  `;
+function renderAccuracyGauge(stats) {
+  const c = document.getElementById('accuracyGauge');
+  if (!stats) { c.innerHTML = '<div style="color:var(--gray);padding:1rem;">No data.</div>'; return; }
+  const col = stats.accuracy >= 80 ? '#27AE60' : stats.accuracy >= 50 ? '#FFD700' : '#C0392B';
+  c.innerHTML = `<div style="display:flex;flex-direction:column;gap:.5rem;">
+    <div style="font-size:1.8rem;font-weight:700;color:${col};">${stats.accuracy}%</div>
+    <div style="color:var(--gray);font-size:.85rem;">Average MRC: ${stats.avg_mrc}</div>
+    <div style="color:var(--gray);font-size:.85rem;">Avg Processing Days: ${stats.avg_processing_days}</div>
+  </div>`;
 }
 
-async function loadAnalysis(){
-  const payload = { filename: currentFile };
-  try{
-    const res = await fetch('/analyze', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+async function loadAnalysis() {
+  try {
+    const res = await fetch('/analyze', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ filename: currentFile }) });
     const data = await res.json();
-    if(data.error){
-      alert('Analysis failed: ' + data.error);
-      return false;
-    }
+    if (data.error) { alert('Analysis failed: ' + data.error); return false; }
     updateKpis(data);
-    renderBreakdown('dpsuBars', data.by_dpsu, 'No DPSU distribution data available.');
-    renderBreakdown('ncbBars', data.by_ncb, 'No service breakdown data available.');
-    renderBreakdown('equipBars', data.by_equipment, 'No equipment data available.');
+    renderBreakdown('dpsuBars', data.by_dpsu, 'No DPSU data.');
+    renderBreakdown('ncbBars', data.by_ncb, 'No NCB data.');
+    renderBreakdown('equipBars', data.by_equipment, 'No equipment data.');
     renderStatus(data);
     renderAccuracyGauge(data);
     return true;
-  }catch(err){
-    alert('Analysis failed. Please try again.');
-    return false;
-  }
+  } catch(e) { alert('Analysis failed.'); return false; }
 }
 
-function renderPreview(filename, rows){
+// ── Upload ──────────────────────────────────────────────────────
+function renderPreview(filename, rows) {
   currentFile = filename;
-  previewBox.style.display = 'block';
-  previewInfo.textContent = `Filename: ${filename} · ${rows.length} rows`;
-  previewTbl.innerHTML = '';
-  if(!rows.length){
-    previewTbl.innerHTML = '<tr><td>No preview available</td></tr>';
-    return;
-  }
+  document.getElementById('previewBox').style.display = 'block';
+  document.getElementById('previewInfo').textContent = `Filename: ${filename} · ${rows.length} rows`;
+  const tbl = document.getElementById('previewTbl');
+  tbl.innerHTML = '';
+  if (!rows.length) { tbl.innerHTML = '<tr><td>No preview available</td></tr>'; return; }
   const cols = Object.keys(rows[0]).slice(0, 8);
   const thead = document.createElement('thead');
   const hrow = document.createElement('tr');
   cols.forEach(col => { const th = document.createElement('th'); th.textContent = col; hrow.appendChild(th); });
   thead.appendChild(hrow);
-  previewTbl.appendChild(thead);
-
+  tbl.appendChild(thead);
   const tbody = document.createElement('tbody');
   rows.slice(0, 5).forEach(row => {
     const tr = document.createElement('tr');
-    cols.forEach(col => {
-      const td = document.createElement('td');
-      td.textContent = row[col] ?? '';
-      tr.appendChild(td);
-    });
+    cols.forEach(col => { const td = document.createElement('td'); td.textContent = row[col] ?? ''; tr.appendChild(td); });
     tbody.appendChild(tr);
   });
-  previewTbl.appendChild(tbody);
+  tbl.appendChild(tbody);
 }
 
-async function uploadFile(file){
-  uzProgress.style.display = 'block';
-  pbarFill.style.width = '0%';
-  pbarLbl.textContent = 'Uploading...';
+async function uploadFile(file) {
+  document.getElementById('uzProgress').style.display = 'block';
   const form = new FormData();
   form.append('file', file);
-  try{
-    const res = await fetch('/upload',{method:'POST',body:form});
+  try {
+    const res = await fetch('/upload', { method: 'POST', body: form });
     const data = await res.json();
-    if(data.error){
-      alert('Upload failed: ' + data.error);
-      return;
-    }
+    if (data.error) { alert('Upload failed: ' + data.error); return; }
     renderPreview(data.filename, data.preview);
-    document.getElementById('uploadZone').classList.remove('drag-over');
-  }catch(err){
-    alert('Upload failed. Please try again.');
-  }finally{
-    uzProgress.style.display = 'none';
-  }
+  } catch(e) { alert('Upload failed.');
+  } finally { document.getElementById('uzProgress').style.display = 'none'; }
 }
 
-fileInput.addEventListener('change', () => {
-  if(fileInput.files.length){
-    uploadFile(fileInput.files[0]);
-  }
-});
+document.getElementById('fileInput').addEventListener('change', e => { if (e.target.files.length) uploadFile(e.target.files[0]); });
+const uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag-over'); if (e.dataTransfer.files.length) uploadFile(e.dataTransfer.files[0]); });
 
-uploadZone.addEventListener('dragover', e => {
-  e.preventDefault();
-  uploadZone.classList.add('drag-over');
-});
-uploadZone.addEventListener('dragleave', () => {
-  uploadZone.classList.remove('drag-over');
-});
-uploadZone.addEventListener('drop', e => {
-  e.preventDefault();
-  uploadZone.classList.remove('drag-over');
-  if(e.dataTransfer.files.length){
-    uploadFile(e.dataTransfer.files[0]);
-  }
-});
-
-useTrainingBtn.addEventListener('click', () => {
+document.getElementById('useTrainingBtn').addEventListener('click', () => {
   currentFile = null;
-  previewBox.style.display = 'block';
-  previewInfo.textContent = 'Using built-in training dataset.';
-  previewTbl.innerHTML = '<tr><td style="padding:12px;color:#ccc;">Training dataset preview is not available in this mode.</td></tr>';
+  document.getElementById('previewBox').style.display = 'block';
+  document.getElementById('previewInfo').textContent = 'Using built-in training dataset.';
+  document.getElementById('previewTbl').innerHTML = '<tr><td style="padding:12px;color:#ccc;">Training dataset preview not available in this mode.</td></tr>';
 });
 
-goAnalyze.addEventListener('click', async () => {
-  const ok = await loadAnalysis();
-  if(ok){
-    showSection('analyze');
-  }
-});
+document.getElementById('goAnalyze').addEventListener('click', async () => { if (await loadAnalysis()) showSection('analyze'); });
+document.getElementById('goReport').addEventListener('click', () => showSection('report'));
 
-goReport.addEventListener('click', () => {
-  showSection('report');
-});
-
-function updateDashboardClock(){
-  const clock = document.getElementById('dbClock');
-  if(!clock) return;
-  const pad = num => String(num).padStart(2, '0');
-  const now = new Date();
-  clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-}
-updateDashboardClock();
-setInterval(updateDashboardClock, 1000);
-
-// ── Generate ───────────────────────────────────────────────────
-document.getElementById('generateBtn').addEventListener('click',()=>{
+// ── Generate — same tab ─────────────────────────────────────────
+document.getElementById('generateBtn').addEventListener('click', () => {
   document.getElementById('filenameField').value = currentFile || '';
-  document.getElementById('yearField').value = document.getElementById('paramYear').value;
-  document.getElementById('monthField').value = document.getElementById('paramMonth').value;
+  document.getElementById('yearField').value     = document.getElementById('paramYear').value;
+  document.getElementById('monthField').value    = document.getElementById('paramMonth').value;
+  document.getElementById('genSpinner').style.display = 'block';
+  document.getElementById('genBtnTxt').textContent    = 'Generating…';
   document.getElementById('generateForm').submit();
 });
 
+// ── Report History (sessionStorage) ────────────────────────────
+function getHistory() {
+  try { return JSON.parse(sessionStorage.getItem('reportHistory') || '[]'); } catch(e) { return []; }
+}
 
-// ── Particle canvas ────────────────────────────────────────────
+function renderHistoryList() {
+  const list  = document.getElementById('historyList');
+  const empty = document.getElementById('historyEmpty');
+  const count = document.getElementById('historyCount');
+  const items = getHistory();
+
+  if (!items.length) {
+    if (empty) empty.style.display = 'block';
+    // Remove any old cards
+    list.querySelectorAll('.history-item').forEach(el => el.remove());
+    count.textContent = '';
+    return;
+  }
+
+  if (empty) empty.style.display = 'none';
+  count.textContent = `${items.length} report${items.length > 1 ? 's' : ''} generated`;
+
+  // Re-render all cards
+  list.querySelectorAll('.history-item').forEach(el => el.remove());
+  items.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `
+      <div class="hi-left">
+        <div class="hi-name">
+          ${item.name || 'Codification Report'}
+          <span class="hi-badge">MONTHLY</span>
+        </div>
+        <div class="hi-meta">
+          <span>📄 ${item.filename || '—'}</span>
+          <span class="hi-meta-dot">·</span>
+          <span class="hi-meta-time">🕐 ${item.time}</span>
+        </div>
+      </div>
+      <div class="hi-dl">
+        ${item.filename ? `<a href="/download/${item.filename}" title="Download Excel">⬇ Download Excel</a>` : '<span style="color:var(--gray);font-size:.8rem;">No file</span>'}
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+  sessionStorage.removeItem('reportHistory');
+  renderHistoryList();
+});
+
+// On load — render history in case user navigated back
+renderHistoryList();
+
+// ── Clock ────────────────────────────────────────────────────────
+function updateClock() {
+  const pad = n => String(n).padStart(2, '0');
+  const n = new Date();
+  document.getElementById('dbClock').textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ── Particle canvas ──────────────────────────────────────────────
 (function(){
-  const c=document.getElementById('bg-canvas'),ctx=c.getContext('2d');
-  let W,H,pts=[];
-  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
-  resize();window.addEventListener('resize',resize);
-  for(let i=0;i<90;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.2+.4,a:Math.random()*.4+.08,gold:Math.random()>.75});
-  (function draw(){
-    ctx.clearRect(0,0,W,H);
-    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
-      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.hypot(dx,dy);
-      if(d<110){ctx.beginPath();ctx.strokeStyle=`rgba(46,109,164,${.1*(1-d/110)})`;ctx.lineWidth=.5;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}
+  const c = document.getElementById('bg-canvas'), ctx = c.getContext('2d');
+  let W, H, pts = [];
+  function resize() { W = c.width = window.innerWidth; H = c.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  for (let i = 0; i < 90; i++) pts.push({
+    x: Math.random()*W, y: Math.random()*H,
+    vx: (Math.random()-.5)*.3, vy: (Math.random()-.5)*.3,
+    r: Math.random()*1.2+.4, a: Math.random()*.4+.08, gold: Math.random()>.75
+  });
+  (function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < pts.length; i++) for (let j = i+1; j < pts.length; j++) {
+      const dx = pts[i].x-pts[j].x, dy = pts[i].y-pts[j].y, d = Math.hypot(dx,dy);
+      if (d < 110) { ctx.beginPath(); ctx.strokeStyle = `rgba(46,109,164,${.1*(1-d/110)})`; ctx.lineWidth = .5; ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y); ctx.stroke(); }
     }
-    pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.gold?`rgba(255,215,0,${p.a})`:`rgba(0,212,255,${p.a*.6})`;ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;});
+    pts.forEach(p => {
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle = p.gold ? `rgba(255,215,0,${p.a})` : `rgba(0,212,255,${p.a*.6})`; ctx.fill();
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > W) p.vx *= -1;
+      if (p.y < 0 || p.y > H) p.vy *= -1;
+    });
     requestAnimationFrame(draw);
   })();
 })();
 </script>
 </body>
 </html>
-
-
-
