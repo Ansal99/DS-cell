@@ -838,40 +838,53 @@ def generate():
         return render_template('index.html', error=f'Report generation failed: {str(ex)}')
 
 # ─── NEW: Multi-file generate endpoint (returns JSON) ────────────────────────
+# ─── NEW generate_multi endpoint (replace the old one in app.py) ──────────────
+# Replace the existing /generate_multi route with this:
+
 @app.route('/generate_multi', methods=['POST'])
 def generate_multi():
-    """Generate reports for multiple files, return JSON with all report data."""
+    """Generate reports for multiple files with per-file month/year settings."""
     data = request.json
-    filenames = data.get('filenames', [])
-    year = data.get('year', '')
-    month = data.get('month', '')
 
-    month_name = ''
-    if month and year:
-        try:
-            month_name = datetime(1900, int(month), 1).strftime('%B').upper() + f' {year}'
-        except Exception:
-            month_name = ''
+    # Support both old format {filenames, year, month} and new per-file format {per_file: [{filename, month, year}]}
+    per_file = data.get('per_file', None)
+    if per_file is None:
+        # Fallback: old format — apply same month/year to all files
+        filenames = data.get('filenames', [])
+        year  = data.get('year', '')
+        month = data.get('month', '')
+        per_file = [{'filename': fn, 'year': year, 'month': month} for fn in filenames]
 
     results = []
-    for filename in filenames:
+    for entry in per_file:
+        filename = entry.get('filename')
+        year     = entry.get('year', '')
+        month    = entry.get('month', '')
+
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) if filename else TRAINING_DATA_PATH
         if not os.path.exists(filepath):
             results.append({'filename': filename, 'error': 'File not found'})
             continue
-        try:
-            heading = f'CODIFICATION SUMMARY FOR THE MONTH OF {month_name}' if month_name else f'CODIFICATION SUMMARY — {filename}'
-            report_data = generate_report(filepath)
 
+        # Build heading
+        month_name = ''
+        if month and year:
+            try:
+                month_name = datetime(1900, int(month), 1).strftime('%B').upper() + f' {year}'
+            except Exception:
+                month_name = ''
+        heading = f'CODIFICATION SUMMARY FOR THE MONTH OF {month_name}' if month_name else f'CODIFICATION SUMMARY — {filename}'
+
+        try:
+            report_data = generate_report(filepath)
             ts = datetime.now().strftime('%Y%m%d_%H%M%S')
-            safe_name = filename.replace('.xlsx', '').replace('.xls', '').replace(' ', '_')
+            safe_name = (filename or 'training').replace('.xlsx','').replace('.xls','').replace(' ','_')
             excel_filename_base = f'report_{safe_name}_{ts}'
             excel_path = build_excel_from_report_data(report_data, heading, excel_filename_base)
             excel_filename = os.path.basename(excel_path)
 
-            # Build HTML table rows for inline rendering
             rows_html = []
-            totals = {'codified': 0, 'fwd': 0, 'nsn': 0, 'returned': 0}
+            totals = {'codified':0,'fwd':0,'nsn':0,'returned':0}
             serial = 1
             for dpsu, items in report_data.items():
                 for idx, item in enumerate(items):
@@ -894,6 +907,8 @@ def generate_multi():
             results.append({
                 'filename': filename,
                 'heading': heading,
+                'period_month': month,
+                'period_year': year,
                 'excel_filename': excel_filename,
                 'rows': rows_html,
                 'totals': totals,
@@ -903,7 +918,6 @@ def generate_multi():
             results.append({'filename': filename, 'error': str(ex)})
 
     return jsonify(results)
-
 @app.route('/download/<filename>')
 def download(filename):
     path = os.path.join(app.config['REPORT_FOLDER'], filename)
