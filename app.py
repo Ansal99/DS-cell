@@ -68,7 +68,6 @@ class DataEngine:
         by_ncb   = filtered_df.groupby('NCB').size().to_dict()  if 'NCB'  in filtered_df.columns else {}
         by_equip = filtered_df.groupby('Equipment_Name').size().nlargest(10).to_dict() if 'Equipment_Name' in filtered_df.columns else {}
         
-        # Detailed breakdowns by DPSU
         if 'DPSU' in filtered_df.columns:
             fwd_by_dpsu = filtered_df[filtered_df['Forward_Date'].notna()].groupby('DPSU').size().to_dict() if 'Forward_Date' in filtered_df.columns else {}
             ret_by_dpsu = filtered_df[filtered_df['Return_Date'].notna()].groupby('DPSU').size().to_dict() if 'Return_Date' in filtered_df.columns else {}
@@ -96,9 +95,11 @@ class DataEngine:
             'returned': int(returned), 'pending': int(pending),
             'by_dpsu': {k: int(v) for k, v in by_dpsu.items()},
             'by_ncb': {k: int(v) for k, v in by_ncb.items()},
-            'by_equipment': {k: int(v) for k, v in by_equip.items()},            'fwd_by_dpsu': {k: int(v) for k, v in fwd_by_dpsu.items()},
+            'by_equipment': {k: int(v) for k, v in by_equip.items()},
+            'fwd_by_dpsu': {k: int(v) for k, v in fwd_by_dpsu.items()},
             'ret_by_dpsu': {k: int(v) for k, v in ret_by_dpsu.items()},
-            'pend_by_dpsu': {k: int(v) for k, v in pend_by_dpsu.items()},            'avg_mrc': float(avg_mrc), 'avg_processing_days': float(avg_proc),
+            'pend_by_dpsu': {k: int(v) for k, v in pend_by_dpsu.items()},
+            'avg_mrc': float(avg_mrc), 'avg_processing_days': float(avg_proc),
         }
 
     def group_for_report(self, filtered_df):
@@ -176,25 +177,18 @@ def style_cell(c, value=None, bold=False, fg='000000', bg=None, size=9,
     return c
 
 
-# ─── Excel Export from report_data (HTML report ke saath) ────────────────────
+# ─── Excel Export from report_data ────────────────────────────────────────────
 def build_excel_from_report_data(report_data, heading, filename_base):
-    """
-    report_data: dict {dpsu: [{Equipment, Total_Codified, Fwd_DCA, NSN, Returned}, ...]}
-    heading: str - report heading
-    Returns: path to saved xlsx file
-    """
     wb = Workbook()
     ws = wb.active
     ws.title = 'Codification Report'
     ws.sheet_view.showGridLines = False
     ws.sheet_view.zoomScale = 90
 
-    # Column widths matching report.html table
     col_widths = [6, 22, 38, 18, 20, 18, 14, 14, 14, 18, 16, 14, 16]
     for i, w in enumerate(col_widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
 
-    # Row 1: Heading only
     ws.row_dimensions[1].height = 32
     ws.merge_cells('A1:M1')
     c = ws['A1']
@@ -203,7 +197,6 @@ def build_excel_from_report_data(report_data, heading, filename_base):
     c.fill  = fill(C['navy_mid'])
     c.alignment = Alignment(horizontal='center', vertical='center')
 
-    # Table Headers rows 2-3
     ws.row_dimensions[2].height = 28
     ws.row_dimensions[3].height = 28
 
@@ -212,10 +205,10 @@ def build_excel_from_report_data(report_data, heading, filename_base):
         ('B2:B3',  'AHSP / DPSU'),
         ('C2:C3',  'Equipment Name'),
         ('D2:D3',  'Codification\nTarget (25-27)'),
-        ('E2:E3',  'As per DPSUs/\nAHSP MRLs'),          # CHANGED
+        ('E2:E3',  'As per DPSUs/\nAHSP MRLs'),
         ('F2:I2',  'PROGRESS'),
         ('J2:J3',  'Updation\nTarget (25-27)'),
-        ('K2:K3',  'Updation Done\nby AHSPs / DPSUs'),   # CHANGED
+        ('K2:K3',  'Updation Done\nby AHSPs / DPSUs'),
         ('L2:L3',  '% Updated'),
         ('M2:M3',  'Remarks'),
     ]
@@ -230,10 +223,10 @@ def build_excel_from_report_data(report_data, heading, filename_base):
         c.border = thick_border()
 
     sub_hdrs = [
-        ('F3', 'Total Items Codified\nby AHSPs / DPSUs'),   # CHANGED
+        ('F3', 'Total Items Codified\nby AHSPs / DPSUs'),
         ('G3', 'Fwd to\nDCA'),
         ('H3', 'NSN\nAllotted'),
-        ('I3', 'Returned to\nAHSPs / DPSUs'),    # CHANGED (was Returned)
+        ('I3', 'Returned to\nAHSPs / DPSUs'),
     ]
     for cell_ref, label in sub_hdrs:
         c = ws[cell_ref]
@@ -243,7 +236,6 @@ def build_excel_from_report_data(report_data, heading, filename_base):
         c.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
         c.border = thick_border()
 
-    # Data Rows start at row 4
     current_row = 4
     sno = 1
     total_codified = 0
@@ -256,62 +248,41 @@ def build_excel_from_report_data(report_data, heading, filename_base):
             bg = C['alt1'] if current_row % 2 == 0 else C['alt2']
             ws.row_dimensions[current_row].height = 18
 
-            # S.No
             c = ws.cell(row=current_row, column=1)
             style_cell(c, sno, bold=True, fg=C['navy_mid'], bg=bg, size=9)
 
-            # DPSU
             c = ws.cell(row=current_row, column=2)
             style_cell(c, dpsu if item_idx == 0 else '', bold=(item_idx == 0),
                        fg=C['navy_mid'], bg=bg, align='left', wrap=True, size=8)
 
-            # Equipment
             c = ws.cell(row=current_row, column=3)
             style_cell(c, item['Equipment'], bg=bg, align='left', wrap=True, size=8, fg='1A1A2E')
 
-            # Codification Target (empty)
             c = ws.cell(row=current_row, column=4)
             style_cell(c, '', bg=bg, fg='888888', size=8)
 
-            # As per DPSU MRL (empty)
             c = ws.cell(row=current_row, column=5)
             style_cell(c, '', bg=bg, fg='888888', size=8)
 
-            # Total Items Codified (by AHSPs / DPSUs)
             c = ws.cell(row=current_row, column=6)
             val = item['Total_Codified']
             style_cell(c, val, bg=bg, fg=C['green'] if val > 0 else '999999', bold=(val > 0), size=9)
 
-            # Fwd to DCA
             c = ws.cell(row=current_row, column=7)
             val = item['Fwd_DCA']
             style_cell(c, val, bg=bg, fg=C['green'] if val > 0 else '999999', bold=(val > 0), size=9)
 
-            # NSN Allotted
             c = ws.cell(row=current_row, column=8)
             val = item['NSN']
             style_cell(c, val, bg=bg, fg=C['green'] if val > 0 else '999999', bold=(val > 0), size=9)
 
-            # Returned to AHSPs / DPSUs
             c = ws.cell(row=current_row, column=9)
             val = item['Returned']
             style_cell(c, val, bg=bg, fg=C['green'] if val > 0 else '999999', bold=(val > 0), size=9)
 
-            # Updation Target (empty)
-            c = ws.cell(row=current_row, column=10)
-            style_cell(c, '', bg=bg, fg='888888', size=8)
-
-            # Updation Done by AHSPs / DPSUs (empty)
-            c = ws.cell(row=current_row, column=11)
-            style_cell(c, '', bg=bg, fg='888888', size=8)
-
-            # % Updated (empty)
-            c = ws.cell(row=current_row, column=12)
-            style_cell(c, '', bg=bg, fg='888888', size=8)
-
-            # Remarks (empty)
-            c = ws.cell(row=current_row, column=13)
-            style_cell(c, '', bg=bg, fg='888888', size=8)
+            for col_off in [10, 11, 12, 13]:
+                c = ws.cell(row=current_row, column=col_off)
+                style_cell(c, '', bg=bg, fg='888888', size=8)
 
             total_codified += item['Total_Codified']
             total_fwd      += item['Fwd_DCA']
@@ -320,10 +291,8 @@ def build_excel_from_report_data(report_data, heading, filename_base):
             sno += 1
             current_row += 1
 
-    # ── Total Row ──────────────────────────────────────────────────────────
     ws.row_dimensions[current_row].height = 24
 
-    # S.No in column A
     c = ws.cell(row=current_row, column=1)
     c.value = sno
     c.font  = Font(bold=True, color=C['gold'], size=10, name='Calibri')
@@ -331,7 +300,6 @@ def build_excel_from_report_data(report_data, heading, filename_base):
     c.alignment = Alignment(horizontal='center', vertical='center')
     c.border = gold_border()
 
-    # TOTAL label in B:E merged
     ws.merge_cells(f'B{current_row}:E{current_row}')
     c = ws[f'B{current_row}']
     c.value = 'TOTAL'
@@ -349,8 +317,7 @@ def build_excel_from_report_data(report_data, heading, filename_base):
         c.alignment = Alignment(horizontal='center', vertical='center')
         c.border = gold_border()
 
-    # Columns 10, 11 (Updation target, done) - empty in total
-    for col_off in [10, 11]:
+    for col_off in [10, 11, 12, 13]:
         c = ws.cell(row=current_row, column=col_off)
         c.value = ''
         c.font  = Font(bold=True, color=C['gray'], size=10, name='Calibri')
@@ -358,23 +325,6 @@ def build_excel_from_report_data(report_data, heading, filename_base):
         c.alignment = Alignment(horizontal='center', vertical='center')
         c.border = gold_border()
 
-    # % Updated - BLANK in total row (as requested)
-    c = ws.cell(row=current_row, column=12)
-    c.value = ''
-    c.font  = Font(bold=True, color=C['gray'], size=10, name='Calibri')
-    c.fill  = fill(C['total_bg'])
-    c.alignment = Alignment(horizontal='center', vertical='center')
-    c.border = gold_border()
-
-    # Remarks - empty
-    c = ws.cell(row=current_row, column=13)
-    c.value = ''
-    c.font  = Font(bold=True, color=C['gray'], size=10, name='Calibri')
-    c.fill  = fill(C['total_bg'])
-    c.alignment = Alignment(horizontal='center', vertical='center')
-    c.border = gold_border()
-
-    # ── Signature Block ────────────────────────────────────────────────────
     sig_row = current_row + 3
     sig_data = [
         ('A', 'D', 'Prepared By'),
@@ -413,20 +363,15 @@ def build_excel_from_report_data(report_data, heading, filename_base):
 def _build_report(stats, rows, title, subtitle, filename_base, report_type, period_label):
     wb = Workbook()
 
-    # ════════════════════════════════════════════════════════════════
-    #  SHEET 1: CODIFICATION SUMMARY
-    # ════════════════════════════════════════════════════════════════
     ws = wb.active
     ws.title = 'Codification Summary'
     ws.sheet_view.showGridLines = False
     ws.sheet_view.zoomScale = 85
 
-    # Column widths
     col_widths = [5, 22, 42, 14, 18, 16, 13, 13, 13, 14, 14, 18]
     for i, w in enumerate(col_widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
 
-    # ── ROW 1-2: Logo + Header ────────────────────────────────────────
     if os.path.exists(LOGO_PATH):
         try:
             img = XLImage(LOGO_PATH)
@@ -478,10 +423,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     c.font  = Font(bold=True, color=C['navy'], size=10, name='Calibri', italic=True)
     c.fill  = fill(C['gold'])
     c.alignment = Alignment(horizontal='center', vertical='center')
-    c.border = Border(
-        top=Side(style='double', color=C['gold_dk']),
-        bottom=Side(style='double', color=C['gold_dk'])
-    )
 
     ws.merge_cells('A6:M6')
     c = ws['A6']
@@ -555,10 +496,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
 
     ws.merge_cells('A11:M11')
     ws['A11'].fill = fill(C['gold'])
-    ws['A11'].border = Border(
-        top=Side(style='thin', color=C['gold_dk']),
-        bottom=Side(style='thin', color=C['gold_dk'])
-    )
 
     group_hdrs = [
         ('A12:A13', 'S.No'),
@@ -581,13 +518,13 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
 
     sub_hdrs = [
         ('D13', 'Codification\nTarget'),
-        ('E13', 'As per DPSUs/\nAHSP MRLs'),              # CHANGED
-        ('F13', 'Total Items Codified\nby AHSPs / DPSUs'),   # CHANGED
+        ('E13', 'As per DPSUs/\nAHSP MRLs'),
+        ('F13', 'Total Items Codified\nby AHSPs / DPSUs'),
         ('G13', 'Fwd to\nDCA'),
         ('H13', 'NSN\nAllotted'),
-        ('I13', 'Returned to\nAHSPs / DPSUs'),            # CHANGED (was Returned)
+        ('I13', 'Returned to\nAHSPs / DPSUs'),
         ('J13', 'Updation\nTarget'),
-        ('K13', 'Updation Done\nby AHSPs / DPSUs'),       # CHANGED (was Updation Done)
+        ('K13', 'Updation Done\nby AHSPs / DPSUs'),
     ]
     for cell_ref, label in sub_hdrs:
         c = ws[cell_ref]
@@ -604,9 +541,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
 
     sno = 1
     for dpsu, items in dpsu_groups.items():
-        first_row = current_row
-        n_items   = len(items)
-
         for item_idx, item in enumerate(items):
             bg = C['alt1'] if current_row % 2 == 0 else C['alt2']
             ws.row_dimensions[current_row].height = 18
@@ -631,15 +565,11 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
                 vfg = C['green'] if val > 0 else '999999'
                 style_cell(c, val, bg=bg, fg=vfg, bold=(val > 0), size=9)
 
-            for col in [10, 11]:
+            for col in [10, 11, 12]:
                 c = ws.cell(row=current_row, column=col)
                 style_cell(c, '', bg=bg, fg='888888', size=8)
 
-            c = ws.cell(row=current_row, column=12)
-            style_cell(c, '', bg=bg, fg='888888', size=8)
-
             current_row += 1
-
         sno += 1
 
     ws.row_dimensions[current_row].height = 24
@@ -663,9 +593,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         c.border = gold_border()
 
     sig_row = current_row + 3
-    ws.row_dimensions[sig_row].height = 14
-    ws.row_dimensions[sig_row + 3].height = 14
-
     sig_data = [
         ('A', 'D', 'Prepared By'),
         ('E', 'I', 'Checked By / DS Member'),
@@ -702,13 +629,10 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     c.fill  = fill(C['navy'])
     c.alignment = Alignment(horizontal='center', vertical='center')
 
-    # ════════════════════════════════════════════════════════════════
-    #  SHEET 2: DPSU BREAKDOWN
-    # ════════════════════════════════════════════════════════════════
+    # SHEET 2: DPSU BREAKDOWN
     ws2 = wb.create_sheet('DPSU Analysis')
     ws2.sheet_view.showGridLines = False
     ws2.sheet_view.zoomScale = 90
-
     col_w2 = [6, 26, 16, 16, 16, 16, 16]
     for i, w in enumerate(col_w2, 1):
         ws2.column_dimensions[get_column_letter(i)].width = w
@@ -752,8 +676,8 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     ws2.merge_cells('A4:G4')
     ws2['A4'].fill = fill(C['gold'])
     ws2.row_dimensions[4].height = 8
-
     ws2.row_dimensions[5].height = 32
+
     h2_labels = ['S.No', 'DPSU / AsHSP', 'Total Items', 'NSN Allotted', 'Returned', 'Pending']
     for col_idx, label in enumerate(h2_labels, 1):
         c = ws2.cell(row=5, column=col_idx)
@@ -771,7 +695,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         tot_nsn   = sum(x['nsn_allotted'] for x in dpsu_rows)
         tot_ret   = sum(x['returned']     for x in dpsu_rows)
         tot_pend  = cnt - tot_ret
-
         row_vals = [s_idx, dpsu, cnt, tot_nsn, tot_ret, tot_pend]
         for col_idx, val in enumerate(row_vals, 1):
             c = ws2.cell(row=row2, column=col_idx)
@@ -788,8 +711,7 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     c = ws2[f'A{row2}']
     style_cell(c, 'TOTAL', bold=True, fg=C['gold'], bg=C['total_bg'], size=10, border=False)
     c.border = gold_border()
-    tot2_vals = [stats['total'], stats['nsn_allotted'], stats['returned'],
-                 stats['pending']]
+    tot2_vals = [stats['total'], stats['nsn_allotted'], stats['returned'], stats['pending']]
     for col_idx, val in enumerate(tot2_vals, 3):
         c = ws2.cell(row=row2, column=col_idx)
         c.value = val
@@ -798,95 +720,12 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         c.alignment = Alignment(horizontal='center', vertical='center')
         c.border = gold_border()
 
-    # ════════════════════════════════════════════════════════════════
-    #  SHEET 3: SERVICE BREAKDOWN
-    # ════════════════════════════════════════════════════════════════
-    ws3 = wb.create_sheet('Service Breakdown')
-    ws3.sheet_view.showGridLines = False
-    for i, w in enumerate([6, 22, 16], 1):
-        ws3.column_dimensions[get_column_letter(i)].width = w
-
-    ws3.merge_cells('A1:C1')
-    c = ws3['A1']
-    c.value = 'SERVICE-WISE DISTRIBUTION — ' + period_label
-    c.font  = Font(bold=True, color=C['gold'], size=12, name='Calibri')
-    c.fill  = fill(C['navy'])
-    c.alignment = Alignment(horizontal='center', vertical='center')
-    ws3.row_dimensions[1].height = 30
-
-    ws3.merge_cells('A2:C2')
-    ws3['A2'].fill = fill(C['gold'])
-    ws3.row_dimensions[2].height = 8
-
-    ws3.row_dimensions[3].height = 24
-    for col_idx, label in enumerate(['S.No', 'Service / NCB', 'Total Items'], 1):
-        c = ws3.cell(row=3, column=col_idx)
-        style_cell(c, label, bold=True, fg=C['gold'], bg=C['total_bg'], size=9)
-
-    for r3_idx, (svc, cnt) in enumerate(stats['by_ncb'].items(), 4):
-        ws3.row_dimensions[r3_idx].height = 18
-        bg = C['alt1'] if r3_idx % 2 == 0 else C['alt2']
-        for col_idx, val in enumerate([r3_idx - 3, svc, cnt], 1):
-            c = ws3.cell(row=r3_idx, column=col_idx)
-            style_cell(c, val, bg=bg, fg='1A1A1A' if col_idx == 2 else C['navy_mid'],
-                       align='left' if col_idx == 2 else 'center', size=9, bold=(col_idx==1))
-
-    # ════════════════════════════════════════════════════════════════
-    #  SHEET 4: EQUIPMENT ANALYSIS
-    # ════════════════════════════════════════════════════════════════
-    ws4 = wb.create_sheet('Equipment Analysis')
-    ws4.sheet_view.showGridLines = False
-    for i, w in enumerate([6, 48, 16], 1):
-        ws4.column_dimensions[get_column_letter(i)].width = w
-
-    ws4.merge_cells('A1:C1')
-    c = ws4['A1']
-    c.value = 'TOP EQUIPMENT TYPES — ' + period_label
-    c.font  = Font(bold=True, color=C['gold'], size=12, name='Calibri')
-    c.fill  = fill(C['navy'])
-    c.alignment = Alignment(horizontal='center', vertical='center')
-    ws4.row_dimensions[1].height = 30
-
-    ws4.merge_cells('A2:C2')
-    ws4['A2'].fill = fill(C['gold'])
-    ws4.row_dimensions[2].height = 8
-
-    ws4.row_dimensions[3].height = 24
-    for col_idx, label in enumerate(['Rank', 'Equipment Name', 'Items'], 1):
-        c = ws4.cell(row=3, column=col_idx)
-        style_cell(c, label, bold=True, fg=C['gold'], bg=C['total_bg'], size=9)
-
-    for r4_idx, (equip, cnt) in enumerate(stats['by_equipment'].items(), 4):
-        ws4.row_dimensions[r4_idx].height = 20
-        bg = C['alt1'] if r4_idx % 2 == 0 else C['alt2']
-        rank_label = ['🥇','🥈','🥉'] + [str(i) for i in range(4, 20)]
-        rank = rank_label[r4_idx - 4]
-        for col_idx, val in enumerate([rank, equip, cnt], 1):
-            c = ws4.cell(row=r4_idx, column=col_idx)
-            style_cell(c, val, bg=bg, fg='1A1A1A' if col_idx == 2 else C['navy_mid'],
-                       align='left' if col_idx == 2 else 'center', size=9, bold=(col_idx==1),
-                       wrap=(col_idx==2))
-
     out_path = os.path.join('reports', f'{filename_base}.xlsx')
     wb.save(out_path)
     return out_path
 
 
-# ─── Report Dispatchers ──────────────────────────────────────────────────────
-def build_monthly_report(engine, year, month):
-    start, end = DataEngine.monthly_ranges(year, month)
-    filt = engine.filter(start, end)
-    stats = engine.summary(filt)
-    rows  = engine.group_for_report(filt)
-    mn    = start.strftime('%B %Y').upper()
-    return _build_report(stats, rows,
-        title=f'CODIFICATION SUMMARY FOR THE MONTH OF {mn}',
-        subtitle=f'Monthly Progress Report | {mn}',
-        filename_base=f'monthly_{year}_{month:02d}',
-        report_type='MONTHLY',
-        period_label=mn)
-
-# Routes ──────────────────────────────────────────────────────────────────
+# ─── Routes ──────────────────────────────────────────────────────────────────
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -933,6 +772,36 @@ def analyze():
         stats['date_min'] = stats['date_max'] = 'N/A'
     return jsonify(stats)
 
+# ─── NEW: Multi-file analyze endpoint ────────────────────────────────────────
+@app.route('/analyze_multi', methods=['POST'])
+def analyze_multi():
+    """Analyze multiple files and return stats for each."""
+    data = request.json
+    filenames = data.get('filenames', [])
+    results = []
+    for filename in filenames:
+        path = os.path.join(app.config['UPLOAD_FOLDER'], filename) if filename else None
+        if not path or not os.path.exists(path):
+            path = TRAINING_DATA_PATH
+        if not os.path.exists(path):
+            results.append({'filename': filename, 'error': 'File not found'})
+            continue
+        try:
+            df = pd.read_excel(path)
+            engine = DataEngine(df)
+            stats = engine.summary(df)
+            if 'Received_Date' in df.columns:
+                dates = pd.to_datetime(df['Received_Date'], dayfirst=True, errors='coerce').dropna()
+                stats['date_min'] = dates.min().strftime('%d-%b-%Y') if len(dates) else 'N/A'
+                stats['date_max'] = dates.max().strftime('%d-%b-%Y') if len(dates) else 'N/A'
+            else:
+                stats['date_min'] = stats['date_max'] = 'N/A'
+            stats['filename'] = filename
+            results.append(stats)
+        except Exception as e:
+            results.append({'filename': filename, 'error': str(e)})
+    return jsonify(results)
+
 @app.route('/generate', methods=['POST'])
 def generate():
     if 'file' in request.files:
@@ -949,7 +818,6 @@ def generate():
     if not os.path.exists(filepath):
         return render_template('index.html', error='No dataset available. Please upload an Excel file first.')
 
-    # Determine month/year string for heading only
     month_name = ''
     if month and year:
         try:
@@ -960,17 +828,81 @@ def generate():
 
     try:
         report = generate_report(filepath)
-
-        # ── Generate Excel from same report_data ──────────────────────────
         ts = datetime.now().strftime('%Y%m%d_%H%M%S')
         excel_filename_base = f'report_{ts}'
         excel_path = build_excel_from_report_data(report, heading, excel_filename_base)
         excel_filename = os.path.basename(excel_path)
-
         return render_template('report.html', data=report, now=datetime.now(),
                                heading=heading, last_report_filename=excel_filename)
     except Exception as ex:
         return render_template('index.html', error=f'Report generation failed: {str(ex)}')
+
+# ─── NEW: Multi-file generate endpoint (returns JSON) ────────────────────────
+@app.route('/generate_multi', methods=['POST'])
+def generate_multi():
+    """Generate reports for multiple files, return JSON with all report data."""
+    data = request.json
+    filenames = data.get('filenames', [])
+    year = data.get('year', '')
+    month = data.get('month', '')
+
+    month_name = ''
+    if month and year:
+        try:
+            month_name = datetime(1900, int(month), 1).strftime('%B').upper() + f' {year}'
+        except Exception:
+            month_name = ''
+
+    results = []
+    for filename in filenames:
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename) if filename else TRAINING_DATA_PATH
+        if not os.path.exists(filepath):
+            results.append({'filename': filename, 'error': 'File not found'})
+            continue
+        try:
+            heading = f'CODIFICATION SUMMARY FOR THE MONTH OF {month_name}' if month_name else f'CODIFICATION SUMMARY — {filename}'
+            report_data = generate_report(filepath)
+
+            ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+            safe_name = filename.replace('.xlsx', '').replace('.xls', '').replace(' ', '_')
+            excel_filename_base = f'report_{safe_name}_{ts}'
+            excel_path = build_excel_from_report_data(report_data, heading, excel_filename_base)
+            excel_filename = os.path.basename(excel_path)
+
+            # Build HTML table rows for inline rendering
+            rows_html = []
+            totals = {'codified': 0, 'fwd': 0, 'nsn': 0, 'returned': 0}
+            serial = 1
+            for dpsu, items in report_data.items():
+                for idx, item in enumerate(items):
+                    totals['codified'] += item['Total_Codified']
+                    totals['fwd']      += item['Fwd_DCA']
+                    totals['nsn']      += item['NSN']
+                    totals['returned'] += item['Returned']
+                    rows_html.append({
+                        'serial': serial,
+                        'dpsu': dpsu if idx == 0 else '',
+                        'dpsu_rowspan': len(items) if idx == 0 else 0,
+                        'equipment': item['Equipment'],
+                        'total_codified': item['Total_Codified'],
+                        'fwd_dca': item['Fwd_DCA'],
+                        'nsn': item['NSN'],
+                        'returned': item['Returned'],
+                    })
+                    serial += 1
+
+            results.append({
+                'filename': filename,
+                'heading': heading,
+                'excel_filename': excel_filename,
+                'rows': rows_html,
+                'totals': totals,
+                'serial_end': serial,
+            })
+        except Exception as ex:
+            results.append({'filename': filename, 'error': str(ex)})
+
+    return jsonify(results)
 
 @app.route('/download/<filename>')
 def download(filename):

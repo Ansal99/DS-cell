@@ -21,15 +21,13 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--off-white);di
 canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35;}
 .scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,212,255,.012) 2px,rgba(0,212,255,.012) 4px);}
 
-/* ══ SIDEBAR ══════════════════════════════════════════════════════ */
+/* ══ SIDEBAR ══ */
 .sidebar{position:fixed;left:0;top:0;bottom:0;width:250px;z-index:50;background:rgba(5,13,26,.98);border-right:1px solid rgba(46,109,164,.25);display:flex;flex-direction:column;padding:1.2rem 0;backdrop-filter:blur(20px);}
-
 .sb-logo-row{display:flex;align-items:center;gap:12px;padding:.8rem 1.4rem 1.2rem;border-bottom:1px solid rgba(46,109,164,.2);margin-bottom:.8rem;}
 .sb-logo-img{height:48px;width:auto;filter:drop-shadow(0 0 8px rgba(255,215,0,.35));}
 .sb-logo-text .t1{font-family:var(--font-hud);font-size:.72rem;color:var(--gold);font-weight:700;}
 .sb-logo-text .t2{font-size:.6rem;color:var(--gray);font-family:var(--font-ui);}
 .sb-logo-text .t3{font-size:.55rem;color:var(--cyan);font-family:var(--font-hud);letter-spacing:.06em;}
-
 .sb-nav{display:flex;flex-direction:column;gap:3px;padding:0 .8rem;flex:1;}
 .sb-link{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:9px;color:var(--gray);text-decoration:none;font-family:var(--font-ui);font-weight:600;font-size:.9rem;transition:all var(--tr);cursor:pointer;border:none;background:none;width:100%;text-align:left;}
 .sb-link:hover{background:rgba(46,109,164,.15);color:var(--white);}
@@ -37,37 +35,13 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 .sb-icon{font-size:1rem;width:22px;text-align:center;flex-shrink:0;}
 .sb-step{margin-left:auto;font-family:var(--font-hud);font-size:.5rem;color:rgba(136,153,176,.5);}
 .sb-link.active .sb-step{color:rgba(255,215,0,.5);}
-
-/* ── Back to Home (improved) ── */
 .sb-footer{padding:1rem 1rem 1.2rem;border-top:1px solid rgba(46,109,164,.2);display:flex;flex-direction:column;gap:.8rem;}
-.btn-home{
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  width:100%;padding:13px 16px;
-  background:linear-gradient(135deg,rgba(27,58,107,.7),rgba(46,109,164,.5));
-  color:var(--off-white);
-  border:1.5px solid rgba(46,109,164,.5);
-  border-radius:10px;
-  font-family:var(--font-ui);font-weight:700;font-size:.95rem;
-  text-decoration:none;
-  letter-spacing:.04em;
-  transition:all var(--tr);
-  cursor:pointer;
-}
-.btn-home:hover{
-  background:linear-gradient(135deg,var(--gold-dk),var(--gold));
-  color:var(--navy);
-  border-color:var(--gold);
-  transform:translateY(-2px);
-  box-shadow:0 6px 20px rgba(255,215,0,.25);
-  text-decoration:none;
-}
-.btn-home-icon{font-size:1.1rem;}
+.btn-home{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px 16px;background:linear-gradient(135deg,rgba(27,58,107,.7),rgba(46,109,164,.5));color:var(--off-white);border:1.5px solid rgba(46,109,164,.5);border-radius:10px;font-family:var(--font-ui);font-weight:700;font-size:.95rem;text-decoration:none;letter-spacing:.04em;transition:all var(--tr);cursor:pointer;}
+.btn-home:hover{background:linear-gradient(135deg,var(--gold-dk),var(--gold));color:var(--navy);border-color:var(--gold);transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,215,0,.25);text-decoration:none;}
 .sb-credits{font-size:.62rem;color:rgba(136,153,176,.45);font-family:var(--font-hud);line-height:1.5;text-align:center;}
 
-/* ══ MAIN ═════════════════════════════════════════════════════════ */
+/* ══ MAIN ══ */
 .db-main{margin-left:250px;flex:1;min-height:100vh;padding:1.5rem 2rem 4rem;position:relative;z-index:2;}
-
-/* ── Top Bar ── */
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;padding-bottom:1.2rem;border-bottom:1px solid rgba(46,109,164,.2);}
 .topbar-title{font-family:var(--font-hud);font-size:1rem;font-weight:700;color:var(--white);letter-spacing:.03em;}
 .topbar-sub{font-size:.75rem;color:var(--gray);margin-top:3px;font-family:var(--font-ui);}
@@ -78,12 +52,10 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 
 /* ── KPI Strip ── */
 .kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:.9rem;margin-bottom:1.8rem;}
-.kpi-box{background:var(--bg-card);border:1px solid rgba(46,109,164,.22);border-radius:11px;padding:1rem;text-align:center;transition:all var(--tr);cursor:default;}
+.kpi-box{background:var(--bg-card);border:1px solid rgba(46,109,164,.22);border-radius:11px;padding:1rem;text-align:center;transition:all var(--tr);}
 .kpi-box:hover{transform:translateY(-4px);border-color:rgba(46,109,164,.5);}
 .kpi-box.danger{border-color:rgba(192,57,43,.3);}
-.kpi-box.danger:hover{border-color:var(--red);}
 .kpi-val{font-family:var(--font-hud);font-size:1.6rem;font-weight:700;color:var(--white);line-height:1;}
-.kpi-val.gold{color:var(--gold);}
 .kpi-lbl{font-size:.62rem;color:var(--gray);margin-top:5px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-ui);}
 
 /* ── Sections ── */
@@ -96,7 +68,7 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 .sc-sub{font-size:.8rem;color:var(--gray);margin-top:3px;}
 .sc-step{margin-left:auto;font-family:var(--font-hud);font-size:2rem;font-weight:800;color:rgba(46,109,164,.2);}
 
-/* ── Upload Zone ── */
+/* ── Multi Upload Zone ── */
 .upload-zone{border:2px dashed rgba(46,109,164,.35);border-radius:12px;padding:3rem 2rem;text-align:center;transition:all var(--tr);cursor:pointer;}
 .upload-zone:hover,.upload-zone.drag-over{border-color:var(--gold);background:rgba(255,215,0,.025);}
 .uz-icon{font-size:3.2rem;margin-bottom:1rem;}
@@ -105,76 +77,91 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 .uz-formats{font-size:.68rem;color:rgba(136,153,176,.45);margin-bottom:1.5rem;font-family:var(--font-hud);}
 .btn-browse{background:transparent;border:1.5px solid rgba(46,109,164,.5);color:var(--off-white);padding:10px 28px;border-radius:8px;font-family:var(--font-ui);font-weight:600;font-size:.9rem;cursor:pointer;transition:all var(--tr);}
 .btn-browse:hover{border-color:var(--gold);color:var(--gold);}
-.uz-progress{padding-top:2rem;}
-.pbar{height:7px;background:rgba(46,109,164,.18);border-radius:4px;overflow:hidden;margin-bottom:8px;}
-.pbar-fill{height:100%;background:linear-gradient(90deg,var(--navy-lt),var(--gold));border-radius:4px;width:0%;transition:width .4s;}
-.pbar-lbl{font-size:.78rem;color:var(--gray);font-family:var(--font-ui);}
 
-/* Training option */
+/* ── Uploaded files list ── */
+.files-list{margin-top:1.8rem;}
+.files-list-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;}
+.files-list-title{font-family:var(--font-ui);font-weight:700;color:var(--white);font-size:.95rem;}
+.files-count{font-family:var(--font-hud);font-size:.6rem;color:var(--gold);background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.2);border-radius:10px;padding:3px 10px;}
+.file-card{display:flex;align-items:center;gap:12px;background:var(--bg-card2);border:1px solid rgba(46,109,164,.2);border-radius:10px;padding:.85rem 1.1rem;margin-bottom:.5rem;animation:slideLeft .25s ease;}
+.file-card-icon{font-size:1.5rem;flex-shrink:0;}
+.file-card-info{flex:1;min-width:0;}
+.file-card-name{font-family:var(--font-ui);font-weight:700;color:var(--white);font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.file-card-meta{font-size:.72rem;color:var(--gray);margin-top:2px;font-family:var(--font-hud);}
+.file-card-badge{font-family:var(--font-hud);font-size:.5rem;color:var(--green-lt);border:1px solid rgba(39,174,96,.3);padding:2px 8px;border-radius:8px;background:rgba(39,174,96,.08);flex-shrink:0;}
+.file-card-remove{background:none;border:none;color:rgba(192,57,43,.6);cursor:pointer;font-size:1.1rem;flex-shrink:0;transition:color var(--tr);padding:4px;}
+.file-card-remove:hover{color:var(--red);}
+
 .use-training{text-align:center;margin-top:2rem;}
 .ut-divider{margin:.8rem 0;color:var(--gray);font-size:.75rem;}
 .btn-training{background:rgba(27,58,107,.4);border:1px solid rgba(46,109,164,.4);color:var(--off-white);padding:12px 26px;border-radius:8px;font-family:var(--font-ui);font-weight:600;font-size:.9rem;cursor:pointer;transition:all var(--tr);}
 .btn-training:hover{border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,.05);}
 .ut-note{font-size:.7rem;color:var(--gray);margin-top:6px;}
-
-/* Preview */
-.preview-box{margin-top:2rem;}
-.preview-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
-.ph-title{font-family:var(--font-ui);font-weight:700;color:var(--white);}
-.ph-info{font-size:.75rem;color:var(--gold);font-family:var(--font-hud);}
-.tbl-wrap{overflow-x:auto;}
-.preview-tbl{width:100%;border-collapse:collapse;}
-.preview-tbl th{background:var(--navy);color:var(--gold);font-family:var(--font-ui);font-weight:700;font-size:.72rem;padding:8px 12px;text-align:left;white-space:nowrap;border:1px solid rgba(46,109,164,.3);text-transform:uppercase;letter-spacing:.05em;}
-.preview-tbl td{font-size:.76rem;color:var(--off-white);padding:7px 12px;border:1px solid rgba(46,109,164,.12);white-space:nowrap;}
-.preview-tbl tr:nth-child(even) td{background:rgba(27,58,107,.15);}
-.preview-tbl tr:hover td{background:rgba(46,109,164,.15);}
-
 .btn-next{display:block;width:fit-content;margin:1.5rem 0 0 auto;background:linear-gradient(135deg,var(--gold),var(--gold-lt));color:var(--navy);font-family:var(--font-ui);font-weight:800;font-size:.95rem;padding:12px 28px;border-radius:8px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;}
 .btn-next:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(255,215,0,.35);}
 
-/* ── Analysis Grid ── */
+/* ── Analyze Section — File Tabs ── */
+.file-tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid rgba(46,109,164,.15);}
+.file-tab{padding:9px 18px;border-radius:8px;font-family:var(--font-ui);font-weight:600;font-size:.82rem;cursor:pointer;border:1.5px solid rgba(46,109,164,.3);background:transparent;color:var(--gray);transition:all var(--tr);}
+.file-tab:hover{border-color:rgba(46,109,164,.6);color:var(--white);}
+.file-tab.active{background:linear-gradient(135deg,rgba(255,215,0,.12),rgba(255,215,0,.05));border-color:var(--gold);color:var(--gold);}
+.file-tab-panel{display:none;}
+.file-tab-panel.active{display:block;animation:fadeIn .35s ease;}
+
+/* ── Analysis grid ── */
 .analyze-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.4rem;margin-bottom:1.4rem;}
 .ag-card{background:var(--bg-card2);border:1px solid rgba(46,109,164,.22);border-radius:12px;padding:1.5rem;}
 .ag-card.wide{grid-column:1/-1;}
-.ag-card canvas{max-width:100%;height:auto;}
 .ag-title{font-family:var(--font-ui);font-weight:700;font-size:.9rem;color:var(--white);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid rgba(46,109,164,.18);}
 
-/* Chart bars */
 .chart-bars{display:flex;flex-direction:column;gap:8px;}
 .cb-row{display:flex;align-items:center;gap:10px;}
 .cb-lbl{font-size:.72rem;color:var(--gray);width:90px;flex-shrink:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .cb-track{flex:1;height:19px;background:rgba(46,109,164,.13);border-radius:4px;overflow:hidden;}
 .cb-fill{height:100%;background:linear-gradient(90deg,var(--navy-lt),var(--gold));border-radius:4px;width:0%;transition:width 1.1s cubic-bezier(.4,0,.2,1);}
-.cb-fill.ncb{background:linear-gradient(90deg,var(--green),var(--green-lt));}
-.cb-fill.eq{background:linear-gradient(90deg,var(--navy-mid),var(--cyan));}
+.cb-fill.green{background:linear-gradient(90deg,var(--green),var(--green-lt));}
 .cb-val{font-family:var(--font-hud);font-size:.66rem;color:var(--gold);width:36px;flex-shrink:0;}
 
-/* Donut */
-.donut-wrap{display:flex;align-items:center;gap:1.5rem;}
-.donut-svg{width:145px;height:145px;flex-shrink:0;}
-.donut-legend{display:flex;flex-direction:column;gap:7px;}
-.dl-item{display:flex;align-items:center;gap:8px;font-size:.76rem;color:var(--gray);}
-.dl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-
-/* Gauge */
-.gauge-wrap{display:flex;flex-direction:column;align-items:center;gap:.5rem;}
-.gauge-svg{width:190px;height:105px;}
-.gauge-num{font-family:var(--font-hud);font-size:2.2rem;font-weight:800;color:var(--gold);text-align:center;}
-.gauge-lbl{font-size:.65rem;color:var(--gray);text-align:center;text-transform:uppercase;letter-spacing:.1em;}
-
-/* Report params */
+/* ── Report Section — multi-report panels ── */
 .rp-wrap{background:var(--bg-card2);border:1px solid rgba(46,109,164,.22);border-radius:12px;padding:1.5rem;display:flex;flex-wrap:wrap;gap:1.5rem;margin-bottom:1.5rem;}
 .rp-row{display:flex;flex-direction:column;gap:6px;}
 .rp-lbl{font-size:.72rem;color:var(--gray);font-family:var(--font-ui);font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
 .rp-sel{background:var(--navy);border:1px solid rgba(46,109,164,.4);color:var(--white);font-family:var(--font-ui);font-size:.9rem;padding:9px 14px;border-radius:8px;outline:none;cursor:pointer;min-width:180px;transition:border-color var(--tr);}
 .rp-sel:focus{border-color:var(--gold);}
-
-/* Generate button */
 .btn-generate{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:linear-gradient(135deg,var(--navy-mid),var(--navy-lt));color:var(--white);font-family:var(--font-ui);font-weight:700;font-size:1.05rem;padding:16px;border-radius:10px;border:1.5px solid rgba(46,109,164,.5);cursor:pointer;transition:all var(--tr);}
 .btn-generate:hover{background:linear-gradient(135deg,var(--gold),var(--gold-lt));color:var(--navy);border-color:var(--gold);box-shadow:0 8px 26px rgba(255,215,0,.3);transform:translateY(-2px);}
 .gen-spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;}
 
-/* ── History ── */
+/* ── Multi Report Panels ── */
+.report-panels{margin-top:2rem;display:flex;flex-direction:column;gap:2rem;}
+.report-panel{background:var(--bg-card2);border:1px solid rgba(46,109,164,.25);border-radius:14px;overflow:hidden;animation:fadeIn .4s ease;}
+.rp-header{display:flex;justify-content:space-between;align-items:center;padding:1.2rem 1.5rem;background:linear-gradient(90deg,var(--navy-mid),var(--navy));border-bottom:1px solid rgba(46,109,164,.3);}
+.rp-header-left{}
+.rp-file-label{font-family:var(--font-hud);font-size:.58rem;color:var(--cyan);letter-spacing:.12em;margin-bottom:4px;}
+.rp-heading{font-family:var(--font-ui);font-weight:700;color:var(--white);font-size:1rem;}
+.rp-header-right{display:flex;gap:.8rem;align-items:center;}
+.btn-dl-rp{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;background:linear-gradient(135deg,var(--green),var(--green-lt));color:var(--white);font-family:var(--font-ui);font-weight:700;font-size:.82rem;border-radius:7px;text-decoration:none;transition:all var(--tr);}
+.btn-dl-rp:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(26,122,74,.4);color:var(--white);}
+
+/* KPI row inside report panel */
+.rp-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid rgba(46,109,164,.2);}
+.rp-kpi{text-align:center;padding:.9rem .5rem;border-right:1px solid rgba(46,109,164,.15);}
+.rp-kpi:last-child{border-right:none;}
+.rp-kpi-val{font-family:var(--font-hud);font-size:1.3rem;font-weight:700;color:var(--gold);}
+.rp-kpi-lbl{font-size:.58rem;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;font-family:var(--font-ui);}
+
+/* Table inside report panel */
+.rp-table-wrap{overflow-x:auto;padding:1rem 1.2rem 1.2rem;}
+.rp-table{width:100%;border-collapse:collapse;font-size:.78rem;min-width:820px;}
+.rp-table th{background:var(--navy);color:var(--gold);font-family:var(--font-ui);font-weight:700;font-size:.68rem;padding:8px 10px;text-align:center;border:1px solid rgba(46,109,164,.4);text-transform:uppercase;letter-spacing:.04em;}
+.rp-table td{color:var(--off-white);padding:7px 10px;border:1px solid rgba(46,109,164,.12);text-align:center;}
+.rp-table td.left{text-align:left;}
+.rp-table tr:nth-child(even) td{background:rgba(27,58,107,.12);}
+.rp-table tr:hover td{background:rgba(46,109,164,.12);}
+.rp-table .total-row td{background:rgba(10,25,41,.8)!important;color:var(--gold);font-weight:700;font-family:var(--font-hud);font-size:.75rem;}
+.rp-error{padding:2rem;text-align:center;color:var(--red);font-family:var(--font-ui);}
+
+/* History */
 .history-list{display:flex;flex-direction:column;gap:.9rem;}
 .history-empty{text-align:center;color:var(--gray);padding:3rem;font-size:.9rem;}
 .history-item{display:flex;align-items:center;justify-content:space-between;background:var(--bg-card2);border:1px solid rgba(46,109,164,.18);border-radius:10px;padding:1rem 1.5rem;animation:slideLeft .3s ease;}
@@ -186,48 +173,44 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 .hi-dl a{display:inline-block;background:rgba(26,122,74,.15);border:1px solid rgba(26,122,74,.3);color:var(--green-lt);padding:7px 18px;border-radius:6px;font-size:.78rem;text-decoration:none;font-family:var(--font-ui);font-weight:600;transition:all var(--tr);}
 .hi-dl a:hover{background:rgba(26,122,74,.3);}
 .hi-badge{display:inline-block;font-family:var(--font-hud);font-size:.5rem;color:var(--gold);border:1px solid rgba(255,215,0,.25);padding:2px 8px;border-radius:10px;letter-spacing:.08em;margin-left:6px;}
-
-/* Clear history button */
 .history-header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;}
 .btn-clear-history{background:transparent;border:1px solid rgba(192,57,43,.3);color:rgba(192,57,43,.7);font-family:var(--font-ui);font-size:.78rem;padding:6px 14px;border-radius:6px;cursor:pointer;transition:all var(--tr);}
 .btn-clear-history:hover{border-color:var(--red);color:var(--red);background:rgba(192,57,43,.08);}
 
-/* ── Animations ── */
+/* Loading overlay */
+.loading-overlay{position:fixed;inset:0;background:rgba(5,13,26,.88);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;backdrop-filter:blur(6px);}
+.loading-overlay.show{display:flex;}
+.lo-spinner{width:56px;height:56px;border:3px solid rgba(46,109,164,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .9s linear infinite;}
+.lo-text{font-family:var(--font-hud);font-size:.75rem;color:var(--gold);letter-spacing:.12em;}
+
+/* Animations */
 @keyframes pulse-g{0%,100%{box-shadow:0 0 0 0 rgba(39,174,96,.6)}50%{box-shadow:0 0 0 7px rgba(39,174,96,0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideLeft{from{opacity:0;transform:translateX(-25px)}to{opacity:1;transform:none}}
 
-/* ── RESPONSIVE ── */
-@media (max-width: 1100px){
-  .kpi-strip{grid-template-columns:repeat(3,1fr);}
-  .analyze-grid{grid-template-columns:1fr;}
-  .rp-wrap{display:grid;grid-template-columns:1fr 1fr;}
-}
-@media (max-width: 860px){
+@media (max-width:1100px){.kpi-strip{grid-template-columns:repeat(3,1fr);}.analyze-grid{grid-template-columns:1fr;}}
+@media (max-width:860px){
   .sidebar{position:relative;width:100%;height:auto;border-right:none;border-bottom:1px solid rgba(46,109,164,.25);padding-bottom:.8rem;}
   .sb-nav{flex-direction:row;flex-wrap:wrap;gap:.5rem;padding:.6rem 1rem 1rem;justify-content:center;}
   .sb-link{flex:1 1 45%;padding:10px 12px;}
   .db-main{margin-left:0;padding:1.2rem 1rem 3rem;}
   .topbar{flex-wrap:wrap;gap:1rem;}
-  .topbar-right{width:100%;justify-content:flex-start;gap:1rem;}
   .kpi-strip{grid-template-columns:repeat(2,1fr);}
-  .upload-zone{padding:2rem 1rem;}
-  .preview-hdr{flex-direction:column;align-items:flex-start;}
-  .preview-tbl th,.preview-tbl td{font-size:.78rem;padding:8px 10px;}
-  .history-item{flex-direction:column;align-items:flex-start;gap:.8rem;}
-  .rp-wrap{grid-template-columns:1fr;}
-  .btn-browse,.btn-training,.btn-generate{width:100%;}
+  .rp-kpi-row{grid-template-columns:repeat(2,1fr);}
 }
-@media (max-width: 640px){
-  .sb-link{flex:1 1 100%;}
-  .kpi-strip{grid-template-columns:1fr;}
-}
+@media (max-width:640px){.sb-link{flex:1 1 100%;}.kpi-strip{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
 <div class="scan"></div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="lo-spinner"></div>
+  <div class="lo-text" id="loText">GENERATING REPORTS...</div>
+</div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
@@ -240,40 +223,22 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
     </div>
   </div>
   <nav class="sb-nav">
-    <button class="sb-link active" data-section="upload">
-      <span class="sb-icon">⬆</span> Upload Dataset
-      <span class="sb-step">01</span>
-    </button>
-    <button class="sb-link" data-section="analyze">
-      <span class="sb-icon">🔬</span> Analyze Data
-      <span class="sb-step">02</span>
-    </button>
-    <button class="sb-link" data-section="report">
-      <span class="sb-icon">📋</span> Generate Report
-      <span class="sb-step">03</span>
-    </button>
-    <button class="sb-link" data-section="history">
-      <span class="sb-icon">📁</span> Report History
-      <span class="sb-step">04</span>
-    </button>
+    <button class="sb-link active" data-section="upload"><span class="sb-icon">⬆</span> Upload Dataset<span class="sb-step">01</span></button>
+    <button class="sb-link" data-section="analyze"><span class="sb-icon">🔬</span> Analyze Data<span class="sb-step">02</span></button>
+    <button class="sb-link" data-section="report"><span class="sb-icon">📋</span> Generate Reports<span class="sb-step">03</span></button>
+    <button class="sb-link" data-section="history"><span class="sb-icon">📁</span> Report History<span class="sb-step">04</span></button>
   </nav>
-
-  <!-- ── Back to Home (improved) ── -->
   <div class="sb-footer">
-    <a href="/" class="btn-home">
-      <span class="btn-home-icon">🏠</span>
-      Back to Home
-    </a>
+    <a href="/" class="btn-home"><span>🏠</span> Back to Home</a>
     <div class="sb-credits">Cobra Tech<br/>ABVGIET Shimla</div>
   </div>
 </aside>
 
 <!-- MAIN -->
 <main class="db-main">
-
   <!-- Topbar -->
   <div class="topbar">
-    <div class="topbar-left">
+    <div>
       <h1 class="topbar-title">Codification Intelligence Dashboard</h1>
       <div class="topbar-sub">Directorate of Standardisation, Bengaluru — Member AC/135</div>
     </div>
@@ -283,7 +248,7 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
     </div>
   </div>
 
-  <!-- KPI Strip -->
+  <!-- KPI Strip (aggregate) -->
   <div class="kpi-strip">
     <div class="kpi-box"><div class="kpi-val" id="kpi-total">—</div><div class="kpi-lbl">Total Items</div></div>
     <div class="kpi-box"><div class="kpi-val" id="kpi-nsn">—</div><div class="kpi-lbl">NSN Allotted</div></div>
@@ -292,87 +257,70 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
     <div class="kpi-box danger"><div class="kpi-val" id="kpi-pend">—</div><div class="kpi-lbl">Pending</div></div>
   </div>
 
-  <!-- ══ STEP 1: UPLOAD ══════════════════════════════════════════ -->
+  <!-- ══ STEP 1: UPLOAD ══ -->
   <section class="db-section active" id="upload-section">
     <div class="section-card">
       <div class="sc-hdr">
         <div class="sc-icon">⬆</div>
-        <div><div class="sc-title">Step 1 — Upload Dataset</div><div class="sc-sub">Upload your Excel file (.xlsx) containing NSN codification data</div></div>
+        <div><div class="sc-title">Step 1 — Upload Datasets</div><div class="sc-sub">Upload one or multiple Excel files (.xlsx) — each file will get its own report & analysis</div></div>
         <div class="sc-step">01</div>
       </div>
 
       <div class="upload-zone" id="uploadZone">
         <div class="uz-icon">📂</div>
-        <div class="uz-title">Drag & Drop Excel File Here</div>
-        <div class="uz-sub">or click to browse files</div>
-        <div class="uz-formats">Supported: .xlsx · .xls</div>
-        <input type="file" id="fileInput" accept=".xlsx,.xls" hidden/>
-        <button class="btn-browse" onclick="document.getElementById('fileInput').click()">Choose File</button>
-        <div id="uzProgress" style="display:none;">
-          <div class="uz-progress">
-            <div class="pbar"><div class="pbar-fill" id="pbarFill"></div></div>
-            <div class="pbar-lbl" id="pbarLbl">Uploading...</div>
-          </div>
-        </div>
+        <div class="uz-title">Drag & Drop Excel Files Here</div>
+        <div class="uz-sub">Upload multiple files to generate separate reports for each</div>
+        <div class="uz-formats">Supported: .xlsx · .xls &nbsp;|&nbsp; Multiple files allowed</div>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" multiple hidden/>
+        <button class="btn-browse" onclick="document.getElementById('fileInput').click()">Choose Files</button>
       </div>
 
       <div class="use-training">
         <div class="ut-divider">— OR —</div>
-        <button class="btn-training" id="useTrainingBtn">🗃️ Use Pre-loaded Training Dataset (500 records)</button>
+        <button class="btn-training" id="useTrainingBtn">🗃️ Use Pre-loaded Training Dataset</button>
         <p class="ut-note">Uses the Defence Standardisation dataset included with this system</p>
       </div>
 
-      <div id="previewBox" style="display:none;">
-        <div class="preview-box">
-          <div class="preview-hdr">
-            <span class="ph-title">📋 Data Preview</span>
-            <span class="ph-info" id="previewInfo"></span>
-          </div>
-          <div class="tbl-wrap">
-            <table class="preview-tbl" id="previewTbl"></table>
-          </div>
-          <button class="btn-next" id="goAnalyze">Next: Analyze Data →</button>
+      <!-- Uploaded files list -->
+      <div class="files-list" id="filesList" style="display:none;">
+        <div class="files-list-hdr">
+          <span class="files-list-title">📋 Uploaded Files</span>
+          <span class="files-count" id="filesCount">0 files</span>
         </div>
+        <div id="filesCards"></div>
+        <button class="btn-next" id="goAnalyze">Next: Analyze Data →</button>
       </div>
     </div>
   </section>
 
-  <!-- ══ STEP 2: ANALYZE ════════════════════════════════════════ -->
+  <!-- ══ STEP 2: ANALYZE ══ -->
   <section class="db-section" id="analyze-section">
     <div class="section-card">
       <div class="sc-hdr">
         <div class="sc-icon">🔬</div>
-        <div><div class="sc-title">Step 2 — Data Analysis</div><div class="sc-sub">Deep-dive visual analytics on your codification dataset</div></div>
+        <div><div class="sc-title">Step 2 — Data Analysis</div><div class="sc-sub">Each uploaded file shown in a separate tab with its own analytics</div></div>
         <div class="sc-step">02</div>
       </div>
 
-      <div class="analyze-grid">
-        <div class="ag-card"><div class="ag-title">DPSU Distribution</div><div id="dpsuBars"></div></div>
-        <div class="ag-card"><div class="ag-title">Service-wise Breakdown (NCB)</div><div id="ncbBars"></div></div>
-        <div class="ag-card wide"><div class="ag-title">Top 10 Equipment Types</div><div id="equipBars"></div></div>
-        <div class="ag-card"><div class="ag-title">Processing Status Overview</div><div id="statusBars"></div></div>
-      </div>
+      <!-- File tabs -->
+      <div class="file-tabs" id="analyzeTabs"></div>
+      <!-- Tab panels container -->
+      <div id="analyzeTabPanels"></div>
 
-      <div class="analyze-grid">
-        <div class="ag-card"><div class="ag-title">DPSU Contribution</div><canvas id="dpsuChart"></canvas></div>
-        <div class="ag-card"><div class="ag-title">Processing Status</div><canvas id="statusChart"></canvas></div>
-        <div class="ag-card"><div class="ag-title">Forwarded to DOS</div><canvas id="forwardedChart"></canvas></div>
-        <div class="ag-card"><div class="ag-title">Returned to DPSU</div><canvas id="returnedChart"></canvas></div>
-        <div class="ag-card wide"><div class="ag-title">Pending per DPSU</div><canvas id="pendingChart"></canvas></div>
-      </div>
-
-      <button class="btn-next" id="goReport">Next: Generate Report →</button>
+      <button class="btn-next" id="goReport" style="margin-top:1.5rem;">Next: Generate Reports →</button>
     </div>
   </section>
 
-  <!-- ══ STEP 3: GENERATE ═══════════════════════════════════════ -->
+  <!-- ══ STEP 3: GENERATE ══ -->
   <section class="db-section" id="report-section">
     <div class="section-card">
       <div class="sc-hdr">
         <div class="sc-icon">📋</div>
-        <div><div class="sc-title">Step 3 — Generate Report</div><div class="sc-sub">Select type &amp; parameters — exports with DS Cell logo &amp; official headers</div></div>
+        <div><div class="sc-title">Step 3 — Generate Reports</div><div class="sc-sub">Each uploaded file gets its own report section with separate download</div></div>
         <div class="sc-step">03</div>
       </div>
+
+      <!-- Params -->
       <div class="rp-wrap">
         <div class="rp-row">
           <label class="rp-lbl">Year</label>
@@ -380,7 +328,7 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
             <option>2026</option><option>2025</option><option>2024</option><option>2023</option>
           </select>
         </div>
-        <div class="rp-row" id="paramMonthRow">
+        <div class="rp-row">
           <label class="rp-lbl">Month</label>
           <select class="rp-sel" id="paramMonth">
             <option value="1">January</option><option value="2">February</option><option value="3">March</option>
@@ -389,376 +337,484 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
             <option value="10">October</option><option value="11">November</option><option value="12">December</option>
           </select>
         </div>
+        <div class="rp-row" style="justify-content:flex-end;align-self:flex-end;">
+          <div id="selectedFilesInfo" style="font-size:.75rem;color:var(--gray);font-family:var(--font-ui);"></div>
+        </div>
       </div>
 
-      <!-- Form submits in SAME TAB (no target="_blank") -->
-      <form id="generateForm" action="/generate" method="post">
-        <input type="hidden" name="filename" id="filenameField" value="" />
-        <input type="hidden" name="year" id="yearField" value="" />
-        <input type="hidden" name="month" id="monthField" value="" />
-      </form>
       <button type="button" class="btn-generate" id="generateBtn">
-        <span id="genBtnTxt">⚡ Generate HTML Report</span>
+        <span id="genBtnTxt">⚡ Generate All Reports</span>
         <div class="gen-spinner" id="genSpinner" style="display:none;"></div>
       </button>
+
+      <!-- Multiple report panels rendered here -->
+      <div class="report-panels" id="reportPanels"></div>
     </div>
   </section>
 
-  <!-- ══ STEP 4: HISTORY ════════════════════════════════════════ -->
+  <!-- ══ STEP 4: HISTORY ══ -->
   <section class="db-section" id="history-section">
     <div class="section-card">
       <div class="sc-hdr">
         <div class="sc-icon">📁</div>
-        <div><div class="sc-title">Report History</div><div class="sc-sub">All reports generated this session — with date, time &amp; download link</div></div>
+        <div><div class="sc-title">Report History</div><div class="sc-sub">All reports generated this session</div></div>
         <div class="sc-step">04</div>
       </div>
-
       <div class="history-header-row">
         <span style="font-size:.8rem;color:var(--gray);font-family:var(--font-ui);" id="historyCount"></span>
         <button class="btn-clear-history" id="clearHistoryBtn">🗑 Clear History</button>
       </div>
-
       <div class="history-list" id="historyList">
-        <div class="history-empty" id="historyEmpty">No reports generated yet. Go to Step 3 to generate your first report.</div>
+        <div class="history-empty" id="historyEmpty">No reports generated yet.</div>
       </div>
     </div>
   </section>
-
 </main>
 
 <script>
-let currentFile = null, currentStats = null;
+// ══ State ══════════════════════════════════════════════════════════
+let uploadedFiles = []; // [{filename, rows, displayName}]
+let analysisData  = []; // [{filename, stats}]
 
-// ── Section navigation ──────────────────────────────────────────
+// ══ Navigation ════════════════════════════════════════════════════
 const navLinks = document.querySelectorAll('.sb-link');
 const sections = document.querySelectorAll('.db-section');
+function showSection(id) {
+  navLinks.forEach(l => l.classList.toggle('active', l.dataset.section === id));
+  sections.forEach(s => s.classList.toggle('active', s.id === `${id}-section`));
+  if (id === 'history') renderHistoryList();
+  if (id === 'report') updateSelectedFilesInfo();
+}
+navLinks.forEach(l => l.addEventListener('click', () => showSection(l.dataset.section)));
 
-function showSection(sectionId) {
-  navLinks.forEach(link => link.classList.toggle('active', link.dataset.section === sectionId));
-  sections.forEach(section => section.classList.toggle('active', section.id === `${sectionId}-section`));
-  if (sectionId === 'history') renderHistoryList();
+// ══ KPI updater ═══════════════════════════════════════════════════
+function updateKpis(statsList) {
+  const agg = statsList.reduce((a, s) => ({
+    total: a.total + (s.total||0),
+    nsn_allotted: a.nsn_allotted + (s.nsn_allotted||0),
+    forwarded: a.forwarded + (s.forwarded||0),
+    returned: a.returned + (s.returned||0),
+    pending: a.pending + (s.pending||0),
+  }), {total:0, nsn_allotted:0, forwarded:0, returned:0, pending:0});
+  document.getElementById('kpi-total').textContent = agg.total || '—';
+  document.getElementById('kpi-nsn').textContent   = agg.nsn_allotted || '—';
+  document.getElementById('kpi-fwd').textContent   = agg.forwarded || '—';
+  document.getElementById('kpi-ret').textContent   = agg.returned || '—';
+  document.getElementById('kpi-pend').textContent  = agg.pending || '—';
 }
 
-navLinks.forEach(link => link.addEventListener('click', () => showSection(link.dataset.section)));
-
-// ── KPI updater ─────────────────────────────────────────────────
-function updateKpis(stats) {
-  document.getElementById('kpi-total').textContent  = stats.total ?? '—';
-  document.getElementById('kpi-nsn').textContent    = stats.nsn_allotted ?? '—';
-  document.getElementById('kpi-fwd').textContent    = stats.forwarded ?? '—';
-  document.getElementById('kpi-ret').textContent    = stats.returned ?? '—';
-  document.getElementById('kpi-pend').textContent   = stats.pending ?? '—';
-}
-
-// ── Chart rendering functions ───────────────────────────────────
-function renderDpsuChart(data) {
-  const ctx = document.getElementById('dpsuChart');
-  if (!data.by_dpsu || !Object.keys(data.by_dpsu).length) {
-    ctx.style.display = 'none';
-    return;
-  }
-  ctx.style.display = 'block';
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: Object.keys(data.by_dpsu),
-      datasets: [{
-        label: 'Items',
-        data: Object.values(data.by_dpsu),
-        backgroundColor: 'rgba(255, 215, 0, 0.6)',
-        borderColor: 'rgba(255, 215, 0, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: 'rgba(46, 109, 164, 0.2)' },
-          ticks: { color: 'var(--off-white)' }
-        },
-        x: {
-          grid: { color: 'rgba(46, 109, 164, 0.2)' },
-          ticks: { color: 'var(--off-white)' }
-        }
-      }
-    }
+// ══ Upload ════════════════════════════════════════════════════════
+function updateFilesUI() {
+  const list = document.getElementById('filesList');
+  const cards = document.getElementById('filesCards');
+  const count = document.getElementById('filesCount');
+  if (!uploadedFiles.length) { list.style.display='none'; return; }
+  list.style.display = 'block';
+  count.textContent = `${uploadedFiles.length} file${uploadedFiles.length>1?'s':''}`;
+  cards.innerHTML = '';
+  uploadedFiles.forEach((f, idx) => {
+    const div = document.createElement('div');
+    div.className = 'file-card';
+    div.innerHTML = `
+      <div class="file-card-icon">📊</div>
+      <div class="file-card-info">
+        <div class="file-card-name">${f.displayName}</div>
+        <div class="file-card-meta">File ${idx+1} · ${f.rows} rows</div>
+      </div>
+      <span class="file-card-badge">✓ READY</span>
+      <button class="file-card-remove" title="Remove" onclick="removeFile(${idx})">✕</button>`;
+    cards.appendChild(div);
   });
 }
 
-function renderStatusChart(data) {
-  const ctx = document.getElementById('statusChart');
-  if (!data) {
-    ctx.style.display = 'none';
-    return;
-  }
-  ctx.style.display = 'block';
-  new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: ['Forwarded', 'NSN Allotted', 'Returned', 'Pending'],
-      datasets: [{
-        data: [data.forwarded, data.nsn_allotted, data.returned, data.pending],
-        backgroundColor: [
-          'rgba(46, 109, 164, 0.8)',  // Forwarded - blue
-          'rgba(39, 174, 96, 0.8)',   // NSN Allotted - green
-          'rgba(192, 57, 43, 0.8)',   // Returned - red
-          'rgba(255, 215, 0, 0.8)'    // Pending - gold
-        ],
-        borderColor: [
-          'rgba(46, 109, 164, 1)',
-          'rgba(39, 174, 96, 1)',
-          'rgba(192, 57, 43, 1)',
-          'rgba(255, 215, 0, 1)'
-        ],
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color: 'var(--off-white)' }
-        }
-      }
-    }
-  });
-}
-
-function renderForwardedChart(data) {
-  const ctx = document.getElementById('forwardedChart');
-  if (!data.fwd_by_dpsu || !Object.keys(data.fwd_by_dpsu).length) {
-    ctx.style.display = 'none';
-    return;
-  }
-  ctx.style.display = 'block';
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: Object.keys(data.fwd_by_dpsu),
-      datasets: [{
-        label: 'Forwarded',
-        data: Object.values(data.fwd_by_dpsu),
-        backgroundColor: 'rgba(46, 109, 164, 0.6)',
-        borderColor: 'rgba(46, 109, 164, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: 'rgba(46, 109, 164, 0.2)' },
-          ticks: { color: 'var(--off-white)' }
-        },
-        x: {
-          grid: { color: 'rgba(46, 109, 164, 0.2)' },
-          ticks: { color: 'var(--off-white)' }
-        }
-      }
-    }
-  });
-}
-
-function renderReturnedChart(data) {
-  const ctx = document.getElementById('returnedChart');
-  if (!data.ret_by_dpsu || !Object.keys(data.ret_by_dpsu).length) {
-    ctx.style.display = 'none';
-    return;
-  }
-  ctx.style.display = 'block';
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: Object.keys(data.ret_by_dpsu),
-      datasets: [{
-        label: 'Returned',
-        data: Object.values(data.ret_by_dpsu),
-        backgroundColor: 'rgba(192, 57, 43, 0.6)',
-        borderColor: 'rgba(192, 57, 43, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: 'rgba(46, 109, 164, 0.2)' },
-          ticks: { color: 'var(--off-white)' }
-        },
-        x: {
-          grid: { color: 'rgba(46, 109, 164, 0.2)' },
-          ticks: { color: 'var(--off-white)' }
-        }
-      }
-    }
-  });
-}
-
-function renderPendingChart(data) {
-  const ctx = document.getElementById('pendingChart');
-  if (!data.pend_by_dpsu || !Object.keys(data.pend_by_dpsu).length) {
-    ctx.style.display = 'none';
-    return;
-  }
-  ctx.style.display = 'block';
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: Object.keys(data.pend_by_dpsu),
-      datasets: [{
-        label: 'Pending',
-        data: Object.values(data.pend_by_dpsu),
-        backgroundColor: 'rgba(255, 215, 0, 0.6)',
-        borderColor: 'rgba(255, 215, 0, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: 'rgba(46, 109, 164, 0.2)' },
-          ticks: { color: 'var(--off-white)' }
-        },
-        x: {
-          grid: { color: 'rgba(46, 109, 164, 0.2)' },
-          ticks: { color: 'var(--off-white)' }
-        }
-      }
-    }
-  });
-}
-
-// ── Original breakdown renderer ──────────────────────────────────────────
-function renderBreakdown(containerId, statsObj, emptyText) {
-  const container = document.getElementById(containerId);
-  if (!statsObj || !Object.keys(statsObj).length) {
-    container.innerHTML = `<div style="color:var(--gray);padding:1rem;">${emptyText}</div>`;
-    return;
-  }
-  const rows = Object.entries(statsObj)
-    .sort((a, b) => b[1] - a[1]).slice(0, 5)
-    .map(([key, val]) => `<div style="display:flex;justify-content:space-between;gap:1rem;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.08);">
-      <span style="color:var(--white);font-size:.88rem;">${key}</span>
-      <strong style="color:var(--gold);">${val}</strong></div>`).join('');
-  container.innerHTML = rows;
-}
-
-function renderStatusOverview(data) {
-  const c = document.getElementById('statusBars');
-  if (!data) { c.innerHTML = '<div style="color:var(--gray);padding:1rem;">No data.</div>'; return; }
-  c.innerHTML = `<div style="display:grid;gap:.7rem;">
-    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Forwarded</span><strong>${data.forwarded}</strong></div>
-    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Returned</span><strong>${data.returned}</strong></div>
-    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Pending</span><strong>${data.pending}</strong></div>
-    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>NSN Allotted</span><strong>${data.nsn_allotted}</strong></div>
-  </div>`;
-}
-
-async function loadAnalysis() {
-  try {
-    const filename = currentFile ? currentFile.split(',')[0] : null; // Use first file for analysis
-    const res = await fetch('/analyze', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ filename: filename }) });
-    const data = await res.json();
-    if (data.error) { alert('Analysis failed: ' + data.error); return false; }
-    updateKpis(data);
-    renderDpsuChart(data);
-    renderStatusChart(data);
-    renderForwardedChart(data);
-    renderReturnedChart(data);
-    renderPendingChart(data);
-
-    // Render original analysis elements
-    renderBreakdown('dpsuBars', data.by_dpsu, 'No DPSU data available');
-    renderBreakdown('ncbBars', data.by_ncb, 'No service data available');
-    renderBreakdown('equipBars', data.by_equipment, 'No equipment data available');
-    renderStatusOverview(data);
-
-    return true;
-  } catch(e) { alert('Analysis failed.'); return false; }
-}
-
-// ── Upload ──────────────────────────────────────────────────────
-function renderPreview(filename, rows) {
-  currentFile = filename;
-  document.getElementById('previewBox').style.display = 'block';
-  document.getElementById('previewInfo').textContent = `Filename: ${filename} · ${rows.length} rows`;
-  const tbl = document.getElementById('previewTbl');
-  tbl.innerHTML = '';
-  if (!rows.length) { tbl.innerHTML = '<tr><td>No preview available</td></tr>'; return; }
-  const cols = Object.keys(rows[0]).slice(0, 8);
-  const thead = document.createElement('thead');
-  const hrow = document.createElement('tr');
-  cols.forEach(col => { const th = document.createElement('th'); th.textContent = col; hrow.appendChild(th); });
-  thead.appendChild(hrow);
-  tbl.appendChild(thead);
-  const tbody = document.createElement('tbody');
-  rows.slice(0, 5).forEach(row => {
-    const tr = document.createElement('tr');
-    cols.forEach(col => { const td = document.createElement('td'); td.textContent = row[col] ?? ''; tr.appendChild(td); });
-    tbody.appendChild(tr);
-  });
-  tbl.appendChild(tbody);
+function removeFile(idx) {
+  uploadedFiles.splice(idx, 1);
+  updateFilesUI();
 }
 
 async function uploadFile(file) {
-  document.getElementById('uzProgress').style.display = 'block';
   const form = new FormData();
   form.append('file', file);
   try {
-    const res = await fetch('/upload', { method: 'POST', body: form });
+    const res = await fetch('/upload', { method:'POST', body:form });
     const data = await res.json();
     if (data.error) { alert('Upload failed: ' + data.error); return; }
-    renderPreview(data.filename, data.preview);
-  } catch(e) { alert('Upload failed.');
-  } finally { document.getElementById('uzProgress').style.display = 'none'; }
+    // Avoid duplicate filenames
+    if (!uploadedFiles.find(f => f.filename === data.filename)) {
+      uploadedFiles.push({ filename: data.filename, rows: data.rows, displayName: file.name });
+    }
+    updateFilesUI();
+  } catch(e) { alert('Upload failed: ' + e.message); }
 }
 
-document.getElementById('fileInput').addEventListener('change', e => { if (e.target.files.length) uploadFile(e.target.files[0]); });
+document.getElementById('fileInput').addEventListener('change', async e => {
+  const files = Array.from(e.target.files);
+  for (const f of files) await uploadFile(f);
+  e.target.value = '';
+});
+
 const uploadZone = document.getElementById('uploadZone');
 uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
 uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag-over'); if (e.dataTransfer.files.length) uploadFile(e.dataTransfer.files[0]); });
+uploadZone.addEventListener('drop', async e => {
+  e.preventDefault(); uploadZone.classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.name.match(/\.xlsx?$/i));
+  for (const f of files) await uploadFile(f);
+});
 
 document.getElementById('useTrainingBtn').addEventListener('click', () => {
-  currentFile = null;
-  document.getElementById('previewBox').style.display = 'block';
-  document.getElementById('previewInfo').textContent = 'Using built-in training dataset.';
-  document.getElementById('previewTbl').innerHTML = '<tr><td style="padding:12px;color:#ccc;">Training dataset preview not available in this mode.</td></tr>';
+  uploadedFiles = [{ filename: null, rows: '500+', displayName: 'Training Dataset (Pre-loaded)' }];
+  updateFilesUI();
 });
 
-document.getElementById('goAnalyze').addEventListener('click', async () => { if (await loadAnalysis()) showSection('analyze'); });
+// ══ Analyze ═══════════════════════════════════════════════════════
+document.getElementById('goAnalyze').addEventListener('click', async () => {
+  if (!uploadedFiles.length) { alert('Please upload at least one file.'); return; }
+  document.getElementById('loadingOverlay').classList.add('show');
+  document.getElementById('loText').textContent = 'ANALYZING DATA...';
+  try {
+    const filenames = uploadedFiles.map(f => f.filename);
+    const res = await fetch('/analyze_multi', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ filenames })
+    });
+    analysisData = await res.json();
+    updateKpis(analysisData.filter(d => !d.error));
+    buildAnalyzeTabs();
+    showSection('analyze');
+  } catch(e) { alert('Analysis failed: ' + e.message); }
+  finally { document.getElementById('loadingOverlay').classList.remove('show'); }
+});
+
 document.getElementById('goReport').addEventListener('click', () => showSection('report'));
 
-// ── Generate — same tab ─────────────────────────────────────────
-document.getElementById('generateBtn').addEventListener('click', () => {
-  document.getElementById('filenameField').value = currentFile || '';
-  document.getElementById('yearField').value     = document.getElementById('paramYear').value;
-  document.getElementById('monthField').value    = document.getElementById('paramMonth').value;
+// ── Build tabbed analysis panels ──────────────────────────────────
+const chartInstances = {};
+
+function buildAnalyzeTabs() {
+  const tabsEl = document.getElementById('analyzeTabs');
+  const panelsEl = document.getElementById('analyzeTabPanels');
+  tabsEl.innerHTML = '';
+  panelsEl.innerHTML = '';
+
+  analysisData.forEach((data, idx) => {
+    const fname = uploadedFiles[idx]?.displayName || data.filename || `File ${idx+1}`;
+    const shortName = fname.length > 22 ? fname.substring(0,20)+'…' : fname;
+
+    // Tab button
+    const tab = document.createElement('button');
+    tab.className = 'file-tab' + (idx===0?' active':'');
+    tab.textContent = `📊 ${shortName}`;
+    tab.addEventListener('click', () => switchAnalyzeTab(idx));
+    tabsEl.appendChild(tab);
+
+    // Panel
+    const panel = document.createElement('div');
+    panel.className = 'file-tab-panel' + (idx===0?' active':'');
+    panel.id = `analyze-panel-${idx}`;
+    if (data.error) {
+      panel.innerHTML = `<div style="color:var(--red);padding:2rem;text-align:center;">⚠ Error: ${data.error}</div>`;
+    } else {
+      panel.innerHTML = buildAnalyzePanel(data, idx, fname);
+    }
+    panelsEl.appendChild(panel);
+  });
+
+  // Render charts after DOM is ready
+  analysisData.forEach((data, idx) => {
+    if (!data.error) renderAnalyzeCharts(data, idx);
+  });
+}
+
+function switchAnalyzeTab(idx) {
+  document.querySelectorAll('.file-tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  document.querySelectorAll('.file-tab-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+}
+
+function buildAnalyzePanel(data, idx, fname) {
+  const dpsuEntries = Object.entries(data.by_dpsu||{}).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const ncbEntries  = Object.entries(data.by_ncb||{}).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const equipEntries= Object.entries(data.by_equipment||{}).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxDpsu = dpsuEntries[0]?.[1] || 1;
+  const maxNcb  = ncbEntries[0]?.[1] || 1;
+  const maxEquip= equipEntries[0]?.[1] || 1;
+
+  const dpsuBars = dpsuEntries.map(([k,v]) => `
+    <div class="cb-row">
+      <div class="cb-lbl" title="${k}">${k}</div>
+      <div class="cb-track"><div class="cb-fill" style="width:${(v/maxDpsu*100).toFixed(1)}%"></div></div>
+      <div class="cb-val">${v}</div>
+    </div>`).join('');
+
+  const ncbBars = ncbEntries.map(([k,v]) => `
+    <div class="cb-row">
+      <div class="cb-lbl" title="${k}">${k}</div>
+      <div class="cb-track"><div class="cb-fill green" style="width:${(v/maxNcb*100).toFixed(1)}%"></div></div>
+      <div class="cb-val">${v}</div>
+    </div>`).join('');
+
+  const equipBars = equipEntries.map(([k,v]) => `
+    <div class="cb-row">
+      <div class="cb-lbl" style="width:140px;text-align:left;" title="${k}">${k.length>20?k.substring(0,18)+'…':k}</div>
+      <div class="cb-track"><div class="cb-fill" style="width:${(v/maxEquip*100).toFixed(1)}%;background:linear-gradient(90deg,var(--navy-mid),var(--cyan));"></div></div>
+      <div class="cb-val">${v}</div>
+    </div>`).join('');
+
+  return `
+    <!-- Summary KPIs for this file -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.7rem;margin-bottom:1.5rem;">
+      ${[['Total',data.total,'var(--white)'],['Forwarded',data.forwarded,'var(--navy-lt)'],['NSN Allotted',data.nsn_allotted,'var(--green-lt)'],['Returned',data.returned,'var(--cyan)'],['Pending',data.pending,'var(--red)']].map(([l,v,c])=>`
+        <div style="background:rgba(27,58,107,.3);border:1px solid rgba(46,109,164,.2);border-radius:9px;padding:.8rem;text-align:center;">
+          <div style="font-family:var(--font-hud);font-size:1.3rem;color:${c};font-weight:700;">${v??0}</div>
+          <div style="font-size:.6rem;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;">${l}</div>
+        </div>`).join('')}
+    </div>
+    <div class="analyze-grid">
+      <div class="ag-card"><div class="ag-title">DPSU Distribution</div><div class="chart-bars">${dpsuBars||'<span style="color:var(--gray)">No data</span>'}</div></div>
+      <div class="ag-card"><div class="ag-title">Service-wise (NCB)</div><div class="chart-bars">${ncbBars||'<span style="color:var(--gray)">No data</span>'}</div></div>
+      <div class="ag-card wide"><div class="ag-title">Top Equipment Types</div><div class="chart-bars">${equipBars||'<span style="color:var(--gray)">No data</span>'}</div></div>
+    </div>
+    <div class="analyze-grid">
+      <div class="ag-card"><div class="ag-title">DPSU Contribution</div><canvas id="dpsuChart_${idx}" height="220"></canvas></div>
+      <div class="ag-card"><div class="ag-title">Processing Status</div><canvas id="statusChart_${idx}" height="220"></canvas></div>
+      <div class="ag-card"><div class="ag-title">Forwarded per DPSU</div><canvas id="fwdChart_${idx}" height="220"></canvas></div>
+      <div class="ag-card wide"><div class="ag-title">Pending per DPSU</div><canvas id="pendChart_${idx}" height="180"></canvas></div>
+    </div>`;
+}
+
+function renderAnalyzeCharts(data, idx) {
+  // Destroy previous instances
+  ['dpsu','status','fwd','pend'].forEach(k => {
+    const key = `${k}_${idx}`;
+    if (chartInstances[key]) { chartInstances[key].destroy(); delete chartInstances[key]; }
+  });
+
+  const chartDefaults = {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ labels:{ color:'#E8EEF6', font:{size:10} } } },
+    scales:{ y:{ grid:{color:'rgba(46,109,164,.18)'}, ticks:{color:'#8899B0'}, beginAtZero:true },
+             x:{ grid:{color:'rgba(46,109,164,.12)'}, ticks:{color:'#8899B0'} } }
+  };
+
+  // DPSU pie
+  const dpsuKeys = Object.keys(data.by_dpsu||{});
+  const dpsuVals = Object.values(data.by_dpsu||{});
+  if (dpsuKeys.length) {
+    const colors = ['rgba(255,215,0,.75)','rgba(46,109,164,.75)','rgba(39,174,96,.75)','rgba(0,212,255,.75)','rgba(192,57,43,.75)','rgba(139,92,246,.75)','rgba(249,115,22,.75)'];
+    chartInstances[`dpsu_${idx}`] = new Chart(document.getElementById(`dpsuChart_${idx}`), {
+      type:'doughnut',
+      data:{ labels:dpsuKeys, datasets:[{ data:dpsuVals, backgroundColor:colors.slice(0,dpsuKeys.length), borderWidth:2, borderColor:'rgba(5,13,26,.8)' }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{color:'#E8EEF6',font:{size:9},boxWidth:10} } } }
+    });
+  }
+
+  // Status pie
+  chartInstances[`status_${idx}`] = new Chart(document.getElementById(`statusChart_${idx}`), {
+    type:'pie',
+    data:{
+      labels:['Forwarded','NSN Allotted','Returned','Pending'],
+      datasets:[{ data:[data.forwarded,data.nsn_allotted,data.returned,data.pending],
+        backgroundColor:['rgba(46,109,164,.8)','rgba(39,174,96,.8)','rgba(0,212,255,.7)','rgba(255,215,0,.8)'],
+        borderWidth:2, borderColor:'rgba(5,13,26,.8)' }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{color:'#E8EEF6',font:{size:9},boxWidth:10} } } }
+  });
+
+  // Forwarded bar
+  const fwdKeys = Object.keys(data.fwd_by_dpsu||{});
+  const fwdVals = Object.values(data.fwd_by_dpsu||{});
+  if (fwdKeys.length) {
+    chartInstances[`fwd_${idx}`] = new Chart(document.getElementById(`fwdChart_${idx}`), {
+      type:'bar',
+      data:{ labels:fwdKeys, datasets:[{ label:'Forwarded', data:fwdVals, backgroundColor:'rgba(46,109,164,.65)', borderColor:'rgba(46,109,164,1)', borderWidth:1 }] },
+      options:{ ...chartDefaults, plugins:{ legend:{ display:false } } }
+    });
+  }
+
+  // Pending bar
+  const pendKeys = Object.keys(data.pend_by_dpsu||{});
+  const pendVals = Object.values(data.pend_by_dpsu||{});
+  if (pendKeys.length) {
+    chartInstances[`pend_${idx}`] = new Chart(document.getElementById(`pendChart_${idx}`), {
+      type:'bar',
+      data:{ labels:pendKeys, datasets:[{ label:'Pending', data:pendVals, backgroundColor:'rgba(255,215,0,.6)', borderColor:'rgba(255,215,0,1)', borderWidth:1 }] },
+      options:{ ...chartDefaults, plugins:{ legend:{ display:false } } }
+    });
+  }
+}
+
+// ══ Generate Reports ══════════════════════════════════════════════
+function updateSelectedFilesInfo() {
+  const el = document.getElementById('selectedFilesInfo');
+  if (!uploadedFiles.length) { el.textContent = 'No files uploaded yet'; return; }
+  el.textContent = `${uploadedFiles.length} file${uploadedFiles.length>1?'s':''} queued for report generation`;
+}
+
+document.getElementById('generateBtn').addEventListener('click', async () => {
+  if (!uploadedFiles.length) { alert('Please upload files first (Step 1).'); return; }
+  document.getElementById('loadingOverlay').classList.add('show');
+  document.getElementById('loText').textContent = 'GENERATING REPORTS...';
   document.getElementById('genSpinner').style.display = 'block';
-  document.getElementById('genBtnTxt').textContent    = 'Generating…';
-  document.getElementById('generateForm').submit();
+  document.getElementById('genBtnTxt').textContent = 'Generating…';
+
+  try {
+    const filenames = uploadedFiles.map(f => f.filename);
+    const year  = document.getElementById('paramYear').value;
+    const month = document.getElementById('paramMonth').value;
+    const res = await fetch('/generate_multi', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ filenames, year, month })
+    });
+    const results = await res.json();
+    renderReportPanels(results);
+
+    // Save to history
+    saveToHistory(results);
+  } catch(e) {
+    alert('Report generation failed: ' + e.message);
+  } finally {
+    document.getElementById('loadingOverlay').classList.remove('show');
+    document.getElementById('genSpinner').style.display = 'none';
+    document.getElementById('genBtnTxt').textContent = '⚡ Generate All Reports';
+  }
 });
 
-// ── Report History (sessionStorage) ────────────────────────────
+function renderReportPanels(results) {
+  const container = document.getElementById('reportPanels');
+  container.innerHTML = '';
+
+  results.forEach((result, idx) => {
+    const panel = document.createElement('div');
+    panel.className = 'report-panel';
+    const fname = uploadedFiles[idx]?.displayName || result.filename || `File ${idx+1}`;
+
+    if (result.error) {
+      panel.innerHTML = `
+        <div class="rp-header">
+          <div class="rp-header-left">
+            <div class="rp-file-label">FILE ${idx+1}</div>
+            <div class="rp-heading">${fname}</div>
+          </div>
+        </div>
+        <div class="rp-error">⚠ Error: ${result.error}</div>`;
+      container.appendChild(panel);
+      return;
+    }
+
+    const totals = result.totals;
+    const rows   = result.rows;
+
+    // Build table rows HTML
+    let tableRows = '';
+    rows.forEach(row => {
+      const dpsuCell = row.dpsu_rowspan > 0
+        ? `<td rowspan="${row.dpsu_rowspan}" class="left" style="font-weight:700;color:var(--gold);">${row.dpsu}</td>`
+        : '';
+      tableRows += `<tr>
+        <td>${row.serial}</td>
+        ${dpsuCell}
+        <td class="left">${row.equipment}</td>
+        <td></td><td></td>
+        <td style="color:${row.total_codified>0?'var(--green-lt)':'var(--gray)'};">${row.total_codified}</td>
+        <td style="color:${row.fwd_dca>0?'var(--cyan)':'var(--gray)'};">${row.fwd_dca}</td>
+        <td style="color:${row.nsn>0?'var(--green-lt)':'var(--gray)'};">${row.nsn}</td>
+        <td style="color:${row.returned>0?'var(--gold)':'var(--gray)'};">${row.returned}</td>
+        <td></td><td></td><td></td><td></td>
+      </tr>`;
+    });
+
+    panel.innerHTML = `
+      <div class="rp-header">
+        <div class="rp-header-left">
+          <div class="rp-file-label">FILE ${idx+1} OF ${results.length}</div>
+          <div class="rp-heading">${result.heading}</div>
+        </div>
+        <div class="rp-header-right">
+          ${result.excel_filename ? `<a href="/download/${result.excel_filename}" class="btn-dl-rp" target="_blank">⬇ Download Excel</a>` : ''}
+        </div>
+      </div>
+      <div class="rp-kpi-row">
+        <div class="rp-kpi"><div class="rp-kpi-val">${totals.codified}</div><div class="rp-kpi-lbl">Total Codified</div></div>
+        <div class="rp-kpi"><div class="rp-kpi-val">${totals.fwd}</div><div class="rp-kpi-lbl">Fwd to DCA</div></div>
+        <div class="rp-kpi"><div class="rp-kpi-val">${totals.nsn}</div><div class="rp-kpi-lbl">NSN Allotted</div></div>
+        <div class="rp-kpi"><div class="rp-kpi-val">${totals.returned}</div><div class="rp-kpi-lbl">Returned</div></div>
+      </div>
+      <div class="rp-table-wrap">
+        <table class="rp-table">
+          <thead>
+            <tr>
+              <th rowspan="2">S.No</th>
+              <th rowspan="2">AHSP / DPSU</th>
+              <th rowspan="2">Equipment Name</th>
+              <th rowspan="2">Codification Target</th>
+              <th rowspan="2">As per MRLs</th>
+              <th colspan="4">PROGRESS</th>
+              <th rowspan="2">Updation Target</th>
+              <th rowspan="2">Updation Done</th>
+              <th rowspan="2">% Updated</th>
+              <th rowspan="2">Remarks</th>
+            </tr>
+            <tr>
+              <th>Total Codified</th>
+              <th>Fwd to DCA</th>
+              <th>NSN Allotted</th>
+              <th>Returned</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+            <tr class="total-row">
+              <td>${result.serial_end}</td>
+              <td colspan="4" class="left">TOTAL</td>
+              <td>${totals.codified}</td>
+              <td>${totals.fwd}</td>
+              <td>${totals.nsn}</td>
+              <td>${totals.returned}</td>
+              <td></td><td></td><td></td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:1.2rem 1.5rem;background:rgba(10,25,41,.5);border-top:1px solid rgba(46,109,164,.15);font-size:.72rem;color:var(--gray);font-family:var(--font-ui);">
+        <span>Source: ${fname}</span>
+        <span>Generated: ${new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})}</span>
+        <div style="display:flex;gap:.5rem;align-items:center;">
+          <span style="color:var(--gray);">Prepared By: _______________</span>
+          <span style="color:var(--gray);">Checked By: _______________</span>
+          <span style="color:var(--gray);">Approved By: _______________</span>
+        </div>
+      </div>`;
+
+    container.appendChild(panel);
+  });
+
+  // Scroll to first panel
+  if (results.length) container.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// ══ History ═══════════════════════════════════════════════════════
+function saveToHistory(results) {
+  try {
+    const existing = JSON.parse(sessionStorage.getItem('reportHistory') || '[]');
+    results.forEach((r, idx) => {
+      if (r.error || !r.excel_filename) return;
+      const fname = uploadedFiles[idx]?.displayName || r.filename || `File ${idx+1}`;
+      const entry = {
+        name: r.heading,
+        filename: r.excel_filename,
+        source: fname,
+        time: new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})
+      };
+      if (!existing.find(e => e.filename === entry.filename)) {
+        existing.unshift(entry);
+      }
+    });
+    sessionStorage.setItem('reportHistory', JSON.stringify(existing));
+  } catch(e) {}
+}
+
 function getHistory() {
   try { return JSON.parse(sessionStorage.getItem('reportHistory') || '[]'); } catch(e) { return []; }
 }
@@ -768,37 +824,31 @@ function renderHistoryList() {
   const empty = document.getElementById('historyEmpty');
   const count = document.getElementById('historyCount');
   const items = getHistory();
-
   if (!items.length) {
-    if (empty) empty.style.display = 'block';
-    // Remove any old cards
-    list.querySelectorAll('.history-item').forEach(el => el.remove());
-    count.textContent = '';
+    if(empty) empty.style.display='block';
+    list.querySelectorAll('.history-item').forEach(e=>e.remove());
+    count.textContent='';
     return;
   }
-
-  if (empty) empty.style.display = 'none';
-  count.textContent = `${items.length} report${items.length > 1 ? 's' : ''} generated`;
-
-  // Re-render all cards
-  list.querySelectorAll('.history-item').forEach(el => el.remove());
-  items.forEach((item, idx) => {
+  if(empty) empty.style.display='none';
+  count.textContent = `${items.length} report${items.length>1?'s':''}`;
+  list.querySelectorAll('.history-item').forEach(e=>e.remove());
+  items.forEach(item => {
     const div = document.createElement('div');
     div.className = 'history-item';
     div.innerHTML = `
       <div class="hi-left">
-        <div class="hi-name">
-          ${item.name || 'Codification Report'}
-          <span class="hi-badge">MONTHLY</span>
-        </div>
+        <div class="hi-name">${item.name||'Codification Report'}<span class="hi-badge">MONTHLY</span></div>
         <div class="hi-meta">
-          <span>📄 ${item.filename || '—'}</span>
+          <span>📄 ${item.filename||'—'}</span>
+          <span class="hi-meta-dot">·</span>
+          <span>📁 ${item.source||'—'}</span>
           <span class="hi-meta-dot">·</span>
           <span class="hi-meta-time">🕐 ${item.time}</span>
         </div>
       </div>
       <div class="hi-dl">
-        ${item.filename ? `<a href="/download/${item.filename}" title="Download Excel">⬇ Download Excel</a>` : '<span style="color:var(--gray);font-size:.8rem;">No file</span>'}
+        ${item.filename?`<a href="/download/${item.filename}">⬇ Download Excel</a>`:'<span style="color:var(--gray)">No file</span>'}
       </div>`;
     list.appendChild(div);
   });
@@ -808,42 +858,33 @@ document.getElementById('clearHistoryBtn').addEventListener('click', () => {
   sessionStorage.removeItem('reportHistory');
   renderHistoryList();
 });
-
-// On load — render history in case user navigated back
 renderHistoryList();
 
-// ── Clock ────────────────────────────────────────────────────────
+// ══ Clock ═════════════════════════════════════════════════════════
 function updateClock() {
-  const pad = n => String(n).padStart(2, '0');
-  const n = new Date();
-  document.getElementById('dbClock').textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  const p = n => String(n).padStart(2,'0'), t = new Date();
+  document.getElementById('dbClock').textContent = `${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}`;
 }
-updateClock();
-setInterval(updateClock, 1000);
+updateClock(); setInterval(updateClock, 1000);
 
-// ── Particle canvas ──────────────────────────────────────────────
+// ══ Particles ═════════════════════════════════════════════════════
 (function(){
-  const c = document.getElementById('bg-canvas'), ctx = c.getContext('2d');
-  let W, H, pts = [];
-  function resize() { W = c.width = window.innerWidth; H = c.height = window.innerHeight; }
-  resize(); window.addEventListener('resize', resize);
-  for (let i = 0; i < 90; i++) pts.push({
-    x: Math.random()*W, y: Math.random()*H,
-    vx: (Math.random()-.5)*.3, vy: (Math.random()-.5)*.3,
-    r: Math.random()*1.2+.4, a: Math.random()*.4+.08, gold: Math.random()>.75
-  });
-  (function draw() {
-    ctx.clearRect(0, 0, W, H);
-    for (let i = 0; i < pts.length; i++) for (let j = i+1; j < pts.length; j++) {
-      const dx = pts[i].x-pts[j].x, dy = pts[i].y-pts[j].y, d = Math.hypot(dx,dy);
-      if (d < 110) { ctx.beginPath(); ctx.strokeStyle = `rgba(46,109,164,${.1*(1-d/110)})`; ctx.lineWidth = .5; ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y); ctx.stroke(); }
+  const c=document.getElementById('bg-canvas'),ctx=c.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  resize(); window.addEventListener('resize',resize);
+  for(let i=0;i<90;i++) pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.2+.4,a:Math.random()*.4+.08,gold:Math.random()>.75});
+  (function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.hypot(dx,dy);
+      if(d<110){ctx.beginPath();ctx.strokeStyle=`rgba(46,109,164,${.1*(1-d/110)})`;ctx.lineWidth=.5;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}
     }
-    pts.forEach(p => {
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle = p.gold ? `rgba(255,215,0,${p.a})` : `rgba(0,212,255,${p.a*.6})`; ctx.fill();
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0 || p.x > W) p.vx *= -1;
-      if (p.y < 0 || p.y > H) p.vy *= -1;
+    pts.forEach(p=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.gold?`rgba(255,215,0,${p.a})`:`rgba(0,212,255,${p.a*.6})`;ctx.fill();
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
     });
     requestAnimationFrame(draw);
   })();
