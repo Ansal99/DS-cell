@@ -55,9 +55,9 @@ class DataEngine:
 
     def summary(self, filtered_df):
         total    = len(filtered_df)
-        fwd      = filtered_df['Forward_Date'].notna().sum()     if 'Forward_Date'       in filtered_df.columns else 0
+        fwd      = filtered_df['Forward_Date'].notna().sum()       if 'Forward_Date'       in filtered_df.columns else 0
         nsn      = filtered_df['NSN_Allotment_Date'].notna().sum() if 'NSN_Allotment_Date' in filtered_df.columns else 0
-        returned = filtered_df['Return_Date'].notna().sum()      if 'Return_Date'        in filtered_df.columns else 0
+        returned = filtered_df['Return_Date'].notna().sum()        if 'Return_Date'        in filtered_df.columns else 0
         if 'Forward_Date' in filtered_df.columns and 'NSN' in filtered_df.columns and 'NSN_Allotment_Date' in filtered_df.columns:
             pending = filtered_df[(filtered_df['Forward_Date'].notna()) &
                                   (filtered_df['NSN'].isna()) &
@@ -67,10 +67,12 @@ class DataEngine:
         by_dpsu  = filtered_df.groupby('DPSU').size().to_dict() if 'DPSU' in filtered_df.columns else {}
         by_ncb   = filtered_df.groupby('NCB').size().to_dict()  if 'NCB'  in filtered_df.columns else {}
         by_equip = filtered_df.groupby('Equipment_Name').size().nlargest(10).to_dict() if 'Equipment_Name' in filtered_df.columns else {}
-        
+
         if 'DPSU' in filtered_df.columns:
             fwd_by_dpsu = filtered_df[filtered_df['Forward_Date'].notna()].groupby('DPSU').size().to_dict() if 'Forward_Date' in filtered_df.columns else {}
             ret_by_dpsu = filtered_df[filtered_df['Return_Date'].notna()].groupby('DPSU').size().to_dict() if 'Return_Date' in filtered_df.columns else {}
+            # ── NEW: NSN allotted per DPSU ──
+            nsn_by_dpsu = filtered_df[filtered_df['NSN_Allotment_Date'].notna()].groupby('DPSU').size().to_dict() if 'NSN_Allotment_Date' in filtered_df.columns else {}
             if 'NSN' in filtered_df.columns and 'NSN_Allotment_Date' in filtered_df.columns:
                 pend_by_dpsu = filtered_df[(filtered_df['Forward_Date'].notna()) &
                                            (filtered_df['NSN'].isna()) &
@@ -78,8 +80,8 @@ class DataEngine:
             else:
                 pend_by_dpsu = {}
         else:
-            fwd_by_dpsu = ret_by_dpsu = pend_by_dpsu = {}
-        
+            fwd_by_dpsu = ret_by_dpsu = pend_by_dpsu = nsn_by_dpsu = {}
+
         if 'MRC' in filtered_df.columns and total:
             mrc_vals = filtered_df['MRC'].dropna()
             avg_mrc = round(mrc_vals.mean(), 2) if len(mrc_vals) else 0
@@ -93,12 +95,13 @@ class DataEngine:
         return {
             'total': int(total), 'forwarded': int(fwd), 'nsn_allotted': int(nsn),
             'returned': int(returned), 'pending': int(pending),
-            'by_dpsu': {k: int(v) for k, v in by_dpsu.items()},
-            'by_ncb': {k: int(v) for k, v in by_ncb.items()},
+            'by_dpsu':  {k: int(v) for k, v in by_dpsu.items()},
+            'by_ncb':   {k: int(v) for k, v in by_ncb.items()},
             'by_equipment': {k: int(v) for k, v in by_equip.items()},
-            'fwd_by_dpsu': {k: int(v) for k, v in fwd_by_dpsu.items()},
-            'ret_by_dpsu': {k: int(v) for k, v in ret_by_dpsu.items()},
+            'fwd_by_dpsu':  {k: int(v) for k, v in fwd_by_dpsu.items()},
+            'ret_by_dpsu':  {k: int(v) for k, v in ret_by_dpsu.items()},
             'pend_by_dpsu': {k: int(v) for k, v in pend_by_dpsu.items()},
+            'nsn_by_dpsu':  {k: int(v) for k, v in nsn_by_dpsu.items()},  # NEW
             'avg_mrc': float(avg_mrc), 'avg_processing_days': float(avg_proc),
         }
 
@@ -772,7 +775,6 @@ def analyze():
         stats['date_min'] = stats['date_max'] = 'N/A'
     return jsonify(stats)
 
-# ─── NEW: Multi-file analyze endpoint ────────────────────────────────────────
 @app.route('/analyze_multi', methods=['POST'])
 def analyze_multi():
     """Analyze multiple files and return stats for each."""
@@ -837,19 +839,13 @@ def generate():
     except Exception as ex:
         return render_template('index.html', error=f'Report generation failed: {str(ex)}')
 
-# ─── NEW: Multi-file generate endpoint (returns JSON) ────────────────────────
-# ─── NEW generate_multi endpoint (replace the old one in app.py) ──────────────
-# Replace the existing /generate_multi route with this:
-
 @app.route('/generate_multi', methods=['POST'])
 def generate_multi():
     """Generate reports for multiple files with per-file month/year settings."""
     data = request.json
 
-    # Support both old format {filenames, year, month} and new per-file format {per_file: [{filename, month, year}]}
     per_file = data.get('per_file', None)
     if per_file is None:
-        # Fallback: old format — apply same month/year to all files
         filenames = data.get('filenames', [])
         year  = data.get('year', '')
         month = data.get('month', '')
@@ -866,7 +862,6 @@ def generate_multi():
             results.append({'filename': filename, 'error': 'File not found'})
             continue
 
-        # Build heading
         month_name = ''
         if month and year:
             try:
@@ -918,6 +913,7 @@ def generate_multi():
             results.append({'filename': filename, 'error': str(ex)})
 
     return jsonify(results)
+
 @app.route('/download/<filename>')
 def download(filename):
     path = os.path.join(app.config['REPORT_FOLDER'], filename)

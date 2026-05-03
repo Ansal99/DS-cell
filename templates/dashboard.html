@@ -364,7 +364,6 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:va
     <div class="topbar-right">
       <div class="live-badge"><div class="live-dot"></div>LIVE</div>
       <div class="db-clock" id="dbClock">00:00:00</div>
-      <!-- THEME TOGGLE -->
       <button class="theme-toggle" id="themeToggle" title="Toggle Light/Dark Mode">
         <div class="tt-track"><div class="tt-thumb"></div></div>
         <span class="tt-label" id="ttLabel">LIGHT</span>
@@ -389,7 +388,6 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:va
         <div><div class="sc-title">Step 1 — Upload Datasets</div><div class="sc-sub">Upload one or multiple Excel files (.xlsx) — each file will get its own report & analysis</div></div>
         <div class="sc-step">01</div>
       </div>
-
       <div class="upload-zone" id="uploadZone">
         <div class="uz-icon">📂</div>
         <div class="uz-title">Drag & Drop Excel Files Here</div>
@@ -398,13 +396,11 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:va
         <input type="file" id="fileInput" accept=".xlsx,.xls" multiple hidden/>
         <button class="btn-browse" onclick="document.getElementById('fileInput').click()">Choose Files</button>
       </div>
-
       <div class="use-training">
         <div class="ut-divider">— OR —</div>
         <button class="btn-training" id="useTrainingBtn">🗃️ Use Pre-loaded Training Dataset</button>
         <p class="ut-note">Uses the Defence Standardisation dataset included with this system</p>
       </div>
-
       <div class="files-list" id="filesList" style="display:none;">
         <div class="files-list-hdr">
           <span class="files-list-title">📋 Uploaded Files</span>
@@ -421,7 +417,7 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:va
     <div class="section-card">
       <div class="sc-hdr">
         <div class="sc-icon">🔬</div>
-        <div><div class="sc-title">Step 2 — Data Analysis</div><div class="sc-sub">Each uploaded file shown in a separate tab with its own analytics</div></div>
+        <div><div class="sc-title">Step 2 — Data Analysis</div><div class="sc-sub">Each uploaded file shown in a separate tab with its own analytics & charts</div></div>
         <div class="sc-step">02</div>
       </div>
       <div class="file-tabs" id="analyzeTabs"></div>
@@ -435,23 +431,19 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:va
     <div class="section-card">
       <div class="sc-hdr">
         <div class="sc-icon">📋</div>
-        <div><div class="sc-title">Step 3 — Generate Reports</div><div class="sc-sub">Set the report period for each file individually — each gets its own heading & download</div></div>
+        <div><div class="sc-title">Step 3 — Generate Reports</div><div class="sc-sub">Set the report period for each file individually</div></div>
         <div class="sc-step">03</div>
       </div>
-
-      <!-- Per-file period selectors -->
       <div class="rp-wrap">
         <div class="rp-wrap-title">📅 Set Report Period — Per File</div>
         <div class="per-file-settings-grid" id="perFileSettings">
           <div style="color:var(--gray);font-size:.85rem;padding:1rem;text-align:center;">Upload files in Step 1 to configure report periods.</div>
         </div>
       </div>
-
       <button type="button" class="btn-generate" id="generateBtn">
         <span id="genBtnTxt">⚡ Generate All Reports</span>
         <div class="gen-spinner" id="genSpinner" style="display:none;"></div>
       </button>
-
       <div class="report-panels" id="reportPanels"></div>
     </div>
   </section>
@@ -483,11 +475,15 @@ html.setAttribute('data-theme', savedTheme);
 updateThemeLabel();
 
 document.getElementById('themeToggle').addEventListener('click', () => {
-  const cur = html.getAttribute('data-theme');
+  const cur  = html.getAttribute('data-theme');
   const next = cur === 'dark' ? 'light' : 'dark';
   html.setAttribute('data-theme', next);
   localStorage.setItem('ds-theme', next);
   updateThemeLabel();
+  // Re-render all charts with new theme colours
+  analysisData.forEach((data, idx) => {
+    if (!data.error) renderAnalyzeCharts(data, idx);
+  });
 });
 
 function updateThemeLabel() {
@@ -496,7 +492,7 @@ function updateThemeLabel() {
 }
 
 // ══ State ═════════════════════════════════════════════════════════
-let uploadedFiles = []; // [{filename, rows, displayName}]
+let uploadedFiles = [];
 let analysisData  = [];
 
 // ══ Navigation ════════════════════════════════════════════════════
@@ -506,33 +502,35 @@ function showSection(id) {
   navLinks.forEach(l => l.classList.toggle('active', l.dataset.section === id));
   sections.forEach(s => s.classList.toggle('active', s.id === `${id}-section`));
   if (id === 'history') renderHistoryList();
-  if (id === 'report') buildPerFileSettings();
+  if (id === 'report')  buildPerFileSettings();
 }
 navLinks.forEach(l => l.addEventListener('click', () => showSection(l.dataset.section)));
 
 // ══ KPI updater ═══════════════════════════════════════════════════
 function updateKpis(statsList) {
   const agg = statsList.reduce((a, s) => ({
-    total: a.total + (s.total||0), nsn_allotted: a.nsn_allotted + (s.nsn_allotted||0),
-    forwarded: a.forwarded + (s.forwarded||0), returned: a.returned + (s.returned||0),
-    pending: a.pending + (s.pending||0),
+    total:       a.total        + (s.total        || 0),
+    nsn_allotted:a.nsn_allotted + (s.nsn_allotted || 0),
+    forwarded:   a.forwarded    + (s.forwarded    || 0),
+    returned:    a.returned     + (s.returned     || 0),
+    pending:     a.pending      + (s.pending      || 0),
   }), {total:0,nsn_allotted:0,forwarded:0,returned:0,pending:0});
-  document.getElementById('kpi-total').textContent = agg.total || '—';
+  document.getElementById('kpi-total').textContent = agg.total        || '—';
   document.getElementById('kpi-nsn').textContent   = agg.nsn_allotted || '—';
-  document.getElementById('kpi-fwd').textContent   = agg.forwarded || '—';
-  document.getElementById('kpi-ret').textContent   = agg.returned || '—';
-  document.getElementById('kpi-pend').textContent  = agg.pending || '—';
+  document.getElementById('kpi-fwd').textContent   = agg.forwarded    || '—';
+  document.getElementById('kpi-ret').textContent   = agg.returned     || '—';
+  document.getElementById('kpi-pend').textContent  = agg.pending      || '—';
 }
 
 // ══ Upload ════════════════════════════════════════════════════════
 function updateFilesUI() {
-  const list = document.getElementById('filesList');
+  const list  = document.getElementById('filesList');
   const cards = document.getElementById('filesCards');
   const count = document.getElementById('filesCount');
-  if (!uploadedFiles.length) { list.style.display='none'; return; }
+  if (!uploadedFiles.length) { list.style.display = 'none'; return; }
   list.style.display = 'block';
-  count.textContent = `${uploadedFiles.length} file${uploadedFiles.length>1?'s':''}`;
-  cards.innerHTML = '';
+  count.textContent  = `${uploadedFiles.length} file${uploadedFiles.length > 1 ? 's' : ''}`;
+  cards.innerHTML    = '';
   uploadedFiles.forEach((f, idx) => {
     const div = document.createElement('div');
     div.className = 'file-card';
@@ -548,13 +546,13 @@ function updateFilesUI() {
   });
 }
 
-function removeFile(idx) { uploadedFiles.splice(idx,1); updateFilesUI(); }
+function removeFile(idx) { uploadedFiles.splice(idx, 1); updateFilesUI(); }
 
 async function uploadFile(file) {
   const form = new FormData();
   form.append('file', file);
   try {
-    const res = await fetch('/upload', {method:'POST', body:form});
+    const res  = await fetch('/upload', {method:'POST', body:form});
     const data = await res.json();
     if (data.error) { alert('Upload failed: ' + data.error); return; }
     if (!uploadedFiles.find(f => f.filename === data.filename)) {
@@ -565,13 +563,12 @@ async function uploadFile(file) {
 }
 
 document.getElementById('fileInput').addEventListener('change', async e => {
-  const files = Array.from(e.target.files);
-  for (const f of files) await uploadFile(f);
+  for (const f of Array.from(e.target.files)) await uploadFile(f);
   e.target.value = '';
 });
 
 const uploadZone = document.getElementById('uploadZone');
-uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
 uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
 uploadZone.addEventListener('drop', async e => {
   e.preventDefault(); uploadZone.classList.remove('drag-over');
@@ -584,6 +581,26 @@ document.getElementById('useTrainingBtn').addEventListener('click', () => {
   updateFilesUI();
 });
 
+// ══ Chart helpers — theme-aware ═══════════════════════════════════
+function getChartTheme() {
+  const isDark = html.getAttribute('data-theme') !== 'light';
+  return {
+    tickColor:    isDark ? '#8899B0'              : '#4A5A72',
+    gridColor:    isDark ? 'rgba(46,109,164,.18)' : 'rgba(46,109,164,.15)',
+    legendColor:  isDark ? '#E8EEF6'              : '#1A2535',
+    borderColor:  isDark ? 'rgba(5,13,26,.8)'     : 'rgba(255,255,255,.9)',
+    tooltipBg:    isDark ? 'rgba(10,25,41,.97)'   : 'rgba(255,255,255,.97)',
+    tooltipColor: isDark ? '#E8EEF6'              : '#1A2535',
+    tooltipBorderColor: isDark ? 'rgba(46,109,164,.4)' : 'rgba(46,109,164,.25)',
+  };
+}
+
+// Colour palette — vivid enough for both themes
+const PALETTE = [
+  '#FFD700','#2E6DA4','#27AE60','#00C4E8','#E74C3C',
+  '#8B5CF6','#F59E0B','#EC4899','#10B981','#6366F1',
+];
+
 // ══ Analyze ═══════════════════════════════════════════════════════
 document.getElementById('goAnalyze').addEventListener('click', async () => {
   if (!uploadedFiles.length) { alert('Please upload at least one file.'); return; }
@@ -591,7 +608,11 @@ document.getElementById('goAnalyze').addEventListener('click', async () => {
   document.getElementById('loText').textContent = 'ANALYZING DATA...';
   try {
     const filenames = uploadedFiles.map(f => f.filename);
-    const res = await fetch('/analyze_multi', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({filenames})});
+    const res = await fetch('/analyze_multi', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({filenames}),
+    });
     analysisData = await res.json();
     updateKpis(analysisData.filter(d => !d.error));
     buildAnalyzeTabs();
@@ -605,21 +626,36 @@ document.getElementById('goReport').addEventListener('click', () => showSection(
 // ── Build tabbed analysis ─────────────────────────────────────────
 const chartInstances = {};
 
+function destroyChart(id) {
+  if (chartInstances[id]) {
+    try { chartInstances[id].destroy(); } catch(_) {}
+    delete chartInstances[id];
+  }
+}
+
 function buildAnalyzeTabs() {
-  const tabsEl = document.getElementById('analyzeTabs');
+  const tabsEl   = document.getElementById('analyzeTabs');
   const panelsEl = document.getElementById('analyzeTabPanels');
-  tabsEl.innerHTML = ''; panelsEl.innerHTML = '';
+  tabsEl.innerHTML   = '';
+  panelsEl.innerHTML = '';
+
+  // Destroy all old charts first
+  Object.keys(chartInstances).forEach(k => destroyChart(k));
+
   analysisData.forEach((data, idx) => {
-    const fname = uploadedFiles[idx]?.displayName || data.filename || `File ${idx+1}`;
-    const shortName = fname.length>22 ? fname.substring(0,20)+'…' : fname;
+    const fname     = uploadedFiles[idx]?.displayName || data.filename || `File ${idx+1}`;
+    const shortName = fname.length > 22 ? fname.substring(0, 20) + '…' : fname;
+
     const tab = document.createElement('button');
-    tab.className = 'file-tab'+(idx===0?' active':'');
+    tab.className   = 'file-tab' + (idx === 0 ? ' active' : '');
     tab.textContent = `📊 ${shortName}`;
+    tab.dataset.idx = idx;
     tab.addEventListener('click', () => switchAnalyzeTab(idx));
     tabsEl.appendChild(tab);
+
     const panel = document.createElement('div');
-    panel.className = 'file-tab-panel'+(idx===0?' active':'');
-    panel.id = `analyze-panel-${idx}`;
+    panel.className = 'file-tab-panel' + (idx === 0 ? ' active' : '');
+    panel.id        = `analyze-panel-${idx}`;
     if (data.error) {
       panel.innerHTML = `<div style="color:var(--red);padding:2rem;text-align:center;">⚠ Error: ${data.error}</div>`;
     } else {
@@ -627,64 +663,290 @@ function buildAnalyzeTabs() {
     }
     panelsEl.appendChild(panel);
   });
-  analysisData.forEach((data, idx) => { if (!data.error) renderAnalyzeCharts(data, idx); });
+
+  // Render first tab charts after DOM paint
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      if (analysisData[0] && !analysisData[0].error) renderAnalyzeCharts(analysisData[0], 0);
+    }, 80);
+  });
 }
 
 function switchAnalyzeTab(idx) {
-  document.querySelectorAll('.file-tab').forEach((t,i) => t.classList.toggle('active', i===idx));
-  document.querySelectorAll('.file-tab-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+  document.querySelectorAll('.file-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.file-tab-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+  // Render charts for newly active tab (delayed so CSS display kicks in first)
+  setTimeout(() => {
+    if (analysisData[idx] && !analysisData[idx].error) renderAnalyzeCharts(analysisData[idx], idx);
+  }, 60);
 }
 
 function buildAnalyzePanel(data, idx, fname) {
-  const dpsuEntries = Object.entries(data.by_dpsu||{}).sort((a,b)=>b[1]-a[1]).slice(0,6);
-  const ncbEntries  = Object.entries(data.by_ncb||{}).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const equipEntries= Object.entries(data.by_equipment||{}).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  const maxDpsu = dpsuEntries[0]?.[1]||1, maxNcb=ncbEntries[0]?.[1]||1, maxEquip=equipEntries[0]?.[1]||1;
-  const dpsuBars = dpsuEntries.map(([k,v]) => `<div class="cb-row"><div class="cb-lbl" title="${k}">${k}</div><div class="cb-track"><div class="cb-fill" style="width:${(v/maxDpsu*100).toFixed(1)}%"></div></div><div class="cb-val">${v}</div></div>`).join('');
-  const ncbBars  = ncbEntries.map(([k,v])  => `<div class="cb-row"><div class="cb-lbl" title="${k}">${k}</div><div class="cb-track"><div class="cb-fill green" style="width:${(v/maxNcb*100).toFixed(1)}%"></div></div><div class="cb-val">${v}</div></div>`).join('');
-  const equipBars= equipEntries.map(([k,v])=> `<div class="cb-row"><div class="cb-lbl" style="width:140px;text-align:left;" title="${k}">${k.length>20?k.substring(0,18)+'…':k}</div><div class="cb-track"><div class="cb-fill" style="width:${(v/maxEquip*100).toFixed(1)}%;background:linear-gradient(90deg,var(--navy-lt),var(--cyan));"></div></div><div class="cb-val">${v}</div></div>`).join('');
+  const dpsuEntries  = Object.entries(data.by_dpsu       || {}).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const ncbEntries   = Object.entries(data.by_ncb        || {}).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const equipEntries = Object.entries(data.by_equipment  || {}).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxDpsu  = dpsuEntries[0]?.[1]  || 1;
+  const maxNcb   = ncbEntries[0]?.[1]   || 1;
+  const maxEquip = equipEntries[0]?.[1] || 1;
+
+  const dpsuBars = dpsuEntries.length
+    ? dpsuEntries.map(([k,v]) => `
+        <div class="cb-row">
+          <div class="cb-lbl" title="${k}">${k.length>12?k.substring(0,11)+'…':k}</div>
+          <div class="cb-track"><div class="cb-fill" style="width:${(v/maxDpsu*100).toFixed(1)}%"></div></div>
+          <div class="cb-val">${v}</div>
+        </div>`).join('')
+    : '<span style="color:var(--gray);font-size:.8rem;">No data available</span>';
+
+  const ncbBars = ncbEntries.length
+    ? ncbEntries.map(([k,v]) => `
+        <div class="cb-row">
+          <div class="cb-lbl" title="${k}">${k.length>12?k.substring(0,11)+'…':k}</div>
+          <div class="cb-track"><div class="cb-fill green" style="width:${(v/maxNcb*100).toFixed(1)}%"></div></div>
+          <div class="cb-val">${v}</div>
+        </div>`).join('')
+    : '<span style="color:var(--gray);font-size:.8rem;">No data available</span>';
+
+  const equipBars = equipEntries.length
+    ? equipEntries.map(([k,v]) => `
+        <div class="cb-row">
+          <div class="cb-lbl" style="width:140px;text-align:left;" title="${k}">${k.length>18?k.substring(0,17)+'…':k}</div>
+          <div class="cb-track"><div class="cb-fill" style="width:${(v/maxEquip*100).toFixed(1)}%;background:linear-gradient(90deg,var(--navy-lt),var(--cyan));"></div></div>
+          <div class="cb-val">${v}</div>
+        </div>`).join('')
+    : '<span style="color:var(--gray);font-size:.8rem;">No data available</span>';
+
+  const kpis = [
+    ['Total',        data.total        ?? 0, 'var(--off-white)'],
+    ['Forwarded',    data.forwarded    ?? 0, 'var(--navy-lt)'],
+    ['NSN Allotted', data.nsn_allotted ?? 0, 'var(--green-lt)'],
+    ['Returned',     data.returned     ?? 0, 'var(--cyan)'],
+    ['Pending',      data.pending      ?? 0, 'var(--red)'],
+  ];
+
   return `
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.7rem;margin-bottom:1.5rem;">
-      ${[['Total',data.total,'var(--off-white)'],['Forwarded',data.forwarded,'var(--navy-lt)'],['NSN Allotted',data.nsn_allotted,'var(--green-lt)'],['Returned',data.returned,'var(--cyan)'],['Pending',data.pending,'var(--red)']].map(([l,v,c])=>`
-        <div style="background:var(--ag-card-bg);border:1px solid var(--ag-card-border);border-radius:9px;padding:.8rem;text-align:center;">
-          <div style="font-family:'Orbitron',monospace;font-size:1.3rem;color:${c};font-weight:700;">${v??0}</div>
-          <div style="font-size:.6rem;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;">${l}</div>
+      ${kpis.map(([l,v,c]) => `
+        <div style="background:var(--ag-card-bg);border:1px solid var(--ag-card-border);border-radius:9px;padding:.85rem;text-align:center;">
+          <div style="font-family:'Orbitron',monospace;font-size:1.3rem;color:${c};font-weight:700;">${v}</div>
+          <div style="font-size:.6rem;color:var(--gray);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;font-family:'Rajdhani',sans-serif;">${l}</div>
         </div>`).join('')}
     </div>
-    <div class="analyze-grid">
-      <div class="ag-card"><div class="ag-title">DPSU Distribution</div><div class="chart-bars">${dpsuBars||'<span style="color:var(--gray)">No data</span>'}</div></div>
-      <div class="ag-card"><div class="ag-title">Service-wise (NCB)</div><div class="chart-bars">${ncbBars||'<span style="color:var(--gray)">No data</span>'}</div></div>
-      <div class="ag-card wide"><div class="ag-title">Top Equipment Types</div><div class="chart-bars">${equipBars||'<span style="color:var(--gray)">No data</span>'}</div></div>
+
+    <div class="analyze-grid" style="margin-bottom:1.4rem;">
+      <div class="ag-card"><div class="ag-title">📊 DPSU Distribution</div><div class="chart-bars">${dpsuBars}</div></div>
+      <div class="ag-card"><div class="ag-title">🛡️ Service-wise (NCB)</div><div class="chart-bars">${ncbBars}</div></div>
+      <div class="ag-card wide"><div class="ag-title">🔧 Top Equipment Types</div><div class="chart-bars">${equipBars}</div></div>
     </div>
+
     <div class="analyze-grid">
-      <div class="ag-card"><div class="ag-title">DPSU Contribution</div><canvas id="dpsuChart_${idx}" height="220"></canvas></div>
-      <div class="ag-card"><div class="ag-title">Processing Status</div><canvas id="statusChart_${idx}" height="220"></canvas></div>
-      <div class="ag-card"><div class="ag-title">Forwarded per DPSU</div><canvas id="fwdChart_${idx}" height="220"></canvas></div>
-      <div class="ag-card wide"><div class="ag-title">Pending per DPSU</div><canvas id="pendChart_${idx}" height="180"></canvas></div>
+      <div class="ag-card">
+        <div class="ag-title">🥧 DPSU Contribution</div>
+        <div style="position:relative;height:230px;"><canvas id="dpsuChart_${idx}"></canvas></div>
+      </div>
+      <div class="ag-card">
+        <div class="ag-title">📈 Processing Status</div>
+        <div style="position:relative;height:230px;"><canvas id="statusChart_${idx}"></canvas></div>
+      </div>
+      <div class="ag-card">
+        <div class="ag-title">➡️ Forwarded per DPSU</div>
+        <div style="position:relative;height:230px;"><canvas id="fwdChart_${idx}"></canvas></div>
+      </div>
+      <div class="ag-card">
+        <div class="ag-title">✅ NSN Allotted per DPSU</div>
+        <div style="position:relative;height:230px;"><canvas id="nsnChart_${idx}"></canvas></div>
+      </div>
+      <div class="ag-card">
+        <div class="ag-title">↩️ Returned per DPSU</div>
+        <div style="position:relative;height:230px;"><canvas id="retChart_${idx}"></canvas></div>
+      </div>
+      <div class="ag-card">
+        <div class="ag-title">⏳ Pending per DPSU</div>
+        <div style="position:relative;height:230px;"><canvas id="pendChart_${idx}"></canvas></div>
+      </div>
     </div>`;
 }
 
+// ── Chart renderer (theme-aware, safe) ───────────────────────────
 function renderAnalyzeCharts(data, idx) {
-  ['dpsu','status','fwd','pend'].forEach(k => {
-    const key=`${k}_${idx}`;
-    if(chartInstances[key]){chartInstances[key].destroy();delete chartInstances[key];}
+  const t = getChartTheme();
+
+  const scaleX = {
+    grid:  { color: 'rgba(46,109,164,.08)' },
+    ticks: { color: t.tickColor, font: { size: 9, family: "'Rajdhani', sans-serif" }, maxRotation: 40 },
+  };
+  const scaleY = {
+    grid:       { color: t.gridColor },
+    ticks:      { color: t.tickColor, font: { size: 9, family: "'Rajdhani', sans-serif" } },
+    beginAtZero: true,
+  };
+  const tooltipPlugin = {
+    backgroundColor: t.tooltipBg,
+    titleColor:      t.legendColor,
+    bodyColor:       t.legendColor,
+    borderColor:     t.tooltipBorderColor,
+    borderWidth:     1,
+    padding:         10,
+  };
+  const legendPlugin = (pos='bottom') => ({
+    position: pos,
+    labels: {
+      color:    t.legendColor,
+      font:     { size: 10, family: "'Rajdhani', sans-serif" },
+      boxWidth: 12,
+      padding:  10,
+    },
   });
-  const gridColor='rgba(46,109,164,.18)', tickColor='#8899B0';
-  const chartDefaults={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#E8EEF6',font:{size:10}}}},scales:{y:{grid:{color:gridColor},ticks:{color:tickColor},beginAtZero:true},x:{grid:{color:'rgba(46,109,164,.12)'},ticks:{color:tickColor}}}};
-  const dpsuKeys=Object.keys(data.by_dpsu||{}),dpsuVals=Object.values(data.by_dpsu||{});
-  if(dpsuKeys.length){
-    const colors=['rgba(255,215,0,.75)','rgba(46,109,164,.75)','rgba(39,174,96,.75)','rgba(0,212,255,.75)','rgba(192,57,43,.75)','rgba(139,92,246,.75)','rgba(249,115,22,.75)'];
-    chartInstances[`dpsu_${idx}`]=new Chart(document.getElementById(`dpsuChart_${idx}`),{type:'doughnut',data:{labels:dpsuKeys,datasets:[{data:dpsuVals,backgroundColor:colors.slice(0,dpsuKeys.length),borderWidth:2,borderColor:'rgba(5,13,26,.8)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#E8EEF6',font:{size:9},boxWidth:10}}}}});
+
+  function safeChart(id, config) {
+    destroyChart(id);
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    try {
+      chartInstances[id] = new Chart(canvas.getContext('2d'), config);
+    } catch(e) { console.warn('Chart render error:', id, e); }
   }
-  chartInstances[`status_${idx}`]=new Chart(document.getElementById(`statusChart_${idx}`),{type:'pie',data:{labels:['Forwarded','NSN Allotted','Returned','Pending'],datasets:[{data:[data.forwarded,data.nsn_allotted,data.returned,data.pending],backgroundColor:['rgba(46,109,164,.8)','rgba(39,174,96,.8)','rgba(0,212,255,.7)','rgba(255,215,0,.8)'],borderWidth:2,borderColor:'rgba(5,13,26,.8)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#E8EEF6',font:{size:9},boxWidth:10}}}}});
-  const fwdKeys=Object.keys(data.fwd_by_dpsu||{}),fwdVals=Object.values(data.fwd_by_dpsu||{});
-  if(fwdKeys.length){chartInstances[`fwd_${idx}`]=new Chart(document.getElementById(`fwdChart_${idx}`),{type:'bar',data:{labels:fwdKeys,datasets:[{label:'Forwarded',data:fwdVals,backgroundColor:'rgba(46,109,164,.65)',borderColor:'rgba(46,109,164,1)',borderWidth:1}]},options:{...chartDefaults,plugins:{legend:{display:false}}}});}
-  const pendKeys=Object.keys(data.pend_by_dpsu||{}),pendVals=Object.values(data.pend_by_dpsu||{});
-  if(pendKeys.length){chartInstances[`pend_${idx}`]=new Chart(document.getElementById(`pendChart_${idx}`),{type:'bar',data:{labels:pendKeys,datasets:[{label:'Pending',data:pendVals,backgroundColor:'rgba(255,215,0,.6)',borderColor:'rgba(255,215,0,1)',borderWidth:1}]},options:{...chartDefaults,plugins:{legend:{display:false}}}});}
+
+  // ── 1. DPSU Doughnut ────────────────────────────────────────────
+  const dpsuKeys = Object.keys(data.by_dpsu || {});
+  const dpsuVals = Object.values(data.by_dpsu || {});
+  if (dpsuKeys.length) {
+    safeChart(`dpsuChart_${idx}`, {
+      type: 'doughnut',
+      data: {
+        labels: dpsuKeys,
+        datasets: [{
+          data:            dpsuVals,
+          backgroundColor: PALETTE.slice(0, dpsuKeys.length).map(c => c + 'CC'),
+          borderColor:     PALETTE.slice(0, dpsuKeys.length),
+          borderWidth:     2,
+          hoverOffset:     8,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend:  legendPlugin('bottom'),
+          tooltip: { plugins: tooltipPlugin },
+        },
+        animation: { animateRotate: true, duration: 900 },
+      },
+    });
+  }
+
+  // ── 2. Status Pie ────────────────────────────────────────────────
+  const statusVals = [data.forwarded ?? 0, data.nsn_allotted ?? 0, data.returned ?? 0, data.pending ?? 0];
+  if (statusVals.some(v => v > 0)) {
+    safeChart(`statusChart_${idx}`, {
+      type: 'pie',
+      data: {
+        labels: ['Forwarded', 'NSN Allotted', 'Returned', 'Pending'],
+        datasets: [{
+          data:            statusVals,
+          backgroundColor: ['#2E6DA4CC','#27AE60CC','#00C4E8CC','#FFD700CC'],
+          borderColor:     ['#2E6DA4',  '#27AE60',  '#00C4E8',  '#FFD700'],
+          borderWidth: 2, hoverOffset: 8,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: legendPlugin('bottom'), tooltip: { plugins: tooltipPlugin } },
+        animation: { duration: 900 },
+      },
+    });
+  }
+
+  // ── 3. Forwarded per DPSU ────────────────────────────────────────
+  const fwdKeys = Object.keys(data.fwd_by_dpsu || {});
+  const fwdVals = Object.values(data.fwd_by_dpsu || {});
+  if (fwdKeys.length) {
+    safeChart(`fwdChart_${idx}`, {
+      type: 'bar',
+      data: {
+        labels: fwdKeys,
+        datasets: [{
+          label: 'Forwarded', data: fwdVals,
+          backgroundColor: '#2E6DA4CC', borderColor: '#2E6DA4', borderWidth: 1, borderRadius: 4,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { plugins: tooltipPlugin } },
+        scales: { x: scaleX, y: scaleY },
+        animation: { duration: 800 },
+      },
+    });
+  }
+
+  // ── 4. NSN Allotted per DPSU ─────────────────────────────────────
+  const nsnKeys = Object.keys(data.nsn_by_dpsu || {});
+  const nsnVals = Object.values(data.nsn_by_dpsu || {});
+  if (nsnKeys.length) {
+    safeChart(`nsnChart_${idx}`, {
+      type: 'bar',
+      data: {
+        labels: nsnKeys,
+        datasets: [{
+          label: 'NSN Allotted', data: nsnVals,
+          backgroundColor: '#27AE60CC', borderColor: '#27AE60', borderWidth: 1, borderRadius: 4,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { plugins: tooltipPlugin } },
+        scales: { x: scaleX, y: scaleY },
+        animation: { duration: 800 },
+      },
+    });
+  }
+
+  // ── 5. Returned per DPSU ─────────────────────────────────────────
+  const retKeys = Object.keys(data.ret_by_dpsu || {});
+  const retVals = Object.values(data.ret_by_dpsu || {});
+  if (retKeys.length) {
+    safeChart(`retChart_${idx}`, {
+      type: 'bar',
+      data: {
+        labels: retKeys,
+        datasets: [{
+          label: 'Returned', data: retVals,
+          backgroundColor: '#00C4E8CC', borderColor: '#00C4E8', borderWidth: 1, borderRadius: 4,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { plugins: tooltipPlugin } },
+        scales: { x: scaleX, y: scaleY },
+        animation: { duration: 800 },
+      },
+    });
+  }
+
+  // ── 6. Pending per DPSU ──────────────────────────────────────────
+  const pendKeys = Object.keys(data.pend_by_dpsu || {});
+  const pendVals = Object.values(data.pend_by_dpsu || {});
+  if (pendKeys.length) {
+    safeChart(`pendChart_${idx}`, {
+      type: 'bar',
+      data: {
+        labels: pendKeys,
+        datasets: [{
+          label: 'Pending', data: pendVals,
+          backgroundColor: '#FFD700CC', borderColor: '#FFD700', borderWidth: 1, borderRadius: 4,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { plugins: tooltipPlugin } },
+        scales: { x: scaleX, y: scaleY },
+        animation: { duration: 800 },
+      },
+    });
+  }
 }
 
 // ══ Per-file settings builder ═════════════════════════════════════
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTHS   = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const CUR_YEAR = new Date().getFullYear();
 
 function buildPerFileSettings() {
@@ -698,7 +960,7 @@ function buildPerFileSettings() {
     const card = document.createElement('div');
     card.className = 'pf-card';
     card.id = `pf-card-${idx}`;
-    const yearOpts = [CUR_YEAR, CUR_YEAR-1, CUR_YEAR-2, CUR_YEAR-3].map(y => `<option value="${y}"${y===CUR_YEAR?' selected':''}>${y}</option>`).join('');
+    const yearOpts  = [CUR_YEAR, CUR_YEAR-1, CUR_YEAR-2, CUR_YEAR-3].map(y => `<option value="${y}"${y===CUR_YEAR?' selected':''}>${y}</option>`).join('');
     const monthOpts = MONTHS.map((m,i) => `<option value="${i+1}"${i+1===new Date().getMonth()+1?' selected':''}>${m}</option>`).join('');
     card.innerHTML = `
       <div class="pf-header">
@@ -725,49 +987,40 @@ function buildPerFileSettings() {
 }
 
 function updatePfPreview(idx) {
-  const mEl = document.getElementById(`pf-month-${idx}`);
-  const yEl = document.getElementById(`pf-year-${idx}`);
+  const mEl  = document.getElementById(`pf-month-${idx}`);
+  const yEl  = document.getElementById(`pf-year-${idx}`);
   const prev = document.getElementById(`pf-preview-${idx}`);
   if (!mEl || !yEl || !prev) return;
-  const mName = MONTHS[parseInt(mEl.value)-1] || '';
-  prev.textContent = `📅 ${mName.toUpperCase()} ${yEl.value}`;
+  prev.textContent = `📅 ${MONTHS[parseInt(mEl.value)-1].toUpperCase()} ${yEl.value}`;
 }
 
 function getPerFileParams() {
-  return uploadedFiles.map((f, idx) => {
-    const mEl = document.getElementById(`pf-month-${idx}`);
-    const yEl = document.getElementById(`pf-year-${idx}`);
-    return {
-      filename: f.filename,
-      month: mEl ? mEl.value : String(new Date().getMonth()+1),
-      year:  yEl ? yEl.value : String(CUR_YEAR),
-      displayName: f.displayName,
-    };
-  });
+  return uploadedFiles.map((f, idx) => ({
+    filename:    f.filename,
+    month:       document.getElementById(`pf-month-${idx}`)?.value || String(new Date().getMonth()+1),
+    year:        document.getElementById(`pf-year-${idx}`)?.value  || String(CUR_YEAR),
+    displayName: f.displayName,
+  }));
 }
 
 // ══ Generate Reports ══════════════════════════════════════════════
 document.getElementById('generateBtn').addEventListener('click', async () => {
   if (!uploadedFiles.length) { alert('Please upload files first (Step 1).'); return; }
   document.getElementById('loadingOverlay').classList.add('show');
-  document.getElementById('loText').textContent = 'GENERATING REPORTS...';
+  document.getElementById('loText').textContent    = 'GENERATING REPORTS...';
   document.getElementById('genSpinner').style.display = 'block';
   document.getElementById('genBtnTxt').textContent = 'Generating…';
-
   try {
     const perFile = getPerFileParams();
-    // Send array of {filename, month, year} for each file
     const res = await fetch('/generate_multi', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ per_file: perFile })
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({per_file: perFile}),
     });
     const results = await res.json();
     renderReportPanels(results, perFile);
     saveToHistory(results, perFile);
-  } catch(e) {
-    alert('Report generation failed: ' + e.message);
-  } finally {
+  } catch(e) { alert('Report generation failed: ' + e.message); }
+  finally {
     document.getElementById('loadingOverlay').classList.remove('show');
     document.getElementById('genSpinner').style.display = 'none';
     document.getElementById('genBtnTxt').textContent = '⚡ Generate All Reports';
@@ -778,9 +1031,9 @@ function renderReportPanels(results, perFile) {
   const container = document.getElementById('reportPanels');
   container.innerHTML = '';
   results.forEach((result, idx) => {
-    const panel = document.createElement('div');
+    const panel  = document.createElement('div');
     panel.className = 'report-panel';
-    const fname = perFile[idx]?.displayName || result.filename || `File ${idx+1}`;
+    const fname  = perFile[idx]?.displayName || result.filename || `File ${idx+1}`;
     const period = perFile[idx] ? `${MONTHS[parseInt(perFile[idx].month)-1].toUpperCase()} ${perFile[idx].year}` : '';
 
     if (result.error) {
@@ -796,12 +1049,12 @@ function renderReportPanels(results, perFile) {
       return;
     }
 
-    const totals = result.totals;
-    const rows   = result.rows;
-
+    const { totals, rows } = result;
     let tableRows = '';
     rows.forEach(row => {
-      const dpsuCell = row.dpsu_rowspan>0 ? `<td rowspan="${row.dpsu_rowspan}" class="left" style="font-weight:700;color:var(--gold);">${row.dpsu}</td>` : '';
+      const dpsuCell = row.dpsu_rowspan > 0
+        ? `<td rowspan="${row.dpsu_rowspan}" class="left" style="font-weight:700;color:var(--gold);">${row.dpsu}</td>`
+        : '';
       tableRows += `<tr>
         <td>${row.serial}</td>${dpsuCell}
         <td class="left">${row.equipment}</td>
@@ -822,7 +1075,7 @@ function renderReportPanels(results, perFile) {
           <div class="rp-sub-label">Source: ${fname}</div>
         </div>
         <div class="rp-header-right">
-          ${result.excel_filename?`<a href="/download/${result.excel_filename}" class="btn-dl-rp" target="_blank">⬇ Download Excel</a>`:''}
+          ${result.excel_filename ? `<a href="/download/${result.excel_filename}" class="btn-dl-rp" target="_blank">⬇ Download Excel</a>` : ''}
         </div>
       </div>
       <div class="rp-period-banner">
@@ -873,31 +1126,35 @@ function renderReportPanels(results, perFile) {
 // ══ History ═══════════════════════════════════════════════════════
 function saveToHistory(results, perFile) {
   try {
-    const existing = JSON.parse(sessionStorage.getItem('reportHistory')||'[]');
-    results.forEach((r,idx) => {
-      if (r.error||!r.excel_filename) return;
-      const fname = perFile[idx]?.displayName || r.filename || `File ${idx+1}`;
+    const existing = JSON.parse(sessionStorage.getItem('reportHistory') || '[]');
+    results.forEach((r, idx) => {
+      if (r.error || !r.excel_filename) return;
+      const fname  = perFile[idx]?.displayName || r.filename || `File ${idx+1}`;
       const period = perFile[idx] ? `${MONTHS[parseInt(perFile[idx].month)-1]} ${perFile[idx].year}` : '';
-      const entry = {name:r.heading, filename:r.excel_filename, source:fname, period, time:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})};
-      if (!existing.find(e => e.filename===entry.filename)) existing.unshift(entry);
+      const entry  = {name:r.heading, filename:r.excel_filename, source:fname, period, time:new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true})};
+      if (!existing.find(e => e.filename === entry.filename)) existing.unshift(entry);
     });
     sessionStorage.setItem('reportHistory', JSON.stringify(existing));
   } catch(e) {}
 }
 
-function getHistory() { try{return JSON.parse(sessionStorage.getItem('reportHistory')||'[]');}catch(e){return [];} }
+function getHistory() {
+  try { return JSON.parse(sessionStorage.getItem('reportHistory') || '[]'); } catch(e) { return []; }
+}
 
 function renderHistoryList() {
-  const list=document.getElementById('historyList'), empty=document.getElementById('historyEmpty'), count=document.getElementById('historyCount');
-  const items=getHistory();
-  if (!items.length) { if(empty)empty.style.display='block'; list.querySelectorAll('.history-item').forEach(e=>e.remove()); count.textContent=''; return; }
-  if(empty)empty.style.display='none';
-  count.textContent=`${items.length} report${items.length>1?'s':''}`;
-  list.querySelectorAll('.history-item').forEach(e=>e.remove());
+  const list  = document.getElementById('historyList');
+  const empty = document.getElementById('historyEmpty');
+  const count = document.getElementById('historyCount');
+  const items = getHistory();
+  if (!items.length) { if(empty) empty.style.display='block'; list.querySelectorAll('.history-item').forEach(e=>e.remove()); count.textContent=''; return; }
+  if (empty) empty.style.display = 'none';
+  count.textContent = `${items.length} report${items.length>1?'s':''}`;
+  list.querySelectorAll('.history-item').forEach(e => e.remove());
   items.forEach(item => {
-    const div=document.createElement('div');
-    div.className='history-item';
-    div.innerHTML=`
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `
       <div class="hi-left">
         <div class="hi-name">${item.name||'Codification Report'}<span class="hi-badge">MONTHLY</span></div>
         <div class="hi-meta">
@@ -912,23 +1169,28 @@ function renderHistoryList() {
   });
 }
 
-document.getElementById('clearHistoryBtn').addEventListener('click', () => { sessionStorage.removeItem('reportHistory'); renderHistoryList(); });
+document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+  sessionStorage.removeItem('reportHistory'); renderHistoryList();
+});
 renderHistoryList();
 
 // ══ Clock ═════════════════════════════════════════════════════════
-function updateClock(){const p=n=>String(n).padStart(2,'0'),t=new Date();document.getElementById('dbClock').textContent=`${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}`;}
-updateClock();setInterval(updateClock,1000);
+function updateClock(){
+  const p=n=>String(n).padStart(2,'0'), t=new Date();
+  document.getElementById('dbClock').textContent=`${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}`;
+}
+updateClock(); setInterval(updateClock, 1000);
 
 // ══ Particles ═════════════════════════════════════════════════════
 (function(){
   const c=document.getElementById('bg-canvas'),ctx=c.getContext('2d');
   let W,H,pts=[];
   function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
-  resize();window.addEventListener('resize',resize);
-  for(let i=0;i<90;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.2+.4,a:Math.random()*.4+.08,gold:Math.random()>.75});
+  resize(); window.addEventListener('resize',resize);
+  for(let i=0;i<90;i++) pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.2+.4,a:Math.random()*.4+.08,gold:Math.random()>.75});
   (function draw(){
     ctx.clearRect(0,0,W,H);
-    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.hypot(dx,dy);if(d<110){ctx.beginPath();ctx.strokeStyle=`rgba(46,109,164,${.1*(1-d/110)})`;ctx.lineWidth=.5;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}}
+    for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.hypot(dx,dy);if(d<110){ctx.beginPath();ctx.strokeStyle=`rgba(46,109,164,${.1*(1-d/110)})`;ctx.lineWidth=.5;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke();}}
     pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.gold?`rgba(255,215,0,${p.a})`:`rgba(0,212,255,${p.a*.6})`;ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;});
     requestAnimationFrame(draw);
   })();
