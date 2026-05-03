@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Dashboard — DS Codification Intelligence System</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:ital,wght@0,300;0,400;0,600;0,800;1,300&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root{
   --navy:#0A1929;--navy-mid:#1B3A6B;--navy-lt:#2E6DA4;
@@ -25,7 +26,6 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 
 .sb-logo-row{display:flex;align-items:center;gap:12px;padding:.8rem 1.4rem 1.2rem;border-bottom:1px solid rgba(46,109,164,.2);margin-bottom:.8rem;}
 .sb-logo-img{height:48px;width:auto;filter:drop-shadow(0 0 8px rgba(255,215,0,.35));}
-.sb-logo-text{}
 .sb-logo-text .t1{font-family:var(--font-hud);font-size:.72rem;color:var(--gold);font-weight:700;}
 .sb-logo-text .t2{font-size:.6rem;color:var(--gray);font-family:var(--font-ui);}
 .sb-logo-text .t3{font-size:.55rem;color:var(--cyan);font-family:var(--font-hud);letter-spacing:.06em;}
@@ -69,7 +69,6 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 
 /* ── Top Bar ── */
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;padding-bottom:1.2rem;border-bottom:1px solid rgba(46,109,164,.2);}
-.topbar-left{}
 .topbar-title{font-family:var(--font-hud);font-size:1rem;font-weight:700;color:var(--white);letter-spacing:.03em;}
 .topbar-sub{font-size:.75rem;color:var(--gray);margin-top:3px;font-family:var(--font-ui);}
 .topbar-right{display:flex;align-items:center;gap:1.5rem;}
@@ -78,7 +77,7 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 .db-clock{font-family:var(--font-hud);font-size:.82rem;color:var(--cyan);letter-spacing:.08em;}
 
 /* ── KPI Strip ── */
-.kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:.9rem;margin-bottom:1.8rem;}
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:.9rem;margin-bottom:1.8rem;}
 .kpi-box{background:var(--bg-card);border:1px solid rgba(46,109,164,.22);border-radius:11px;padding:1rem;text-align:center;transition:all var(--tr);cursor:default;}
 .kpi-box:hover{transform:translateY(-4px);border-color:rgba(46,109,164,.5);}
 .kpi-box.danger{border-color:rgba(192,57,43,.3);}
@@ -134,9 +133,10 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
 .btn-next:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(255,215,0,.35);}
 
 /* ── Analysis Grid ── */
-.analyze-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-bottom:1.4rem;}
+.analyze-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.4rem;margin-bottom:1.4rem;}
 .ag-card{background:var(--bg-card2);border:1px solid rgba(46,109,164,.22);border-radius:12px;padding:1.5rem;}
 .ag-card.wide{grid-column:1/-1;}
+.ag-card canvas{max-width:100%;height:auto;}
 .ag-title{font-family:var(--font-ui);font-weight:700;font-size:.9rem;color:var(--white);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid rgba(46,109,164,.18);}
 
 /* Chart bars */
@@ -289,7 +289,6 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
     <div class="kpi-box"><div class="kpi-val" id="kpi-nsn">—</div><div class="kpi-lbl">NSN Allotted</div></div>
     <div class="kpi-box"><div class="kpi-val" id="kpi-fwd">—</div><div class="kpi-lbl">Forwarded</div></div>
     <div class="kpi-box"><div class="kpi-val" id="kpi-ret">—</div><div class="kpi-lbl">Returned</div></div>
-    <div class="kpi-box"><div class="kpi-val gold" id="kpi-acc">—</div><div class="kpi-lbl">Accuracy %</div></div>
     <div class="kpi-box danger"><div class="kpi-val" id="kpi-pend">—</div><div class="kpi-lbl">Pending</div></div>
   </div>
 
@@ -351,8 +350,15 @@ canvas#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.3
         <div class="ag-card"><div class="ag-title">DPSU Distribution</div><div id="dpsuBars"></div></div>
         <div class="ag-card"><div class="ag-title">Service-wise Breakdown (NCB)</div><div id="ncbBars"></div></div>
         <div class="ag-card wide"><div class="ag-title">Top 10 Equipment Types</div><div id="equipBars"></div></div>
-        <div class="ag-card"><div class="ag-title">Processing Status Overview</div><div id="statusChart"></div></div>
-        <div class="ag-card"><div class="ag-title">NSN Accuracy Gauge</div><div id="accuracyGauge"></div></div>
+        <div class="ag-card"><div class="ag-title">Processing Status Overview</div><div id="statusBars"></div></div>
+      </div>
+
+      <div class="analyze-grid">
+        <div class="ag-card"><div class="ag-title">DPSU Contribution</div><canvas id="dpsuChart"></canvas></div>
+        <div class="ag-card"><div class="ag-title">Processing Status</div><canvas id="statusChart"></canvas></div>
+        <div class="ag-card"><div class="ag-title">Forwarded to DOS</div><canvas id="forwardedChart"></canvas></div>
+        <div class="ag-card"><div class="ag-title">Returned to DPSU</div><canvas id="returnedChart"></canvas></div>
+        <div class="ag-card wide"><div class="ag-title">Pending per DPSU</div><canvas id="pendingChart"></canvas></div>
       </div>
 
       <button class="btn-next" id="goReport">Next: Generate Report →</button>
@@ -441,11 +447,207 @@ function updateKpis(stats) {
   document.getElementById('kpi-nsn').textContent    = stats.nsn_allotted ?? '—';
   document.getElementById('kpi-fwd').textContent    = stats.forwarded ?? '—';
   document.getElementById('kpi-ret').textContent    = stats.returned ?? '—';
-  document.getElementById('kpi-acc').textContent    = stats.accuracy !== undefined ? `${stats.accuracy}%` : '—';
   document.getElementById('kpi-pend').textContent   = stats.pending ?? '—';
 }
 
-// ── Breakdown renderer ──────────────────────────────────────────
+// ── Chart rendering functions ───────────────────────────────────
+function renderDpsuChart(data) {
+  const ctx = document.getElementById('dpsuChart');
+  if (!data.by_dpsu || !Object.keys(data.by_dpsu).length) {
+    ctx.style.display = 'none';
+    return;
+  }
+  ctx.style.display = 'block';
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(data.by_dpsu),
+      datasets: [{
+        label: 'Items',
+        data: Object.values(data.by_dpsu),
+        backgroundColor: 'rgba(255, 215, 0, 0.6)',
+        borderColor: 'rgba(255, 215, 0, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(46, 109, 164, 0.2)' },
+          ticks: { color: 'var(--off-white)' }
+        },
+        x: {
+          grid: { color: 'rgba(46, 109, 164, 0.2)' },
+          ticks: { color: 'var(--off-white)' }
+        }
+      }
+    }
+  });
+}
+
+function renderStatusChart(data) {
+  const ctx = document.getElementById('statusChart');
+  if (!data) {
+    ctx.style.display = 'none';
+    return;
+  }
+  ctx.style.display = 'block';
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Forwarded', 'NSN Allotted', 'Returned', 'Pending'],
+      datasets: [{
+        data: [data.forwarded, data.nsn_allotted, data.returned, data.pending],
+        backgroundColor: [
+          'rgba(46, 109, 164, 0.8)',  // Forwarded - blue
+          'rgba(39, 174, 96, 0.8)',   // NSN Allotted - green
+          'rgba(192, 57, 43, 0.8)',   // Returned - red
+          'rgba(255, 215, 0, 0.8)'    // Pending - gold
+        ],
+        borderColor: [
+          'rgba(46, 109, 164, 1)',
+          'rgba(39, 174, 96, 1)',
+          'rgba(192, 57, 43, 1)',
+          'rgba(255, 215, 0, 1)'
+        ],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: 'var(--off-white)' }
+        }
+      }
+    }
+  });
+}
+
+function renderForwardedChart(data) {
+  const ctx = document.getElementById('forwardedChart');
+  if (!data.fwd_by_dpsu || !Object.keys(data.fwd_by_dpsu).length) {
+    ctx.style.display = 'none';
+    return;
+  }
+  ctx.style.display = 'block';
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(data.fwd_by_dpsu),
+      datasets: [{
+        label: 'Forwarded',
+        data: Object.values(data.fwd_by_dpsu),
+        backgroundColor: 'rgba(46, 109, 164, 0.6)',
+        borderColor: 'rgba(46, 109, 164, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(46, 109, 164, 0.2)' },
+          ticks: { color: 'var(--off-white)' }
+        },
+        x: {
+          grid: { color: 'rgba(46, 109, 164, 0.2)' },
+          ticks: { color: 'var(--off-white)' }
+        }
+      }
+    }
+  });
+}
+
+function renderReturnedChart(data) {
+  const ctx = document.getElementById('returnedChart');
+  if (!data.ret_by_dpsu || !Object.keys(data.ret_by_dpsu).length) {
+    ctx.style.display = 'none';
+    return;
+  }
+  ctx.style.display = 'block';
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(data.ret_by_dpsu),
+      datasets: [{
+        label: 'Returned',
+        data: Object.values(data.ret_by_dpsu),
+        backgroundColor: 'rgba(192, 57, 43, 0.6)',
+        borderColor: 'rgba(192, 57, 43, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(46, 109, 164, 0.2)' },
+          ticks: { color: 'var(--off-white)' }
+        },
+        x: {
+          grid: { color: 'rgba(46, 109, 164, 0.2)' },
+          ticks: { color: 'var(--off-white)' }
+        }
+      }
+    }
+  });
+}
+
+function renderPendingChart(data) {
+  const ctx = document.getElementById('pendingChart');
+  if (!data.pend_by_dpsu || !Object.keys(data.pend_by_dpsu).length) {
+    ctx.style.display = 'none';
+    return;
+  }
+  ctx.style.display = 'block';
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(data.pend_by_dpsu),
+      datasets: [{
+        label: 'Pending',
+        data: Object.values(data.pend_by_dpsu),
+        backgroundColor: 'rgba(255, 215, 0, 0.6)',
+        borderColor: 'rgba(255, 215, 0, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(46, 109, 164, 0.2)' },
+          ticks: { color: 'var(--off-white)' }
+        },
+        x: {
+          grid: { color: 'rgba(46, 109, 164, 0.2)' },
+          ticks: { color: 'var(--off-white)' }
+        }
+      }
+    }
+  });
+}
+
+// ── Original breakdown renderer ──────────────────────────────────────────
 function renderBreakdown(containerId, statsObj, emptyText) {
   const container = document.getElementById(containerId);
   if (!statsObj || !Object.keys(statsObj).length) {
@@ -460,39 +662,36 @@ function renderBreakdown(containerId, statsObj, emptyText) {
   container.innerHTML = rows;
 }
 
-function renderStatus(stats) {
-  const c = document.getElementById('statusChart');
-  if (!stats) { c.innerHTML = '<div style="color:var(--gray);padding:1rem;">No data.</div>'; return; }
+function renderStatusOverview(data) {
+  const c = document.getElementById('statusBars');
+  if (!data) { c.innerHTML = '<div style="color:var(--gray);padding:1rem;">No data.</div>'; return; }
   c.innerHTML = `<div style="display:grid;gap:.7rem;">
-    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Forwarded</span><strong>${stats.forwarded}</strong></div>
-    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Returned</span><strong>${stats.returned}</strong></div>
-    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Pending</span><strong>${stats.pending}</strong></div>
-    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>NSN Allotted</span><strong>${stats.nsn_allotted}</strong></div>
-  </div>`;
-}
-
-function renderAccuracyGauge(stats) {
-  const c = document.getElementById('accuracyGauge');
-  if (!stats) { c.innerHTML = '<div style="color:var(--gray);padding:1rem;">No data.</div>'; return; }
-  const col = stats.accuracy >= 80 ? '#27AE60' : stats.accuracy >= 50 ? '#FFD700' : '#C0392B';
-  c.innerHTML = `<div style="display:flex;flex-direction:column;gap:.5rem;">
-    <div style="font-size:1.8rem;font-weight:700;color:${col};">${stats.accuracy}%</div>
-    <div style="color:var(--gray);font-size:.85rem;">Average MRC: ${stats.avg_mrc}</div>
-    <div style="color:var(--gray);font-size:.85rem;">Avg Processing Days: ${stats.avg_processing_days}</div>
+    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Forwarded</span><strong>${data.forwarded}</strong></div>
+    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Returned</span><strong>${data.returned}</strong></div>
+    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>Pending</span><strong>${data.pending}</strong></div>
+    <div style="display:flex;justify-content:space-between;color:var(--white);"><span>NSN Allotted</span><strong>${data.nsn_allotted}</strong></div>
   </div>`;
 }
 
 async function loadAnalysis() {
   try {
-    const res = await fetch('/analyze', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ filename: currentFile }) });
+    const filename = currentFile ? currentFile.split(',')[0] : null; // Use first file for analysis
+    const res = await fetch('/analyze', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ filename: filename }) });
     const data = await res.json();
     if (data.error) { alert('Analysis failed: ' + data.error); return false; }
     updateKpis(data);
-    renderBreakdown('dpsuBars', data.by_dpsu, 'No DPSU data.');
-    renderBreakdown('ncbBars', data.by_ncb, 'No NCB data.');
-    renderBreakdown('equipBars', data.by_equipment, 'No equipment data.');
-    renderStatus(data);
-    renderAccuracyGauge(data);
+    renderDpsuChart(data);
+    renderStatusChart(data);
+    renderForwardedChart(data);
+    renderReturnedChart(data);
+    renderPendingChart(data);
+
+    // Render original analysis elements
+    renderBreakdown('dpsuBars', data.by_dpsu, 'No DPSU data available');
+    renderBreakdown('ncbBars', data.by_ncb, 'No service data available');
+    renderBreakdown('equipBars', data.by_equipment, 'No equipment data available');
+    renderStatusOverview(data);
+
     return true;
   } catch(e) { alert('Analysis failed.'); return false; }
 }

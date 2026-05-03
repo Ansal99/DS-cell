@@ -30,10 +30,17 @@ class DataEngine:
         self.df = self._prepare(df)
 
     def _prepare(self, df: pd.DataFrame) -> pd.DataFrame:
+        df.columns = df.columns.astype(str).str.strip()
         date_cols = ['Received_Date', 'Forward_Date', 'Return_Date', 'NSN_Allotment_Date']
         for c in date_cols:
             if c in df.columns:
                 df[c] = pd.to_datetime(df[c], dayfirst=True, errors='coerce')
+        if 'MRC' in df.columns:
+            df['MRC'] = pd.to_numeric(df['MRC'], errors='coerce')
+        if 'DPSU' in df.columns:
+            df['DPSU'] = df['DPSU'].astype(str).str.strip()
+        if 'NCB' in df.columns:
+            df['NCB'] = df['NCB'].astype(str).str.strip()
         return df
 
     def filter(self, start, end, col='Received_Date'):
@@ -51,12 +58,34 @@ class DataEngine:
         fwd      = filtered_df['Forward_Date'].notna().sum()     if 'Forward_Date'       in filtered_df.columns else 0
         nsn      = filtered_df['NSN_Allotment_Date'].notna().sum() if 'NSN_Allotment_Date' in filtered_df.columns else 0
         returned = filtered_df['Return_Date'].notna().sum()      if 'Return_Date'        in filtered_df.columns else 0
-        pending  = total - int(returned)
-        accuracy = round((int(nsn) / total * 100), 2) if total else 0
+        if 'Forward_Date' in filtered_df.columns and 'NSN' in filtered_df.columns and 'NSN_Allotment_Date' in filtered_df.columns:
+            pending = filtered_df[(filtered_df['Forward_Date'].notna()) &
+                                  (filtered_df['NSN'].isna()) &
+                                  (filtered_df['NSN_Allotment_Date'].isna())].shape[0]
+        else:
+            pending = 0
         by_dpsu  = filtered_df.groupby('DPSU').size().to_dict() if 'DPSU' in filtered_df.columns else {}
         by_ncb   = filtered_df.groupby('NCB').size().to_dict()  if 'NCB'  in filtered_df.columns else {}
         by_equip = filtered_df.groupby('Equipment_Name').size().nlargest(10).to_dict() if 'Equipment_Name' in filtered_df.columns else {}
-        avg_mrc  = round(filtered_df['MRC'].mean(), 2) if 'MRC' in filtered_df.columns and total else 0
+        
+        # Detailed breakdowns by DPSU
+        if 'DPSU' in filtered_df.columns:
+            fwd_by_dpsu = filtered_df[filtered_df['Forward_Date'].notna()].groupby('DPSU').size().to_dict() if 'Forward_Date' in filtered_df.columns else {}
+            ret_by_dpsu = filtered_df[filtered_df['Return_Date'].notna()].groupby('DPSU').size().to_dict() if 'Return_Date' in filtered_df.columns else {}
+            if 'NSN' in filtered_df.columns and 'NSN_Allotment_Date' in filtered_df.columns:
+                pend_by_dpsu = filtered_df[(filtered_df['Forward_Date'].notna()) &
+                                           (filtered_df['NSN'].isna()) &
+                                           (filtered_df['NSN_Allotment_Date'].isna())].groupby('DPSU').size().to_dict()
+            else:
+                pend_by_dpsu = {}
+        else:
+            fwd_by_dpsu = ret_by_dpsu = pend_by_dpsu = {}
+        
+        if 'MRC' in filtered_df.columns and total:
+            mrc_vals = filtered_df['MRC'].dropna()
+            avg_mrc = round(mrc_vals.mean(), 2) if len(mrc_vals) else 0
+        else:
+            avg_mrc = 0
         if 'Received_Date' in filtered_df.columns and 'Forward_Date' in filtered_df.columns:
             proc = (filtered_df['Forward_Date'] - filtered_df['Received_Date']).dt.days.dropna()
             avg_proc = round(proc.mean(), 1) if len(proc) else 0
@@ -64,11 +93,12 @@ class DataEngine:
             avg_proc = 0
         return {
             'total': int(total), 'forwarded': int(fwd), 'nsn_allotted': int(nsn),
-            'returned': int(returned), 'pending': int(pending), 'accuracy': float(accuracy),
+            'returned': int(returned), 'pending': int(pending),
             'by_dpsu': {k: int(v) for k, v in by_dpsu.items()},
             'by_ncb': {k: int(v) for k, v in by_ncb.items()},
-            'by_equipment': {k: int(v) for k, v in by_equip.items()},
-            'avg_mrc': float(avg_mrc), 'avg_processing_days': float(avg_proc),
+            'by_equipment': {k: int(v) for k, v in by_equip.items()},            'fwd_by_dpsu': {k: int(v) for k, v in fwd_by_dpsu.items()},
+            'ret_by_dpsu': {k: int(v) for k, v in ret_by_dpsu.items()},
+            'pend_by_dpsu': {k: int(v) for k, v in pend_by_dpsu.items()},            'avg_mrc': float(avg_mrc), 'avg_processing_days': float(avg_proc),
         }
 
     def group_for_report(self, filtered_df):
@@ -392,7 +422,7 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     ws.sheet_view.zoomScale = 85
 
     # Column widths
-    col_widths = [5, 22, 42, 14, 18, 16, 13, 13, 13, 14, 14, 14, 18]
+    col_widths = [5, 22, 42, 14, 18, 16, 13, 13, 13, 14, 14, 18]
     for i, w in enumerate(col_widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
 
@@ -483,11 +513,10 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     c.alignment = Alignment(horizontal='center', vertical='center')
     c.border = thin_border('CCCCCC')
 
-    acc_color = C['green'] if stats['accuracy'] >= 80 else (C['gold_dk'] if stats['accuracy'] >= 50 else C['red'])
     ws.merge_cells('J8:M8')
     c = ws['J8']
-    c.value = f'Overall Accuracy: {stats["accuracy"]}%   |   Avg Processing: {stats["avg_processing_days"]} days'
-    c.font  = Font(bold=True, size=8, color=acc_color, name='Calibri')
+    c.value = f'Avg Processing: {stats["avg_processing_days"]} days'
+    c.font  = Font(bold=True, size=8, color=C['navy_mid'], name='Calibri')
     c.fill  = fill(C['gray_lt'])
     c.alignment = Alignment(horizontal='right', vertical='center')
     c.border = thin_border('CCCCCC')
@@ -538,8 +567,7 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         ('D12:E12', 'TARGETS (25-27)'),
         ('F12:I12', 'CODIFICATION PROGRESS'),
         ('J12:K12', 'UPDATION'),
-        ('L12:L13', 'ACCURACY\n%'),
-        ('M12:M13', 'REMARKS'),
+        ('L12:L13', 'REMARKS'),
     ]
     for merge_r, label in group_hdrs:
         ws.merge_cells(merge_r)
@@ -581,7 +609,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
 
         for item_idx, item in enumerate(items):
             bg = C['alt1'] if current_row % 2 == 0 else C['alt2']
-            acc = round(item['nsn_allotted'] / item['total_items'] * 100, 1) if item['total_items'] else 0
             ws.row_dimensions[current_row].height = 18
 
             c = ws.cell(row=current_row, column=1)
@@ -609,10 +636,6 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
                 style_cell(c, '', bg=bg, fg='888888', size=8)
 
             c = ws.cell(row=current_row, column=12)
-            acc_fg = C['green'] if acc >= 80 else (C['gold_dk'] if acc >= 50 else C['red'])
-            style_cell(c, f'{acc}%', bg=bg, fg=acc_fg, bold=True, size=9)
-
-            c = ws.cell(row=current_row, column=13)
             style_cell(c, '', bg=bg, fg='888888', size=8)
 
             current_row += 1
@@ -629,7 +652,7 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     c.border = gold_border()
 
     total_data = ['', '', stats['total'], stats['forwarded'], stats['nsn_allotted'],
-                  stats['returned'], '', '', f"{stats['accuracy']}%", '']
+                  stats['returned'], '', '', '']
     for col_off, val in enumerate(total_data, 4):
         c = ws.cell(row=current_row, column=col_off)
         is_val = isinstance(val, (int, float)) and col_off not in [4, 5, 10, 11]
@@ -731,7 +754,7 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     ws2.row_dimensions[4].height = 8
 
     ws2.row_dimensions[5].height = 32
-    h2_labels = ['S.No', 'DPSU / AsHSP', 'Total Items', 'NSN Allotted', 'Returned', 'Pending', 'Accuracy %']
+    h2_labels = ['S.No', 'DPSU / AsHSP', 'Total Items', 'NSN Allotted', 'Returned', 'Pending']
     for col_idx, label in enumerate(h2_labels, 1):
         c = ws2.cell(row=5, column=col_idx)
         c.value = label
@@ -748,16 +771,13 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
         tot_nsn   = sum(x['nsn_allotted'] for x in dpsu_rows)
         tot_ret   = sum(x['returned']     for x in dpsu_rows)
         tot_pend  = cnt - tot_ret
-        acc_d     = round(tot_nsn / cnt * 100, 1) if cnt else 0
-        acc_fg    = C['green'] if acc_d >= 80 else (C['gold_dk'] if acc_d >= 50 else C['red'])
 
-        row_vals = [s_idx, dpsu, cnt, tot_nsn, tot_ret, tot_pend, f'{acc_d}%']
+        row_vals = [s_idx, dpsu, cnt, tot_nsn, tot_ret, tot_pend]
         for col_idx, val in enumerate(row_vals, 1):
             c = ws2.cell(row=row2, column=col_idx)
-            is_acc = col_idx == 7
             c.value = val
             c.font  = Font(size=9, bold=(col_idx <= 2), name='Calibri',
-                           color=acc_fg if is_acc else (C['navy_mid'] if col_idx == 2 else '1A1A1A'))
+                           color=(C['navy_mid'] if col_idx == 2 else '1A1A1A'))
             c.fill  = fill(bg)
             c.alignment = Alignment(horizontal='center' if col_idx != 2 else 'left', vertical='center')
             c.border = thin_border()
@@ -769,7 +789,7 @@ def _build_report(stats, rows, title, subtitle, filename_base, report_type, peri
     style_cell(c, 'TOTAL', bold=True, fg=C['gold'], bg=C['total_bg'], size=10, border=False)
     c.border = gold_border()
     tot2_vals = [stats['total'], stats['nsn_allotted'], stats['returned'],
-                 stats['pending'], f"{stats['accuracy']}%"]
+                 stats['pending']]
     for col_idx, val in enumerate(tot2_vals, 3):
         c = ws2.cell(row=row2, column=col_idx)
         c.value = val
@@ -965,7 +985,7 @@ def download(filename):
 def training_stats():
     if not os.path.exists(TRAINING_DATA_PATH):
         return jsonify({'total': 0, 'forwarded': 0, 'nsn_allotted': 0,
-                        'returned': 0, 'pending': 0, 'accuracy': 0,
+                        'returned': 0, 'pending': 0,
                         'by_dpsu': {}, 'by_ncb': {}, 'by_equipment': {},
                         'avg_mrc': 0, 'avg_processing_days': 0,
                         'dpsu_list': [], 'total_rows': 0})
