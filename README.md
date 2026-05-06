@@ -35,6 +35,21 @@ The system converts raw Excel codification datasets into professional, submissio
 
 ---
 
+## 👨‍💻 Team
+
+This project was collaboratively built by the **Cobra Tech** team from **ABVGIET Shimla** for the Directorate of Standardisation, Bengaluru.
+
+<div align="center">
+
+| Member | Role | GitHub |
+|---|---|---|
+| **Jahnavi Kaur** | Developer | [![GitHub](https://img.shields.io/badge/GitHub-jahnavikaur-181717?style=flat-square&logo=github)](https://github.com/jahnavikaur) |
+| **Nikhil Rajput** | Developer | [![GitHub](https://img.shields.io/badge/GitHub-nickrajput716-181717?style=flat-square&logo=github)](https://github.com/nickrajput716) |
+
+</div>
+
+---
+
 ## ✨ Features
 
 | Feature | Description |
@@ -245,23 +260,6 @@ pip install -r requirements.txt
 - The application runs **entirely offline** — no data is sent to any external server
 - All uploaded files and generated reports are stored locally in `uploads/` and `reports/`
 - Intended strictly for use on secure, authorised Defence networks
-
----
-
-## 👨‍💻 Team
-
-This project was collaboratively built by the **Cobra Tech** team from **ABVGIET Shimla** for the Directorate of Standardisation, Bengaluru.
-
-<div align="center">
-
-| Member | Role | GitHub |
-|---|---|---|
-| **Jahnavi Kaur** | Developer | [![GitHub](https://img.shields.io/badge/GitHub-jahnavikaur-181717?style=flat-square&logo=github)](https://github.com/jahnavikaur) |
-| **Nikhil Rajput** | Developer | [![GitHub](https://img.shields.io/badge/GitHub-nickrajput716-181717?style=flat-square&logo=github)](https://github.com/nickrajput716) |
-
-</div>
-
-> Built with dedication for the **Directorate of Standardisation, Bengaluru — Member AC/135**, Ministry of Defence, Government of India.
 
 ---
 
