@@ -1,19 +1,25 @@
+<div align="center">
+
+<img src="static/img/logo.png" alt="Directorate of Standardisation Logo" height="110"/>
+
 # 🛡️ Defence Standardisation — Codification Intelligence System
 
-<div align="center">
+**Advanced NSN Codification Management & Reporting Platform**
+
+*Directorate of Standardisation, Bengaluru — Member AC/135*
+*Ministry of Defence, Government of India*
+
+---
 
 ![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-3.1.3-000000?style=for-the-badge&logo=flask&logoColor=white)
 ![Pandas](https://img.shields.io/badge/Pandas-3.0.2-150458?style=for-the-badge&logo=pandas&logoColor=white)
 ![OpenPyXL](https://img.shields.io/badge/OpenPyXL-3.1.5-217346?style=for-the-badge)
 ![Chart.js](https://img.shields.io/badge/Chart.js-Latest-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Active-27AE60?style=for-the-badge)
+![License](https://img.shields.io/badge/License-Defence%20Use%20Only-8B0000?style=for-the-badge)
 
-**Advanced NSN Codification Management & Reporting Platform**
-
-*Directorate of Standardisation, Bengaluru — Member AC/135*  
-*Ministry of Defence, Government of India*
-
-[Features](#-features) • [Installation](#-installation) • [Usage](#-how-to-use) • [Dataset Format](#-dataset-format) • [Tech Stack](#-tech-stack)
+[Overview](#-overview) · [Features](#-features) · [Installation](#-installation) · [Usage](#-how-to-use) · [Dataset Format](#-dataset-format) · [Tech Stack](#-tech-stack) · [Team](#-team)
 
 </div>
 
@@ -31,15 +37,17 @@ The system converts raw Excel codification datasets into professional, submissio
 
 ## ✨ Features
 
-- **Multi-File Upload** — Upload one or multiple `.xlsx` / `.xls` datasets at once with drag-and-drop support
-- **Intelligent Data Analysis** — Auto-detects headers, validates data, and computes DPSU/NCB/Equipment breakdowns
-- **Interactive Charts** — 6 Chart.js visualisations per file: DPSU doughnut, status pie, forwarding, NSN allotment, returns, and pending items
-- **Per-File Report Periods** — Set a separate month and year for each uploaded file independently
-- **Professional Excel Export** — Fully styled `.xlsx` reports with official headers, DS Cell logo, colour-coded KPIs, grand totals, and signature blocks
-- **Dark & Light Mode** — Full theme support with preference saved in `localStorage`
-- **Offline Operation** — No internet required; all processing and data stays on your machine
-- **Session History** — All reports generated in a session are tracked with one-click download links
-- **Pre-loaded Dataset** — Use the bundled training dataset without uploading anything
+| Feature | Description |
+|---|---|
+| 📂 **Multi-File Upload** | Upload one or multiple `.xlsx` / `.xls` datasets at once with drag-and-drop support |
+| 🧠 **Intelligent Data Analysis** | Auto-detects headers, validates data, and computes DPSU/NCB/Equipment breakdowns |
+| 📊 **Interactive Charts** | 6 Chart.js visualisations per file: DPSU doughnut, status pie, forwarding, NSN allotment, returns, and pending |
+| 📅 **Per-File Report Periods** | Set a separate month and year for each uploaded file independently |
+| 📁 **Professional Excel Export** | Fully styled `.xlsx` reports with official headers, DS Cell logo, colour-coded KPIs, grand totals, and signature blocks |
+| 🌗 **Dark & Light Mode** | Full theme support with preference saved in `localStorage` |
+| 🔒 **Offline Operation** | No internet required; all processing and data stays on your machine |
+| 🕑 **Session History** | All reports generated in a session are tracked with one-click download links |
+| 🗃️ **Pre-loaded Dataset** | Use the bundled training dataset without uploading anything |
 
 ---
 
@@ -127,7 +135,7 @@ data/final_dataset_.xlsx
 python app.py
 ```
 
-Then open your browser and go to:
+Then open your browser and navigate to:
 
 ```
 http://localhost:5000
@@ -137,7 +145,7 @@ http://localhost:5000
 
 ## 🖥️ How to Use
 
-The dashboard is a clean **4-step workflow**:
+The dashboard follows a clean **4-step workflow**:
 
 ### Step 1 — Upload Dataset
 - Drag & drop `.xlsx` / `.xls` files onto the upload zone, or click **Choose Files**
@@ -240,17 +248,37 @@ pip install -r requirements.txt
 
 ---
 
-## 🤝 Credits
+## 👨‍💻 Team
 
-Developed by **Cobra Tech, ABVGIET Shimla**  
-for the **Directorate of Standardisation, Bengaluru — Member AC/135**  
-Ministry of Defence, Government of India
+This project was collaboratively built by the **Cobra Tech** team from **ABVGIET Shimla** for the Directorate of Standardisation, Bengaluru.
+
+<div align="center">
+
+| Member | Role | GitHub |
+|---|---|---|
+| **Jahnavi Kaur** | Developer | [![GitHub](https://img.shields.io/badge/GitHub-jahnavikaur-181717?style=flat-square&logo=github)](https://github.com/jahnavikaur) |
+| **Nikhil Rajput** | Developer | [![GitHub](https://img.shields.io/badge/GitHub-nickrajput716-181717?style=flat-square&logo=github)](https://github.com/nickrajput716) |
+
+</div>
+
+> Built with dedication for the **Directorate of Standardisation, Bengaluru — Member AC/135**, Ministry of Defence, Government of India.
 
 ---
 
 ## 📃 License
 
-This project is developed for **official Defence use only**.  
+This project is developed for **official Defence use only**.
 Unauthorised copying, distribution, or deployment is strictly prohibited.
 
 © 2026 Directorate of Standardisation, Ministry of Defence, Govt. of India
+
+---
+
+<div align="center">
+
+**रक्षा मंत्रालय · भारत सरकार**
+*Ministry of Defence · Government of India*
+
+<sub>Developed by Cobra Tech, ABVGIET Shimla</sub>
+
+</div>
