@@ -44,7 +44,7 @@ This project was collaboratively built by the **Cobra Tech** team from **ABVGIET
 | Member | Role | GitHub |
 |---|---|---|
 | **Jahnavi Kaur** | Developer | [![GitHub](https://img.shields.io/badge/GitHub-jahnavikaur-181717?style=flat-square&logo=github)](https://github.com/jahnavikaur) |
-| **Nikhil Rajput** | Developer | [![GitHub](https://img.shields.io/badge/GitHub-nickrajput716-181717?style=flat-square&logo=github)](https://github.com/nickrajput716) |
+| **Nikhil Rana** | Developer | [![GitHub](https://img.shields.io/badge/GitHub-nickrajput716-181717?style=flat-square&logo=github)](https://github.com/nickrajput716) |
 
 </div>
 
